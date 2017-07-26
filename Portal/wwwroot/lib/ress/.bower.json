@@ -1,0 +1,33 @@
+{
+  "name": "ress",
+  "description": "A modern CSS reset",
+  "main": "dist/ress.min.css",
+  "authors": [
+    "Filipe Linhares"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "css",
+    "reset",
+    "normalize"
+  ],
+  "homepage": "https://github.com/filipelinhares/ress",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "1.2.2",
+  "_release": "1.2.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.2.2",
+    "commit": "03bc2e2e1e12ca75760dc8e71af96099d4926dae"
+  },
+  "_source": "https://github.com/filipelinhares/ress.git",
+  "_target": "v1.2.2",
+  "_originalSource": "ress",
+  "_direct": true
+}

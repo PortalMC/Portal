@@ -1,0 +1,8 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2>Project @ViewData["Uuid"]</h2>
+
+
+<li><a asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Editor</a></li>

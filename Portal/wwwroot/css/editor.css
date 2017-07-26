@@ -1,0 +1,146 @@
+﻿body {
+    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 50px;
+}
+
+p {
+    margin: 0;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+.body-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+#editor-root {
+    flex: 1;
+}
+
+.resizer-west-open,
+.resizer-east-open {
+    background-color: #999;
+    opacity: 0.1;
+    filter: alpha(opacity=10);
+}
+
+#tree-container > .content {
+    overflow: auto;
+}
+
+#tree-container > .header {
+    padding: 2px 0 2px 10px;
+    background-color: #c6cfdf;
+}
+
+ul.fancytree-container {
+    border: none;
+    outline: none;
+}
+
+.fancytree-title {
+    outline: none !important;
+}
+
+span.fancytree-selected,
+span.fancytree-active {
+    background-color: #d4d4d4;
+}
+
+.fancytree-treefocus span.fancytree-selected,
+.fancytree-treefocus span.fancytree-active {
+    background-color: #3875d6;
+}
+
+span.fancytree-node {
+    display: flex;
+    align-items: center;
+}
+
+#editor-container > .content,
+#editor-tabs,
+#editor-tabs > .editor-pane-root {
+    display: flex;
+}
+
+#editor-tabs {
+    flex-direction: column;
+}
+
+#editor-tabs,
+.editor-pane-root,
+.editor-pane {
+    flex: 1;
+    border: none;
+    padding: 0 !important;
+    border-radius: 0;
+}
+
+#editor-tab-root {
+    padding: 0;
+    border: none;
+}
+
+#editor-tab-empty {
+    display: none;
+}
+
+#editor-pane-empty {
+    background-color: #acacac;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#editor-tab-root .ui-tabs-tab {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background-color: #d4d4d4;
+    border: 1px solid;
+    border-color: #9b9b9b #9b9b9b transparent #9b9b9b;
+}
+
+#editor-tab-root .ui-tabs-tab:nth-child(n + 3) {
+    margin-left: -1px;
+}
+
+#editor-tab-root .ui-tabs-active {
+    background-color: #ffffff;
+    color: #333;
+    z-index: 2;
+}
+
+#editor-tab-root .ui-tabs-tab a,
+#editor-tab-root .ui-tabs-active a {
+    font-size: 14px;
+    color: #333;
+    padding: 2px 5px 2px 10px;
+}
+
+#editor-blank-header {
+    height: 4px;
+    background-color: #ffffff;
+    border: 1px solid #9b9b9b;
+    margin-top: -1px;
+    z-index: 1;
+}
+
+#editor-tabs li span {
+    float: left;
+    margin: 2px 4px 2px 4px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #777;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+}
