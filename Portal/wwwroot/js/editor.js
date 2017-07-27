@@ -7,7 +7,7 @@
     var tabMap = {};
 
     $("#editor-root").layout(getPanelLayoutSettings());
-    $("#tree-container > .content").fancytree(getTreeSettings());
+    $("#tree-container").find("> .content").fancytree(getTreeSettings());
 
     var tabCounter = 1;
     var tabTemplate =
@@ -49,7 +49,7 @@
     }
 
     function trySaveCurrentEditor() {
-        var tab = $("#editor-tab-root .ui-tabs-active");
+        var tab = $("#editor-tab-root").find(".ui-tabs-active");
         var id = tab.attr("aria-controls");
         if (id === "editor-pane-empty") {
             console.log("on empty");
@@ -59,7 +59,7 @@
         var path = getPathByPanelId(id);
         var content = editor.getValue();
 
-        tab.removeClass("editor-tab-unsaved")
+        tab.removeClass("editor-tab-unsaved");
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", getApiBaseAddress() + "file/" + projectUuid + "/edit");
@@ -91,7 +91,7 @@
             path: path
         };
         xhr.onload = function () {
-            addTab(JSON.parse(xhr.response));
+            addTab(JSON.parse(xhr.responseText));
         };
         xhr.onerror = function () {
             console.log("error!");
@@ -132,7 +132,7 @@
         $(".ui-tabs-tab").each(function (i) {
             if ($(this).attr("aria-controls") === id) {
                 result = i;
-                return;
+                return false;
             }
         });
         return result;
@@ -221,12 +221,12 @@
             titlesTabbable: false, // Node titles can receive keyboard focus
             tooltip: false, // Use title as tooltip (also a callback could be specified)
 
-            focus: function (event, data) {
-                $("#tree-container > .header").css("background-color", "#c6cfdf");
+            focus: function () {
+                $("#tree-container").find("> .header").css("background-color", "#c6cfdf");
             },
 
-            blur: function (event, data) {
-                $("#tree-container > .header").css("background-color", "#e4e4e4");
+            blur: function () {
+                $("#tree-container").find("> .header").css("background-color", "#e4e4e4");
             },
 
             dblclick: function (event, data) {
