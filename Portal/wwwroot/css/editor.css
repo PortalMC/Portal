@@ -88,10 +88,6 @@ span.fancytree-node {
     border: none;
 }
 
-#editor-tab-empty {
-    display: none;
-}
-
 #editor-pane-empty {
     background-color: #acacac;
     display: flex;
@@ -100,12 +96,18 @@ span.fancytree-node {
 }
 
 #editor-tab-root .ui-tabs-tab {
+    display: flex;
+    align-items: center;
     margin: 0;
     padding: 0;
     border-radius: 0;
     background-color: #d4d4d4;
     border: 1px solid;
     border-color: #9b9b9b #9b9b9b transparent #9b9b9b;
+}
+
+#editor-tab-root #editor-tab-empty {
+    display: none;
 }
 
 #editor-tab-root .ui-tabs-tab:nth-child(n + 3) {
@@ -122,7 +124,7 @@ span.fancytree-node {
 #editor-tab-root .ui-tabs-active a {
     font-size: 14px;
     color: #333;
-    padding: 2px 5px 2px 10px;
+    padding: 2px 4px 2px 0;
 }
 
 #editor-blank-header {
@@ -133,14 +135,22 @@ span.fancytree-node {
     z-index: 1;
 }
 
-#editor-tabs li span {
-    float: left;
-    margin: 2px 4px 2px 4px;
+#editor-tabs li .editor-tab-icon {
     cursor: pointer;
     font-family: sans-serif;
     font-weight: bold;
     color: #777;
-    text-align: center;
-    vertical-align: middle;
     font-size: 14px;
+}
+
+#editor-tabs li .editor-tab-icon-unsaved {
+    margin: 2px 0 2px 10px;
+}
+
+#editor-tabs li .editor-tab-icon-close {
+    margin: 2px 6px 2px 2px;
+}
+
+.editor-tab-unsaved .editor-tab-icon-unsaved:before {
+    content: "*";
 }

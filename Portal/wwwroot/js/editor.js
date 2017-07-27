@@ -11,7 +11,7 @@
 
     var tabCounter = 1;
     var tabTemplate =
-        "<li><a href='#{href}'>#{label}</a> <span class='editor-tab-icon-close'>×</span></li>";
+        "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
     var tabs = $("#editor-tabs").tabs();
     tabs.find(".ui-tabs-nav").sortable({
         axis: "x",
@@ -22,20 +22,64 @@
     tabs.on("click", "span.editor-tab-icon-close", function () {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
         $("#" + panelId).remove();
-        var path = Object.keys(tabMap).filter((key) => {
-            return tabMap[key] === panelId;
-        });
+        var path = getPathByPanelId(panelId);
         delete tabMap[path];
         tabs.tabs("refresh");
+    });
+
+    $(window).bind('keydown', function (event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+                    trySaveCurrentEditor();
+                    break;
+            }
+        }
     });
 
     // ======================
     // Functions
     // ======================
 
+    function getPathByPanelId(id) {
+        return Object.keys(tabMap).filter(function (key) {
+            return tabMap[key] === id;
+        })[0];
+    }
+
+    function trySaveCurrentEditor() {
+        var tab = $("#editor-tab-root .ui-tabs-active");
+        var id = tab.attr("aria-controls");
+        if (id === "editor-pane-empty") {
+            console.log("on empty");
+            return;
+        }
+        var editor = ace.edit("editor-" + id);
+        var path = getPathByPanelId(id);
+        var content = editor.getValue();
+
+        tab.removeClass("editor-tab-unsaved")
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", getApiBaseAddress() + "file/" + projectUuid + "/edit");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        var data = {
+            path: path,
+            content: content
+        };
+        xhr.onload = function () {
+            alert("Saved!")
+        };
+        xhr.onerror = function () {
+            console.log("error!");
+        };
+        xhr.send(JSON.stringify(data));
+    }
+
     function tryOpenExistFile(path) {
         if (path in tabMap) {
-            tabs.tabs({ active: getIndexOfEditorPanel(tabMap[path]) });
+            tabs.tabs({active: getIndexOfEditorPanel(tabMap[path])});
             return;
         }
 
@@ -46,10 +90,10 @@
         var data = {
             path: path
         };
-        xhr.onload = () => {
+        xhr.onload = function () {
             addTab(JSON.parse(xhr.response));
         };
-        xhr.onerror = () => {
+        xhr.onerror = function () {
             console.log("error!");
         };
         xhr.send(JSON.stringify(data));
@@ -61,23 +105,26 @@
 
         tabMap[data["path"]] = id;
 
-        var li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label));
+        var li = $(tabTemplate.replace(/#\{id\}/g, "tab-" + id).replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label));
 
         tabs.find(".ui-tabs-nav").append(li);
         tabs.append("<div id='" + id + "' class='editor-pane-root'><div id='editor-" + id + "' class='editor-pane'></div></div>");
         tabs.tabs("refresh");
         tabCounter++;
 
-        tabs.tabs({ active: getIndexOfEditorPanel(id) });
+        tabs.tabs({active: getIndexOfEditorPanel(id)});
 
-        setupEditor("editor-" + id, data);
+        setupEditor(id, data);
     }
 
     function setupEditor(id, data) {
-        var editor = ace.edit(id);
+        var editor = ace.edit("editor-" + id);
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/java");
         editor.setValue(data["content"], -1);
+        editor.getSession().on("change", function () {
+            $("#tab-" + id).addClass("editor-tab-unsaved")
+        });
     }
 
     function getIndexOfEditorPanel(id) {
@@ -174,30 +221,30 @@
             titlesTabbable: false, // Node titles can receive keyboard focus
             tooltip: false, // Use title as tooltip (also a callback could be specified)
 
-            focus: function(event, data) {
+            focus: function (event, data) {
                 $("#tree-container > .header").css("background-color", "#c6cfdf");
             },
 
-            blur: function(event, data) {
+            blur: function (event, data) {
                 $("#tree-container > .header").css("background-color", "#e4e4e4");
             },
 
-            dblclick: function(event, data) {
+            dblclick: function (event, data) {
                 if (!data.node.folder) {
                     tryOpenExistFile(getFullPath(data.node));
                 }
             },
 
             source: [// Typically we would load using ajax instead...
-                { title: "build.gradle" },
-                { title: "setting.properties" },
+                {title: "build.gradle"},
+                {title: "setting.properties"},
                 {
                     title: "src",
                     folder: true,
                     expanded: true,
                     children: [
-                        { title: "Main.java"},
-                        { title: "Main.kt" }
+                        {title: "Main.java"},
+                        {title: "Main.kt"}
                     ]
                 }
             ]

@@ -19,7 +19,7 @@ namespace Portal.Controllers.Api.V1
         [HttpPost("{uuid}/get")]
         public IActionResult Get(string uuid, [FromBody] FileObject file)
         {
-            if (uuid == null)
+            if (uuid == null || file == null)
             {
                 return BadRequest();
             }
@@ -49,6 +49,42 @@ namespace Portal.Controllers.Api.V1
                 Content = System.IO.File.ReadAllText(rawFile.FullName, Encoding.UTF8)
             };
             return new ObjectResult(retFile);
+        }
+        
+        [HttpPost("{uuid}/edit")]
+        public IActionResult Edit(string uuid, [FromBody] FileObject file)
+        {
+            if (uuid == null || file == null)
+            {
+                return BadRequest();
+            }
+            if (!Utils.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var projectRoot = Path.Combine(new DirectoryInfo("projectsroot").FullName, uuid);
+            var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
+            if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                // Maybe directory traversal
+                return NotFound();
+            }
+            if (!rawFile.Exists)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                System.IO.File.WriteAllText(rawFile.FullName, file.Content, Encoding.UTF8);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }
