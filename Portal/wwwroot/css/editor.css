@@ -55,19 +55,37 @@ span.fancytree-node .fancytree-title {
     flex-shrink: 1;
 }
 
-span.fancytree-selected,
-span.fancytree-active {
+span.fancytree-selected .fancytree-node-background,
+span.fancytree-active .fancytree-node-background {
     background-color: #d4d4d4;
 }
 
-.fancytree-treefocus span.fancytree-selected,
-.fancytree-treefocus span.fancytree-active {
+.fancytree-treefocus span.fancytree-selected .fancytree-node-background,
+.fancytree-treefocus span.fancytree-active .fancytree-node-background {
     background-color: #3875d6;
 }
 
 span.fancytree-node {
     display: flex;
     align-items: center;
+}
+
+span.fancytree-node > span {
+    z-index: 1;
+}
+
+.fancytree-node-background {
+    background-color: transparent;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    z-index: 0;
+    overflow: hidden;
+    padding: 1px 0;
+}
+
+.fancytree-node-background > span {
+    margin-left: -1px;
 }
 
 #editor-container > .content,

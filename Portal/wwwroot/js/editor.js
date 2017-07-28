@@ -261,6 +261,16 @@
                 }
             },
 
+            renderNode: function (event, data) {
+                var node = data.node;
+                var $nodeSpan = $(node.span);
+                if (!$nodeSpan.data("rendered")) {
+                    var backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
+                    $nodeSpan.append(backgroundDiv);
+                    $nodeSpan.data("rendered", true);
+                }
+            },
+
             source: []
         };
     }
