@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(function() {
     // ======================
     // Initialize
     // ======================
@@ -15,35 +15,53 @@
     var tabs = $("#editor-tabs").tabs();
     tabs.find(".ui-tabs-nav").sortable({
         axis: "x",
-        stop: function () {
+        stop: function() {
             tabs.tabs("refresh");
         }
     });
-    tabs.on("click", "span.editor-tab-icon-close", function () {
-        var panelId = $(this).closest("li").remove().attr("aria-controls");
-        $("#" + panelId).remove();
-        var path = getPathByPanelId(panelId);
-        delete tabMap[path];
-        tabs.tabs("refresh");
-    });
+    tabs.on("click",
+        "span.editor-tab-icon-close",
+        function() {
+            var panelId = $(this).closest("li").remove().attr("aria-controls");
+            $("#" + panelId).remove();
+            var path = getPathByPanelId(panelId);
+            delete tabMap[path];
+            tabs.tabs("refresh");
+        });
 
-    $(window).bind('keydown', function (event) {
-        if (event.ctrlKey || event.metaKey) {
-            switch (String.fromCharCode(event.which).toLowerCase()) {
-                case 's':
+    $(window).bind("keydown",
+        function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch (String.fromCharCode(event.which).toLowerCase()) {
+                case "s":
                     event.preventDefault();
                     trySaveCurrentEditor();
                     break;
+                }
             }
-        }
-    });
+        });
+
+    fetchProjectTree();
 
     // ======================
     // Functions
     // ======================
 
+    function fetchProjectTree() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", getApiBaseAddress() + "file/" + projectUuid + "/list");
+        xhr.onload = function () {
+            var treeObj = JSON.parse(xhr.responseText);
+            $("#tree-container").find("> .content").fancytree("option", "source", treeObj);
+        };
+        xhr.onerror = function () {
+            console.log("error!");
+        };
+        xhr.send();
+    };
+
     function getPathByPanelId(id) {
-        return Object.keys(tabMap).filter(function (key) {
+        return Object.keys(tabMap).filter(function(key) {
             return tabMap[key] === id;
         })[0];
     }
@@ -68,10 +86,10 @@
             path: path,
             content: content
         };
-        xhr.onload = function () {
-            alert("Saved!")
+        xhr.onload = function() {
+            alert("Saved!");
         };
-        xhr.onerror = function () {
+        xhr.onerror = function() {
             console.log("error!");
         };
         xhr.send(JSON.stringify(data));
@@ -79,21 +97,20 @@
 
     function tryOpenExistFile(path) {
         if (path in tabMap) {
-            tabs.tabs({active: getIndexOfEditorPanel(tabMap[path])});
+            tabs.tabs({ active: getIndexOfEditorPanel(tabMap[path]) });
             return;
         }
 
-        // ReSharper disable once InconsistentNaming
         var xhr = new XMLHttpRequest();
         xhr.open("POST", getApiBaseAddress() + "file/" + projectUuid + "/get");
         xhr.setRequestHeader("Content-Type", "application/json");
         var data = {
             path: path
         };
-        xhr.onload = function () {
+        xhr.onload = function() {
             addTab(JSON.parse(xhr.responseText));
         };
-        xhr.onerror = function () {
+        xhr.onerror = function() {
             console.log("error!");
         };
         xhr.send(JSON.stringify(data));
@@ -105,14 +122,19 @@
 
         tabMap[data["path"]] = id;
 
-        var li = $(tabTemplate.replace(/#\{id\}/g, "tab-" + id).replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label));
+        var li = $(tabTemplate.replace(/#\{id\}/g, "tab-" + id).replace(/#\{href\}/g, "#" + id)
+            .replace(/#\{label\}/g, label));
 
         tabs.find(".ui-tabs-nav").append(li);
-        tabs.append("<div id='" + id + "' class='editor-pane-root'><div id='editor-" + id + "' class='editor-pane'></div></div>");
+        tabs.append("<div id='" +
+            id +
+            "' class='editor-pane-root'><div id='editor-" +
+            id +
+            "' class='editor-pane'></div></div>");
         tabs.tabs("refresh");
         tabCounter++;
 
-        tabs.tabs({active: getIndexOfEditorPanel(id)});
+        tabs.tabs({ active: getIndexOfEditorPanel(id) });
 
         setupEditor(id, data);
     }
@@ -122,24 +144,27 @@
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/java");
         editor.setValue(data["content"], -1);
-        editor.getSession().on("change", function () {
-            $("#tab-" + id).addClass("editor-tab-unsaved")
-        });
+        editor.getSession().on("change",
+            function() {
+                $("#tab-" + id).addClass("editor-tab-unsaved");
+            });
     }
 
     function getIndexOfEditorPanel(id) {
         var result = -1;
-        $(".ui-tabs-tab").each(function (i) {
+        $(".ui-tabs-tab").each(function(i) {
             if ($(this).attr("aria-controls") === id) {
                 result = i;
                 return false;
             }
+            // ReSharper disable once NotAllPathsReturnValue
         });
         return result;
     }
 
     function getFullPath(node) {
-        return getFullPathInternal(node).substr(1);
+        var fullPathOrigin = getFullPathInternal(node);
+        return fullPathOrigin.substr(fullPathOrigin.indexOf("/", 1));
     }
 
     function getFullPathInternal(node) {
@@ -208,7 +233,7 @@
             debugLevel: 2, // 0:quiet, 1:normal, 2:debug
             disabled: false, // Disable control
             focusOnSelect: false, // Set focus when node is checked by a mouse click
-            escapeTitles: false, // Escape `node.title` content for display
+            escapeTitles: true, // Escape `node.title` content for display
             generateIds: false, // Generate id attributes like <span id='fancytree-id-KEY'>
             idPrefix: "ft_", // Used to generate node idÂ´s like <span id='fancytree-id-<key>'>
             icon: true, // Display node icons
@@ -220,34 +245,23 @@
             tabindex: "0", // Whole tree behaves as one single control
             titlesTabbable: false, // Node titles can receive keyboard focus
             tooltip: false, // Use title as tooltip (also a callback could be specified)
+            toggleEffect: false,
 
-            focus: function () {
+            focus: function() {
                 $("#tree-container").find("> .header").css("background-color", "#c6cfdf");
             },
 
-            blur: function () {
+            blur: function() {
                 $("#tree-container").find("> .header").css("background-color", "#e4e4e4");
             },
 
-            dblclick: function (event, data) {
+            dblclick: function(event, data) {
                 if (!data.node.folder) {
                     tryOpenExistFile(getFullPath(data.node));
                 }
             },
 
-            source: [// Typically we would load using ajax instead...
-                {title: "build.gradle"},
-                {title: "setting.properties"},
-                {
-                    title: "src",
-                    folder: true,
-                    expanded: true,
-                    children: [
-                        {title: "Main.java"},
-                        {title: "Main.kt"}
-                    ]
-                }
-            ]
+            source: []
         };
     }
 });

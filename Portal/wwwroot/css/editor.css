@@ -45,8 +45,14 @@ ul.fancytree-container {
     outline: none;
 }
 
-.fancytree-title {
+span.fancytree-node .fancytree-expander,
+span.fancytree-node .fancytree-icon {
+    flex-shrink: 0;
+}
+
+span.fancytree-node .fancytree-title {
     outline: none !important;
+    flex-shrink: 1;
 }
 
 span.fancytree-selected,
@@ -151,6 +157,6 @@ span.fancytree-node {
     margin: 2px 6px 2px 2px;
 }
 
-.editor-tab-unsaved .editor-tab-icon-unsaved:before {
+.editor-tab-unsaved .editor-tab-icon-unsaved::before {
     content: "*";
 }
