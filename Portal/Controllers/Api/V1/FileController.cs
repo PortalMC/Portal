@@ -41,12 +41,17 @@ namespace Portal.Controllers.Api.V1
                 return NotFound();
             }
             var relativePath = rawFile.FullName.Substring(projectRoot.Length + 1).Replace("\\", "/");
+            var extension = rawFile.Extension;
+            if (extension.Length != 0)
+            {
+                extension = extension.Substring(1);
+            }
 
             var retFile = new FileObject
             {
                 Path = relativePath,
                 Name = rawFile.Name,
-                Extension = rawFile.Extension.Substring(1),
+                Extension = extension,
                 Content = System.IO.File.ReadAllText(rawFile.FullName, Encoding.UTF8)
             };
             return new ObjectResult(retFile);
