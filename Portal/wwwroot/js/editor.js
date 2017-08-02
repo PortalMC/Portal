@@ -141,6 +141,7 @@
 
     function setupEditor(id, data) {
         var editor = ace.edit("editor-" + id);
+        editor.$blockScrolling = Infinity;
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/java");
         editor.setValue(data["content"], -1);
@@ -230,7 +231,7 @@
             autoScroll: false, // Automatically scroll nodes into visible area
             clickFolderMode: 4, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands)
             checkbox: false, // Show checkboxes
-            debugLevel: 2, // 0:quiet, 1:normal, 2:debug
+            debugLevel: 0, // 0:quiet, 1:normal, 2:debug
             disabled: false, // Disable control
             focusOnSelect: false, // Set focus when node is checked by a mouse click
             escapeTitles: true, // Escape `node.title` content for display
