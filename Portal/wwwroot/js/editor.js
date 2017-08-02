@@ -164,7 +164,7 @@
 
     function getFullPath(node) {
         var fullPathOrigin = getFullPathInternal(node);
-        return fullPathOrigin.substr(fullPathOrigin.indexOf("/", 1));
+        return fullPathOrigin.substr(fullPathOrigin.indexOf("/", 1) + 1);
     }
 
     function getFullPathInternal(node) {
