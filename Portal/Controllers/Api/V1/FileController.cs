@@ -123,7 +123,7 @@ namespace Portal.Controllers.Api.V1
                     {"children", projectRootObj}
                 }
             };
-            return new OkObjectResult(root.ToString());
+            return new OkObjectResult(root);
         }
 
         private static readonly string[] BlacklistElements =
