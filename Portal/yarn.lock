@@ -616,6 +616,9 @@ jquery.fancytree@^2.24.0:
   version "2.24.0"
   resolved "https://registry.yarnpkg.com/jquery.fancytree/-/jquery.fancytree-2.24.0.tgz#60442a65648515d3e652197693efc0646af57629"
 
+"jquery.layout-custom@file:custom_repo/jquery.layout":
+  version "1.4.4-custom"
+
 jquery@>=1.8, "jquery@^1.7 || ^2.0 || ^3.1", jquery@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
