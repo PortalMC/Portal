@@ -50,10 +50,23 @@ gulp.task("create_jquery_fancytree",
             .pipe(gulp.dest("./wwwroot/lib/jquery.fancytree"));
     });
 
+gulp.task("create_ace_editor",
+    function() {
+        return gulp.src("./node_modules/ace-builds/src/**/*")
+            .pipe(gulp.dest("./wwwroot/lib/ace"));
+    });
+
 gulp.task("create",
     function(callback) {
         return sequence(
-            ["create_bootstrap", "create_ress", "create_jquery", "create_jquery_ui", "create_jquery_fancytree"],
+            [
+                "create_bootstrap",
+                "create_ress",
+                "create_jquery",
+                "create_jquery_ui",
+                "create_jquery_fancytree",
+                "create_ace_editor"
+            ],
             callback
         );
     });

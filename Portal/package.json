@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "ace-builds": "^1.2.8",
     "bootstrap": "^3.3.7",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
