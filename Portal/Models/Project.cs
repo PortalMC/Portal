@@ -10,6 +10,7 @@ namespace Portal.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public string MinecraftVersion { get; set; }
         public List<AccessRight> AccessRights { get; set; }
     }
 }
