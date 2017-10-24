@@ -4,6 +4,37 @@
 
 <h2>Projects</h2>
 
+<div class="projects-search form-group">
+    <form class="form-inline" accept-charset="UTF-8">
+        <div class="projects-search-input">
+            <input class="form-control" type="text" placeholder="Search projects..."/>
+        </div>
+        <div class="projects-search-new">
+            <a class="btn btn-success">
+                @Html.Partial("~/Views/Shared/Icon/_MinecraftPickAxe.cshtml")
+                New
+            </a>
+        </div>
+    </form>
+</div>
 
-<li><a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="36fafa84-91be-4d6b-a916-bc6667677b65">Project 1</a></li>
-<li><a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="36fafa84-91be-4d6b-a916-abdcef000000">Project 2</a></li>
+<div class="projects-list">
+    <ul>
+        @foreach (var item in Model.Projects)
+        {
+            <li>
+                <div class="projects-title">
+                    <h3>
+                        <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="@item.Id">@item.Name</a>
+                    </h3>
+                </div>
+                <div class="projects-info">
+                    <span>
+                        @Html.Partial("~/Views/Shared/Icon/_MinecraftDirt.cshtml")
+                        Minecraft 1.10.2
+                    </span>
+                </div>
+            </li>
+        }
+    </ul>
+</div>

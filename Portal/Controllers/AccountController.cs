@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -6,8 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Portal.Data;
 using Portal.Models;
 using Portal.Models.AccountViewModels;
 using Portal.Services;
@@ -22,19 +25,22 @@ namespace Portal.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
+        private readonly ApplicationDbContext _context;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
+            _context = context;
         }
 
         //
@@ -62,7 +68,8 @@ namespace Portal.Controllers
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe,
+                    lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -70,7 +77,8 @@ namespace Portal.Controllers
                 }
                 if (result.RequiresTwoFactor)
                 {
-                    return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    return RedirectToAction(nameof(SendCode),
+                        new {ReturnUrl = returnUrl, RememberMe = model.RememberMe});
                 }
                 if (result.IsLockedOut)
                 {
@@ -108,21 +116,34 @@ namespace Portal.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
+                try
                 {
-                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
+                    var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
+                    var safeUser = new User {Projects = new List<Project>(), UserId = user.Id};
+                    await _context.SafeUsers.AddAsync(safeUser);
+                    await _context.SaveChangesAsync();
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
+                        // Send an email with this link
+                        //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        //var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                        //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                        //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        _logger.LogInformation(3, "User created a new account with password.");
+                        return RedirectToLocal(returnUrl);
+                    }
+                    AddErrors(result);
                 }
-                AddErrors(result);
+                catch (DbUpdateException /* ex */)
+                {
+                    //Log the error (uncomment ex variable name and write a log.
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                                                 "Try again, and if the problem persists " +
+                                                 "see your system administrator.");
+                }
             }
 
             // If we got this far, something failed, redisplay form
@@ -148,7 +169,7 @@ namespace Portal.Controllers
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
             // Request a redirect to the external login provider.
-            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { ReturnUrl = returnUrl });
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new {ReturnUrl = returnUrl});
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
@@ -171,7 +192,9 @@ namespace Portal.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+            var result =
+                await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
+                    isPersistent: false);
             if (result.Succeeded)
             {
                 _logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
@@ -179,7 +202,7 @@ namespace Portal.Controllers
             }
             if (result.RequiresTwoFactor)
             {
-                return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl });
+                return RedirectToAction(nameof(SendCode), new {ReturnUrl = returnUrl});
             }
             if (result.IsLockedOut)
             {
@@ -191,7 +214,7 @@ namespace Portal.Controllers
                 ViewData["ReturnUrl"] = returnUrl;
                 ViewData["LoginProvider"] = info.LoginProvider;
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
+                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel {Email = email});
             }
         }
 
@@ -200,7 +223,8 @@ namespace Portal.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
+        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model,
+            string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
@@ -210,19 +234,33 @@ namespace Portal.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user);
-                if (result.Succeeded)
+                try
                 {
-                    result = await _userManager.AddLoginAsync(user, info);
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                    var safeUser = new User { Projects = new List<Project>(), UserId = user.Id };
+                    await _context.SafeUsers.AddAsync(safeUser);
+                    await _context.SaveChangesAsync();
+                    var result = await _userManager.CreateAsync(user);
                     if (result.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        _logger.LogInformation(6, "User created an account using {Name} provider.", info.LoginProvider);
-                        return RedirectToLocal(returnUrl);
+                        result = await _userManager.AddLoginAsync(user, info);
+                        if (result.Succeeded)
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            _logger.LogInformation(6, "User created an account using {Name} provider.",
+                                info.LoginProvider);
+                            return RedirectToLocal(returnUrl);
+                        }
                     }
+                    AddErrors(result);
                 }
-                AddErrors(result);
+                catch (DbUpdateException /* ex */)
+                {
+                    //Log the error (uncomment ex variable name and write a log.
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                                                 "Try again, and if the problem persists " +
+                                                 "see your system administrator.");
+                }
             }
 
             ViewData["ReturnUrl"] = returnUrl;
@@ -350,8 +388,14 @@ namespace Portal.Controllers
                 return View("Error");
             }
             var userFactors = await _userManager.GetValidTwoFactorProvidersAsync(user);
-            var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
-            return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
+            var factorOptions = userFactors.Select(purpose => new SelectListItem {Text = purpose, Value = purpose})
+                .ToList();
+            return View(new SendCodeViewModel
+            {
+                Providers = factorOptions,
+                ReturnUrl = returnUrl,
+                RememberMe = rememberMe
+            });
         }
 
         //
@@ -389,7 +433,8 @@ namespace Portal.Controllers
                 await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
             }
 
-            return RedirectToAction(nameof(VerifyCode), new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
+            return RedirectToAction(nameof(VerifyCode),
+                new {Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe});
         }
 
         //
@@ -404,7 +449,7 @@ namespace Portal.Controllers
             {
                 return View("Error");
             }
-            return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
+            return View(new VerifyCodeViewModel {Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe});
         }
 
         //
@@ -422,7 +467,9 @@ namespace Portal.Controllers
             // The following code protects for brute force attacks against the two factor codes.
             // If a user enters incorrect codes for a specified amount of time then the user account
             // will be locked out for a specified amount of time.
-            var result = await _signInManager.TwoFactorSignInAsync(model.Provider, model.Code, model.RememberMe, model.RememberBrowser);
+            var result =
+                await _signInManager.TwoFactorSignInAsync(model.Provider, model.Code, model.RememberMe,
+                    model.RememberBrowser);
             if (result.Succeeded)
             {
                 return RedirectToLocal(model.ReturnUrl);
