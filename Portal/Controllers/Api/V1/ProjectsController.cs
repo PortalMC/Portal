@@ -13,11 +13,11 @@ using Portal.Models;
 namespace Portal.Controllers.Api.V1
 {
     [Produces("application/json")]
-    [Route("api/v1/file")]
+    [Route("api/v1/projects")]
     [Authorize]
-    public class FileController : Controller
+    public class ProjectsController : Controller
     {
-        [HttpPost("{uuid}/get")]
+        [HttpPost("{uuid}/file/get")]
         public IActionResult Get(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
@@ -57,7 +57,7 @@ namespace Portal.Controllers.Api.V1
             return new ObjectResult(retFile);
         }
 
-        [HttpPost("{uuid}/edit")]
+        [HttpPost("{uuid}/file/edit")]
         public IActionResult Edit(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
@@ -93,7 +93,7 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
-        [HttpGet("{uuid}/list")]
+        [HttpGet("{uuid}/file/list")]
         public IActionResult List(string uuid)
         {
             if (uuid == null)

@@ -49,7 +49,7 @@
 
     function fetchProjectTree() {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", getApiBaseAddress() + "file/" + projectUuid + "/list");
+        xhr.open("GET", getApiBaseAddress() + "projects/" + projectUuid + "/file/list");
         xhr.onload = function () {
             var treeObj = JSON.parse(xhr.responseText);
             $("#tree-container").find("> .content").fancytree("option", "source", treeObj);
@@ -80,7 +80,7 @@
         tab.removeClass("editor-tab-unsaved");
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", getApiBaseAddress() + "file/" + projectUuid + "/edit");
+        xhr.open("POST", getApiBaseAddress() + "projects/" + projectUuid + "/file/edit");
         xhr.setRequestHeader("Content-Type", "application/json");
         var data = {
             path: path,
@@ -102,7 +102,7 @@
         }
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", getApiBaseAddress() + "file/" + projectUuid + "/get");
+        xhr.open("POST", getApiBaseAddress() + "projects/" + projectUuid + "/file/get");
         xhr.setRequestHeader("Content-Type", "application/json");
         var data = {
             path: path
