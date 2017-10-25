@@ -39,6 +39,10 @@ namespace Portal.Controllers
                     .SingleOrDefaultAsync(m => m.UserId == currentUser.Id);
                 return View(user);
             }
+            if (uuid == "New")
+            {
+                return View("New");
+            }
             if (!Utils.IsCorrectUuid(uuid))
             {
                 // wrong uuid format

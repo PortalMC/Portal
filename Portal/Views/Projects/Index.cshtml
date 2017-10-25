@@ -10,7 +10,7 @@
             <input class="form-control" type="text" placeholder="Search projects..."/>
         </div>
         <div class="projects-search-new">
-            <a class="btn btn-success">
+            <a class="btn btn-success" asp-controller="Projects" asp-action="Index" asp-route-uuid="New">
                 @Html.Partial("~/Views/Shared/Icon/_MinecraftPickAxe.cshtml")
                 New
             </a>
