@@ -1,6 +1,63 @@
 ﻿@{
+    Layout = "_ProjectsLayout";
     ViewData["Title"] = "Home Page";
 }
 
-<h2>Create a new project</h2>
+<div class="projects-new-title">
+    <h2>Create a new project</h2>
+</div>
 
+<form class="projects-new-form">
+    <div id="projects-new-name" class="form-group">
+        <label>Project name</label>
+        <input id="form-name" class="form-control" name="name"/>
+    </div>
+    <div id="projects-new-description" class="form-group">
+        <label>Description <span class="note">(optional)</span></label>
+        <input id="form-description" class="form-control" name="description"/>
+    </div>
+    <div id="projects-new-version" class="form-group">
+        <div id="projects-new-version-minecraft">
+            <label>Minecraft Version</label>
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="form-minecraft-version" name="minecraft-version" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="dropdown-text">Select version</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="form-minecraft-version">
+                    <li>
+                        <a href="#">1.12.2</a>
+                    </li>
+                    <li>
+                        <a href="#">1.11.2</a>
+                    </li>
+                    <li>
+                        <a href="#">1.10.2</a>
+                    </li>
+                    <li>
+                        <a href="#">1.7.10</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <span class="form-divider">/</span>
+        <div id="projects-new-version-forge">
+            <label>Forge Version</label>
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="form-forge-version" name="forge-version" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="dropdown-text">Select version</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="form-forge-version">
+                    <li>
+                        <a href="#">4096</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <button type="submit" id="form-confirm" class="btn btn-success first-in-line" data-disable-with="Creating project…" disabled="">
+        Create project
+    </button>
+</form>
