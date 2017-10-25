@@ -12,13 +12,55 @@
 
     $("#form-confirm").click((e) => {
         e.preventDefault();
+        postNewProject();
+    });
+
+    function postNewProject() {
+        isConfirmClicked = true;
+
+        $("#form-confirm").prop("disabled", true);
+        $("#form-confirm").text($("#form-confirm").attr("data-text-2"));
+
         var name = $("#form-name").val();
         var description = $("#form-description").val();
         var minecraftVersion = $("#form-minecraft-version").val();
         var forgeVersion = $("#form-forge-version").val();
 
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", getApiBaseAddress() + "projects");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        var data = {
+            name: name,
+            description: description,
+            minecraftVersion: minecraftVersion,
+            forgeVersion: forgeVersion
+        };
+        xhr.onload = function() {
+            var result = JSON.parse(xhr.responseText);
+            if (result["success"]) {
+                window.location.href = "/Projects/" + result["data"]["id"];
+            } else {
+                $("#form-confirm").prop("disabled", false);
+                $("#form-confirm").text($("#form-confirm").attr("data-text-1"));
+            }
+        };
+        xhr.onerror = function() {
+            console.log("error!");
+            $("#form-confirm").prop("disabled", false);
+            $("#form-confirm").text($("#form-confirm").attr("data-text-1"));
+        };
+        xhr.send(JSON.stringify(data));
+    };
 
-    });
+    function getBaseAddress() {
+        var url = window.location.protocol + "//";
+        url += window.location.host;
+        return url;
+    }
+
+    function getApiBaseAddress() {
+        return getBaseAddress() + "/api/v1/";
+    }
 
     function setupDropdown(id) {
         $(`#${id} .dropdown-menu li a`).click(function() {

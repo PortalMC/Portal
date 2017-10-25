@@ -6,8 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Portal.Data;
 using Portal.Models;
 
 namespace Portal.Controllers.Api.V1
@@ -17,6 +20,57 @@ namespace Portal.Controllers.Api.V1
     [Authorize]
     public class ProjectsController : Controller
     {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+
+        public ProjectsController(UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context)
+        {
+            _userManager = userManager;
+            _context = context;
+        }
+
+        [HttpPost("")]
+        public async Task<IActionResult> NewProject([FromBody] Project project)
+        {
+            if (project == null)
+            {
+                return BadRequest();
+            }
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                var safeUser = await _context.SafeUsers
+                    .Include(s => s.Projects)
+                    .SingleOrDefaultAsync(m => m.UserId == currentUser.Id);
+                project.AccessRights = new List<AccessRight>();
+                var createdProject = await _context.Projects.AddAsync(project);
+                safeUser.Projects.Add(project);
+                await TryUpdateModelAsync(safeUser, "", s => s.Projects);
+                await _context.SaveChangesAsync();
+                var root = new JObject
+                {
+                    {"success", new JValue(true)},
+                    {
+                        "data", new JObject
+                        {
+                            {"id", new JValue(createdProject.Entity.Id)}
+                        }
+                    }
+                };
+                return new OkObjectResult(root);
+            }
+            catch (Exception e)
+            {
+                var root = new JObject
+                {
+                    {"success", new JValue(false)},
+                    {"message", new JValue(e.Message)}
+                };
+                return new OkObjectResult(root);
+            }
+        }
+
         [HttpPost("{uuid}/file/get")]
         public IActionResult Get(string uuid, [FromBody] FileObject file)
         {
