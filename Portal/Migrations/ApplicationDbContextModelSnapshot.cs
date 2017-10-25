@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Portal.Data;
 using System;
 
-namespace Portal.Data.Migrations
+namespace Portal.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20171024164624_1_base_models")]
-    partial class _1_base_models
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,8 +183,6 @@ namespace Portal.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled");
 
-                    b.Property<string>("UserId");
-
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
 
@@ -199,8 +196,6 @@ namespace Portal.Data.Migrations
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("AspNetUsers");
                 });
 
@@ -208,6 +203,8 @@ namespace Portal.Data.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("MinecraftVersion");
 
                     b.Property<string>("Name");
 
@@ -224,6 +221,8 @@ namespace Portal.Data.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
@@ -281,13 +280,6 @@ namespace Portal.Data.Migrations
                         .WithMany("AccessRights")
                         .HasForeignKey("ProjectId");
 
-                    b.HasOne("Portal.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("Portal.Models.ApplicationUser", b =>
-                {
                     b.HasOne("Portal.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
