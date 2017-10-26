@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +35,37 @@ namespace Portal.Controllers.Api.V1
             if (project == null)
             {
                 return BadRequest();
+            }
+            // Validation
+            var errors = new StringBuilder();
+            if (string.IsNullOrWhiteSpace(project.Name))
+            {
+                errors.AppendLine("Project name must not be empty.");
+            }
+            else if (project.Name.Length > 30)
+            {
+                errors.AppendLine("Project name is 30 characters limit.");
+            }
+            if (project.Description != null && project.Description.Length > 200)
+            {
+                errors.AppendLine("Description is 30 characters limit.");
+            }
+            if (string.IsNullOrWhiteSpace(project.MinecraftVersion))
+            {
+                errors.AppendLine("Minecraft version must not be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(project.ForgeVersion))
+            {
+                errors.AppendLine("Forge version must not be empty.");
+            }
+            if (errors.Length != 0)
+            {
+                var root = new JObject
+                {
+                    {"success", new JValue(false)},
+                    {"message", new JValue(errors.ToString())}
+                };
+                return new BadRequestObjectResult(root);
             }
             try
             {
