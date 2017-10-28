@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Portal.Data;
+using Portal.Extensions;
 using Portal.Models;
+using Portal.Services;
 
 namespace Portal.Controllers.Api.V1
 {
@@ -21,12 +25,18 @@ namespace Portal.Controllers.Api.V1
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
+        private readonly IProjectSetting _projectSetting;
 
         public ProjectsController(UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IMinecraftVersionProvider minecraftVersionProvider,
+            IProjectSetting projectSetting)
         {
             _userManager = userManager;
             _context = context;
+            _minecraftVersionProvider = minecraftVersionProvider;
+            _projectSetting = projectSetting;
         }
 
         [HttpPost("")]
@@ -48,7 +58,7 @@ namespace Portal.Controllers.Api.V1
             }
             if (project.Description != null && project.Description.Length > 200)
             {
-                errors.AppendLine("Description is 30 characters limit.");
+                errors.AppendLine("Description is 200 characters limit.");
             }
             if (string.IsNullOrWhiteSpace(project.MinecraftVersion))
             {
@@ -57,6 +67,28 @@ namespace Portal.Controllers.Api.V1
             if (string.IsNullOrWhiteSpace(project.ForgeVersion))
             {
                 errors.AppendLine("Forge version must not be empty.");
+            }
+            var minecraftVersion = _minecraftVersionProvider.GetMinecraftVersions()
+                .FirstOrDefault(v => v.Version == project.MinecraftVersion);
+            ForgeVersion forgeVersion = null;
+            if (minecraftVersion == default(MinecraftVersion))
+            {
+                errors.AppendLine("Specified Minecraft version is not found.");
+            }
+            else
+            {
+                forgeVersion =
+                    minecraftVersion.ForgeVersions.FirstOrDefault(v => v.Version == project.ForgeVersion);
+                if (forgeVersion == default(ForgeVersion))
+                {
+                    errors.AppendLine("Specified Forge version is not found.");
+                }
+            }
+            // Check valid zip is exists
+            var forgeZipFile = _minecraftVersionProvider.GetForgeZipFile(minecraftVersion, forgeVersion);
+            if (!forgeZipFile.Exists)
+            {
+                errors.AppendLine("Specified template of Minecraft and Forge version is not found.");
             }
             if (errors.Length != 0)
             {
@@ -78,13 +110,17 @@ namespace Portal.Controllers.Api.V1
                 safeUser.Projects.Add(project);
                 await TryUpdateModelAsync(safeUser, "", s => s.Projects);
                 await _context.SaveChangesAsync();
+                // Expand zip file
+                var projectId = createdProject.Entity.Id;
+                var targetDir = _projectSetting.GetProjectsRoot().ResolveDir(projectId);
+                ZipFile.ExtractToDirectory(forgeZipFile.FullName, targetDir.FullName);
                 var root = new JObject
                 {
                     {"success", new JValue(true)},
                     {
                         "data", new JObject
                         {
-                            {"id", new JValue(createdProject.Entity.Id)}
+                            {"id", new JValue(projectId)}
                         }
                     }
                 };

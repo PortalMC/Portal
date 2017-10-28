@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Server.Kestrel;
 using Microsoft.EntityFrameworkCore;
 using Portal.Data;
 using Portal.Models;
+using Portal.Services;
 
 namespace Portal.Controllers
 {
@@ -17,14 +18,16 @@ namespace Portal.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
-
+        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
 
         public ProjectsController(
             UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IMinecraftVersionProvider minecraftVersionProvider)
         {
             _userManager = userManager;
             _context = context;
+            _minecraftVersionProvider = minecraftVersionProvider;
         }
 
         public async Task<IActionResult> Index(string uuid)
@@ -41,7 +44,8 @@ namespace Portal.Controllers
             }
             if (uuid == "New")
             {
-                return View("New");
+                // Create new project page
+                return View("New", _minecraftVersionProvider.GetMinecraftVersions());
             }
             if (!Utils.IsCorrectUuid(uuid))
             {

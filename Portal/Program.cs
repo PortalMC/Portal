@@ -15,6 +15,10 @@ namespace Portal
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    config.AddJsonFile("versions.json", optional: true, reloadOnChange: true);
+                })
                 .Build();
     }
 }

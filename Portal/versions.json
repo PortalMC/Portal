@@ -1,0 +1,36 @@
+﻿{
+    "Minecraft": {
+        "Root": "./forgeroot",
+        "Versions": [
+            {
+                "MinecraftVersion": "1.12.2",
+                "ForgeVersions": [
+                    {
+                        "ForgeVersion": "14.23.0.2515",
+                        "File": "forge-1.12.2-14.23.0.2515-mdk.zip"
+                    }
+                ]
+            },
+            {
+                "MinecraftVersion": "1.10.2",
+                "ForgeVersions": [
+                    {
+                        "ForgeVersion": "12.18.3.2511",
+                        "File": "forge-1.10.2-12.18.3.2511-mdk.zip",
+                        "Recommended": true
+                    }
+                ]
+            },
+            {
+                "MinecraftVersion": "1.7.10",
+                "ForgeVersions": [
+                    {
+                        "ForgeVersion": "10.13.4.1614",
+                        "File": "forge-1.7.10-10.13.4.1614-1.7.10-src.zip",
+                        "Recommended": true
+                    }
+                ]
+            }
+        ]
+    }
+}

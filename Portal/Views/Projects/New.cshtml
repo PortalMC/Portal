@@ -25,18 +25,12 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="form-minecraft-version">
-                    <li>
-                        <a href="#">1.12.2</a>
-                    </li>
-                    <li>
-                        <a href="#">1.11.2</a>
-                    </li>
-                    <li>
-                        <a href="#">1.10.2</a>
-                    </li>
-                    <li>
-                        <a href="#">1.7.10</a>
-                    </li>
+					@foreach (var minecraftVersion in Model)
+                    {
+					    <li>
+                            <a href="#" data-value="@minecraftVersion.Version">@minecraftVersion.Version</a>
+                        </li>
+					}
                 </ul>
             </div>
         </div>
@@ -45,10 +39,10 @@
             <label>Forge version</label>
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="form-forge-version" name="forge-version" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span class="dropdown-text">Select version</span>
+                    <span class="dropdown-text" data-default="Select version">Select version</span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="form-forge-version">
+                <ul id="projects-new-version-forge-list" class="dropdown-menu" aria-labelledby="form-forge-version">
                     <li>
                         <a href="#">4096</a>
                     </li>

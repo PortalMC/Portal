@@ -18,7 +18,7 @@ namespace Portal
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -27,23 +27,20 @@ namespace Portal
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddMvc();
-
-            // Add application services.
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            ConfigureServicesInternal(services);
         }
-        
+
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
-			    options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
+            ConfigureServicesInternal(services);
+        }
+
+        private void ConfigureServicesInternal(IServiceCollection services)
+        {
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -53,6 +50,9 @@ namespace Portal
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddSingleton<IMinecraftVersionProvider>(
+                new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
+            services.AddSingleton<IProjectSetting>(new ProjectSetting(Configuration.GetSection("Projects")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
