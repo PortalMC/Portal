@@ -1,4 +1,4 @@
-﻿$(function () {
+﻿$(function() {
     let isConfirmClicked = false;
 
     setupDropdown("projects-new-version-minecraft");
@@ -22,9 +22,9 @@
     function postNewProject() {
         isConfirmClicked = true;
 
-        const form_confirm = $("#form-confirm");
-        form_confirm.prop("disabled", true);
-        form_confirm.text(form_confirm.attr("data-text-2"));
+        const formConfirm = $("#form-confirm");
+        formConfirm.prop("disabled", true);
+        formConfirm.text(formConfirm.attr("data-text-2"));
 
         const name = $("#form-name").val();
         const description = $("#form-description").val();
@@ -40,28 +40,28 @@
             url: getApiBaseAddress() + "projects",
             type: "post",
             data: JSON.stringify(data),
-            contentType: 'application/json',
-            dataType: "json",
+            contentType: "application/json",
+            dataType: "json"
         }).done(result => {
             if (result["success"]) {
-                window.location.href = "/Projects/" + result["data"]["id"];
+                window.location.href = `/Projects/${result["data"]["id"]}`;
             } else {
-                form_confirm.prop("disabled", false);
-                form_confirm.text(form_confirm.attr("data-text-1"));
+                formConfirm.prop("disabled", false);
+                formConfirm.text(formConfirm.attr("data-text-1"));
             }
-        }).fail((jqXHR, textStatus, errorThrown) => {
+        }).fail((jqXhr, textStatus, errorThrown) => {
             console.log("error!");
-            form_confirm.prop("disabled", false);
-            form_confirm.text(form_confirm.attr("data-text-1"));
+            formConfirm.prop("disabled", false);
+            formConfirm.text(formConfirm.attr("data-text-1"));
         });
     }
 
     function updateForgeVersion(minecraftVersion) {
         $.ajax({
-            url: getApiBaseAddress() + "minecraft/versions/" + minecraftVersion,
-            type: 'get',
-            dataType: 'json',
-            timeout: 5000,
+            url: `${getApiBaseAddress()}minecraft/versions/${minecraftVersion}`,
+            type: "get",
+            dataType: "json",
+            timeout: 5000
         }).done(data => {
             const projectsNewVersionForge = $("#projects-new-version-forge-list");
             projectsNewVersionForge.empty();
@@ -80,7 +80,7 @@
             dropdown.find("button").val("");
             dropdownText.text(dropdownText.attr("data-default"));
             setupDropdown("projects-new-version-forge");
-        }).fail((jqXHR, textStatus, errorThrown) => {
+        }).fail((jqXhr, textStatus, errorThrown) => {
         });
     }
 
@@ -91,14 +91,14 @@
     }
 
     function getApiBaseAddress() {
-        return getBaseAddress() + "/api/v1/";
+        return `${getBaseAddress()}/api/v1/`;
     }
 
     function setupDropdown(id) {
-        $(`#${id}`).find(`.dropdown-menu li a`).click(function () {
+        $(`#${id}`).find(".dropdown-menu li a").click(function() {
             const dropdown = $(`#${id}`);
-            dropdown.find(`.dropdown-text`).text($(this).text());
-            dropdown.find(`button`).val($(this).attr("data-value")).trigger("change");
+            dropdown.find(".dropdown-text").text($(this).text());
+            dropdown.find("button").val($(this).attr("data-value")).trigger("change");
         });
     }
 
