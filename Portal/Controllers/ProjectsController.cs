@@ -54,7 +54,17 @@ namespace Portal.Controllers
                 // wrong uuid format
                 return BadRequest();
             }
+            var accessRight = await _context.AccessRights
+                .AsNoTracking()
+                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
+                .Include(a => a.Project)
+                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
+            if (accessRight == default(AccessRight))
+            {
+                return NotFound();
+            }
             ViewData["Uuid"] = uuid;
+            ViewData["Name"] = accessRight.Project.Name;
             return View("ProjectIndex");
         }
 

@@ -1,4 +1,12 @@
-﻿/* /Projects */
+﻿/* Common */
+
+.page-title {
+    margin-bottom: 30px;
+    padding-bottom: 8px;
+    border-bottom: 1px #e1e4e8 solid;
+}
+
+/* /Projects */
 
 .projects-search {
     margin-top: 24px;
@@ -71,12 +79,6 @@
 }
 
 /* /Projects/New */
-
-.projects-new-title {
-    margin-bottom: 30px;
-    padding-bottom: 8px;
-    border-bottom: 1px #e1e4e8 solid;
-}
 
 .projects-new-form label {
     font-weight: 600;

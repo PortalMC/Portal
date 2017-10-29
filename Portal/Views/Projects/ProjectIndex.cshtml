@@ -1,8 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = "_ProjectsLayout";
 }
 
-<h2>Project @ViewData["Uuid"]</h2>
+<div class="page-title">
+    <h2>@ViewData["Name"]</h2>
+</div>
 
 
 <li><a asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Editor</a></li>
