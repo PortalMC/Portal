@@ -34,5 +34,13 @@ namespace Portal.Extensions
                 .SingleOrDefaultAsync();
             return project == default(Project) ? (false, null) : (true, project);
         }
+
+        public static async Task UpdateProjectUpdatedAtAsync(this ApplicationDbContext context, string projectId)
+        {
+            var project = await context.Projects
+                .SingleAsync(p => p.Id == projectId);
+            project.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+        }
     }
 }

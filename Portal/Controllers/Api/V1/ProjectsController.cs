@@ -217,6 +217,7 @@ namespace Portal.Controllers.Api.V1
             try
             {
                 await System.IO.File.WriteAllTextAsync(rawFile.FullName, file.Content, Encoding.UTF8);
+                await _context.UpdateProjectUpdatedAtAsync(uuid);
                 return NoContent();
             }
             catch (Exception e)
