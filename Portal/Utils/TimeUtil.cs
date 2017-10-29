@@ -4,15 +4,13 @@ namespace Portal.Utils
 {
     public static class TimeUtil
     {
-        private const int Second = 1;
-        private const int Minute = 60 * Second;
-        private const int Hour = 60 * Minute;
-        private const int Day = 24 * Hour;
-
         public static string GetRelativeTimeLabel(TimeSpan ts)
         {
-            if (ts.TotalMinutes < 1)
-                return "just now";
+            if (ts.TotalSeconds < 2)
+                return "a second ago";
+
+            if (ts.TotalSeconds < 60)
+                return ts.Seconds + " seconds ago";
 
             if (ts.TotalMinutes < 2)
                 return "a minute ago";
