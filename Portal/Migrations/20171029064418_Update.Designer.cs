@@ -11,9 +11,10 @@ using System;
 namespace Portal.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171029064418_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,7 +216,11 @@ namespace Portal.Migrations
                         .IsRequired()
                         .HasMaxLength(30);
 
+                    b.Property<string>("UserId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Project");
                 });
@@ -277,12 +282,19 @@ namespace Portal.Migrations
 
             modelBuilder.Entity("Portal.Models.AccessRight", b =>
                 {
-                    b.HasOne("Portal.Models.Project", "Project")
-                        .WithMany()
+                    b.HasOne("Portal.Models.Project")
+                        .WithMany("AccessRights")
                         .HasForeignKey("ProjectId");
 
                     b.HasOne("Portal.Models.User", "User")
                         .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Portal.Models.Project", b =>
+                {
+                    b.HasOne("Portal.Models.User")
+                        .WithMany("Projects")
                         .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618

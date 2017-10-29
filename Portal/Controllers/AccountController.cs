@@ -119,7 +119,10 @@ namespace Portal.Controllers
                 try
                 {
                     var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
-                    var safeUser = new User {Projects = new List<Project>(), UserId = user.Id};
+                    var safeUser = new User
+                    {
+                        Id = user.Id,
+                    };
                     await _context.SafeUsers.AddAsync(safeUser);
                     await _context.SaveChangesAsync();
                     var result = await _userManager.CreateAsync(user, model.Password);
@@ -236,8 +239,11 @@ namespace Portal.Controllers
                 }
                 try
                 {
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                    var safeUser = new User { Projects = new List<Project>(), UserId = user.Id };
+                    var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
+                    var safeUser = new User
+                    {
+                        Id = user.Id,
+                    };
                     await _context.SafeUsers.AddAsync(safeUser);
                     await _context.SaveChangesAsync();
                     var result = await _userManager.CreateAsync(user);

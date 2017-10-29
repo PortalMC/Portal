@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +14,7 @@ using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Services;
+using Portal.Utils;
 
 namespace Portal.Controllers.Api.V1
 {
@@ -101,14 +101,16 @@ namespace Portal.Controllers.Api.V1
             }
             try
             {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
                 var safeUser = await _context.SafeUsers
-                    .Include(s => s.Projects)
-                    .SingleOrDefaultAsync(m => m.UserId == currentUser.Id);
-                project.AccessRights = new List<AccessRight>();
+                    .SingleOrDefaultAsync(m => m.Id == _userManager.GetUserId(HttpContext.User));
                 var createdProject = await _context.Projects.AddAsync(project);
-                safeUser.Projects.Add(project);
-                await TryUpdateModelAsync(safeUser, "", s => s.Projects);
+                var ownerAccessRight = new AccessRight
+                {
+                    User = safeUser,
+                    Project = createdProject.Entity,
+                    Level = AccessRightLevel.Owner.Level
+                };
+                await _context.AccessRights.AddAsync(ownerAccessRight);
                 await _context.SaveChangesAsync();
                 // Expand zip file
                 var projectId = createdProject.Entity.Id;
@@ -144,7 +146,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return BadRequest();
             }
-            if (!Utils.IsCorrectUuid(uuid))
+            if (!Util.IsCorrectUuid(uuid))
             {
                 // wrong uuid format
                 return BadRequest();
@@ -184,7 +186,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return BadRequest();
             }
-            if (!Utils.IsCorrectUuid(uuid))
+            if (!Util.IsCorrectUuid(uuid))
             {
                 // wrong uuid format
                 return BadRequest();
@@ -214,16 +216,25 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpGet("{uuid}/file/list")]
-        public IActionResult List(string uuid)
+        public async Task<IActionResult> FileList(string uuid)
         {
             if (uuid == null)
             {
                 return BadRequest();
             }
-            if (!Utils.IsCorrectUuid(uuid))
+            if (!Util.IsCorrectUuid(uuid))
             {
                 // wrong uuid format
                 return BadRequest();
+            }
+            var accessRight = await _context.AccessRights
+                .AsNoTracking()
+                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
+                .Include(a => a.Project)
+                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
+            if (accessRight == default(AccessRight))
+            {
+                return NotFound();
             }
             var projectRoot = new DirectoryInfo(Path.Combine(new DirectoryInfo("projectsroot").FullName, uuid));
             if (!projectRoot.Exists)
@@ -237,7 +248,7 @@ namespace Portal.Controllers.Api.V1
             {
                 new JObject
                 {
-                    {"title", new JValue("!!ProjectName!!")},
+                    {"title", new JValue(accessRight.Project.Name)},
                     {"folder", new JValue(true)},
                     {"expanded", new JValue(true)},
                     {"children", projectRootObj}

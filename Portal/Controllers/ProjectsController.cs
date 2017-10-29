@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.Kestrel;
 using Microsoft.EntityFrameworkCore;
 using Portal.Data;
 using Portal.Models;
 using Portal.Services;
+using Portal.Utils;
 
 namespace Portal.Controllers
 {
@@ -35,19 +36,19 @@ namespace Portal.Controllers
             if (uuid == null)
             {
                 // Projects Listing
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                var user = await _context.SafeUsers
-                    .Include(s => s.Projects)
+                var projects = await _context.AccessRights
                     .AsNoTracking()
-                    .SingleOrDefaultAsync(m => m.UserId == currentUser.Id);
-                return View(user);
+                    .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
+                    .Select(a => a.Project)
+                    .ToListAsync();
+                return View(projects);
             }
             if (uuid == "New")
             {
                 // Create new project page
                 return View("New", _minecraftVersionProvider.GetMinecraftVersions());
             }
-            if (!Utils.IsCorrectUuid(uuid))
+            if (!Util.IsCorrectUuid(uuid))
             {
                 // wrong uuid format
                 return BadRequest();
@@ -56,18 +57,28 @@ namespace Portal.Controllers
             return View("ProjectIndex");
         }
 
-        public IActionResult Editor(string uuid)
+        public async Task<IActionResult> Editor(string uuid)
         {
             if (uuid == null)
             {
                 return RedirectToAction("Index");
             }
-            if (!Utils.IsCorrectUuid(uuid))
+            if (!Util.IsCorrectUuid(uuid))
             {
                 // wrong uuid format
                 return BadRequest();
             }
+            var accessRight = await _context.AccessRights
+                .AsNoTracking()
+                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
+                .Include(a => a.Project)
+                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
+            if (accessRight == default(AccessRight))
+            {
+                return NotFound();
+            }
             ViewData["Uuid"] = uuid;
+            ViewData["Name"] = accessRight.Project.Name;
             return View();
         }
 
