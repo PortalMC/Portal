@@ -141,7 +141,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("{uuid}/file/get")]
-        public IActionResult Get(string uuid, [FromBody] FileObject file)
+        public async Task<IActionResult> Get(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
             {
@@ -152,7 +152,12 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var projectRoot = Path.Combine(new DirectoryInfo("projectsroot").FullName, uuid);
+            var canAccess = await _context.CanAccessToProject(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            var projectRoot = Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid);
             var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
             if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
             {
@@ -181,7 +186,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("{uuid}/file/edit")]
-        public IActionResult Edit(string uuid, [FromBody] FileObject file)
+        public async Task<IActionResult> Edit(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
             {
@@ -192,7 +197,12 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var projectRoot = Path.Combine(new DirectoryInfo("projectsroot").FullName, uuid);
+            var canAccess = await _context.CanAccessToProject(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            var projectRoot = Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid);
             var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
             if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
             {
@@ -206,7 +216,7 @@ namespace Portal.Controllers.Api.V1
 
             try
             {
-                System.IO.File.WriteAllText(rawFile.FullName, file.Content, Encoding.UTF8);
+                await System.IO.File.WriteAllTextAsync(rawFile.FullName, file.Content, Encoding.UTF8);
                 return NoContent();
             }
             catch (Exception e)
@@ -237,7 +247,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return NotFound();
             }
-            var projectRoot = new DirectoryInfo(Path.Combine(new DirectoryInfo("projectsroot").FullName, uuid));
+            var projectRoot = new DirectoryInfo(Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid));
             if (!projectRoot.Exists)
             {
                 return BadRequest();
