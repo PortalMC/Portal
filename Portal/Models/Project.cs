@@ -23,5 +23,13 @@ namespace Portal.Models
 
         [Required]
         public string ForgeVersion { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime UpdatedAt { get; set; }
     }
 }

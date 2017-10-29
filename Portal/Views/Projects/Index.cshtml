@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@using System
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Portal.Utils
 @{
     Layout = "_ProjectsLayout";
     ViewData["Title"] = "Home Page";
@@ -38,6 +40,23 @@
                     <span>
                         @Html.Partial("~/Views/Shared/Icon/_MinecraftDiamond.cshtml")
                         Forge @item.ForgeVersion
+                    </span>
+                    <span>
+                        @{
+                            TimeSpan diff = DateTime.UtcNow - item.UpdatedAt;
+                            if (diff.TotalDays > 365)
+                            {
+                                @:Updated on @item.UpdatedAt.ToString("dd MMM yyyy")
+                            }
+                            else if (diff.TotalDays > 30)
+                            {
+                                @:Updated on @item.UpdatedAt.ToString("dd MMM")
+                            }
+                            else
+                            {
+                                @:Updated @TimeUtil.GetRelativeTimeLabel(diff)
+                            }
+                        }
                     </span>
                 </div>
             </li>

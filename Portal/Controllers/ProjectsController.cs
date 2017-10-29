@@ -40,6 +40,7 @@ namespace Portal.Controllers
                     .AsNoTracking()
                     .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
                     .Select(a => a.Project)
+                    .OrderByDescending(p => p.UpdatedAt)
                     .ToListAsync();
                 return View(projects);
             }

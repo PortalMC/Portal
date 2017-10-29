@@ -103,6 +103,7 @@ namespace Portal.Controllers.Api.V1
             {
                 var safeUser = await _context.SafeUsers
                     .SingleOrDefaultAsync(m => m.Id == _userManager.GetUserId(HttpContext.User));
+                project.UpdatedAt = project.CreatedAt = DateTime.UtcNow;
                 var createdProject = await _context.Projects.AddAsync(project);
                 var ownerAccessRight = new AccessRight
                 {
