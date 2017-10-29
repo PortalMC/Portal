@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Portal.Data;
+using Portal.Extensions;
 using Portal.Models;
 using Portal.Services;
 using Portal.Utils;
@@ -54,17 +55,14 @@ namespace Portal.Controllers
                 // wrong uuid format
                 return BadRequest();
             }
-            var accessRight = await _context.AccessRights
-                .AsNoTracking()
-                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                .Include(a => a.Project)
-                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
-            if (accessRight == default(AccessRight))
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
             {
                 return NotFound();
             }
             ViewData["Uuid"] = uuid;
-            ViewData["Name"] = accessRight.Project.Name;
+            ViewData["Name"] = result.project.Name;
             return View("ProjectIndex");
         }
 
@@ -79,17 +77,14 @@ namespace Portal.Controllers
                 // wrong uuid format
                 return BadRequest();
             }
-            var accessRight = await _context.AccessRights
-                .AsNoTracking()
-                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                .Include(a => a.Project)
-                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
-            if (accessRight == default(AccessRight))
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
             {
                 return NotFound();
             }
             ViewData["Uuid"] = uuid;
-            ViewData["Name"] = accessRight.Project.Name;
+            ViewData["Name"] = result.project.Name;
             return View();
         }
 

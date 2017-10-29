@@ -152,7 +152,7 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var canAccess = await _context.CanAccessToProject(_userManager.GetUserId(HttpContext.User), uuid);
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
             if (!canAccess)
             {
                 return NotFound();
@@ -197,7 +197,7 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var canAccess = await _context.CanAccessToProject(_userManager.GetUserId(HttpContext.User), uuid);
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
             if (!canAccess)
             {
                 return NotFound();
@@ -238,12 +238,9 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var accessRight = await _context.AccessRights
-                .AsNoTracking()
-                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                .Include(a => a.Project)
-                .SingleOrDefaultAsync(a => a.Project.Id == uuid);
-            if (accessRight == default(AccessRight))
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
             {
                 return NotFound();
             }
@@ -259,7 +256,7 @@ namespace Portal.Controllers.Api.V1
             {
                 new JObject
                 {
-                    {"title", new JValue(accessRight.Project.Name)},
+                    {"title", new JValue(result.project.Name)},
                     {"folder", new JValue(true)},
                     {"expanded", new JValue(true)},
                     {"children", projectRootObj}
