@@ -63,6 +63,8 @@
             dataType: 'json',
             timeout: 5000,
         }).done(data => {
+            const projectsNewVersionForge = $("#projects-new-version-forge-list");
+            projectsNewVersionForge.empty();
             const forgeVersions = data["forge_versions"];
             for (let i = 0; i < forgeVersions.length; ++i) {
                 const forgeVersion = forgeVersions[i];
@@ -70,9 +72,8 @@
                 if (forgeVersion["is_recommend"]) {
                     versionText += " ★";
                 }
-                const projects_new_version_forge = $("#projects-new-version-forge-list");
-                projects_new_version_forge.empty();
-                projects_new_version_forge.append(`<li><a href="#" data-value="${forgeVersion["name"]}">${versionText}</a></li>`);
+                projectsNewVersionForge.append(
+                    `<li><a href="#" data-value="${forgeVersion["name"]}">${versionText}</a></li>`);
             }
             const dropdown = $("#projects-new-version-forge");
             const dropdownText = dropdown.find(".dropdown-text");
