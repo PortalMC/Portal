@@ -1,4 +1,6 @@
-﻿$(function() {
+﻿import * as $ from "jquery";
+
+$(function () {
     let isConfirmClicked = false;
 
     setupDropdown("projects-new-version-minecraft");
@@ -95,7 +97,7 @@
     }
 
     function setupDropdown(id) {
-        $(`#${id}`).find(".dropdown-menu li a").click(function() {
+        $(`#${id}`).find(".dropdown-menu li a").click(function () {
             const dropdown = $(`#${id}`);
             dropdown.find(".dropdown-text").text($(this).text());
             dropdown.find("button").val($(this).attr("data-value")).trigger("change");

@@ -1,45 +1,43 @@
-﻿$(document).ready(function() {
+﻿import * as $ from "jquery";
+
+$(document).ready(() => {
     // ======================
     // Initialize
     // ======================
 
-    var projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
-    var tabMap = {};
+    const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
+    const tabMap = {};
 
     $("#editor-root").layout(getPanelLayoutSettings());
     $("#tree-container").find("> .content").fancytree(getTreeSettings());
 
-    var tabCounter = 1;
-    var tabTemplate =
-        "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
-    var tabs = $("#editor-tabs").tabs();
+    let tabCounter = 1;
+    const tabTemplate = "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
+    const tabs = $("#editor-tabs").tabs();
     tabs.find(".ui-tabs-nav").sortable({
         axis: "x",
-        stop: function() {
+        stop: () => {
             tabs.tabs("refresh");
         }
     });
-    tabs.on("click",
-        "span.editor-tab-icon-close",
-        function() {
-            var panelId = $(this).closest("li").remove().attr("aria-controls");
-            $("#" + panelId).remove();
-            var path = getPathByPanelId(panelId);
-            delete tabMap[path];
-            tabs.tabs("refresh");
-        });
+    tabs.on("click", "span.editor-tab-icon-close", () => {
+        const panelId = $(this).closest("li").remove().attr("aria-controls");
+        $(`#${panelId}`).remove();
+        const path = getPathByPanelId(panelId);
+        delete tabMap[path];
+        tabs.tabs("refresh");
+    });
 
-    $(window).bind("keydown",
-        function(event) {
-            if (event.ctrlKey || event.metaKey) {
-                switch (String.fromCharCode(event.which).toLowerCase()) {
+    $(window).bind("keydown", (event) => {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
                 case "s":
                     event.preventDefault();
                     trySaveCurrentEditor();
                     break;
-                }
             }
-        });
+        }
+    });
 
     fetchProjectTree();
 
@@ -48,112 +46,106 @@
     // ======================
 
     function fetchProjectTree() {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", getApiBaseAddress() + "projects/" + projectUuid + "/file/list");
-        xhr.onload = function () {
-            var treeObj = JSON.parse(xhr.responseText);
-            $("#tree-container").find("> .content").fancytree("option", "source", treeObj);
-        };
-        xhr.onerror = function () {
+        $.ajax({
+            url: `${getApiBaseAddress()}projects/${projectUuid}/file/list`,
+            type: "get",
+            dataType: "json"
+        }).done(data => {
+            $("#tree-container").find("> .content").fancytree("option", "source", data);
+        }).fail((jqXhr, textStatus, errorThrown) => {
             console.log("error!");
-        };
-        xhr.send();
-    };
+        });
+    }
 
     function getPathByPanelId(id) {
-        return Object.keys(tabMap).filter(function(key) {
-            return tabMap[key] === id;
-        })[0];
+        return Object.keys(tabMap).filter(key => tabMap[key] === id)[0];
     }
 
     function trySaveCurrentEditor() {
-        var tab = $("#editor-tab-root").find(".ui-tabs-active");
-        var id = tab.attr("aria-controls");
+        const tab = $("#editor-tab-root").find(".ui-tabs-active");
+        const id = tab.attr("aria-controls");
         if (id === "editor-pane-empty") {
             console.log("on empty");
             return;
         }
-        var editor = ace.edit("editor-" + id);
-        var path = getPathByPanelId(id);
-        var content = editor.getValue();
+        const editor = ace.edit("editor-" + id);
+        const path = getPathByPanelId(id);
+        const content = editor.getValue();
 
         tab.removeClass("editor-tab-unsaved");
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", getApiBaseAddress() + "projects/" + projectUuid + "/file/edit");
-        xhr.setRequestHeader("Content-Type", "application/json");
-        var data = {
+        const data = {
             path: path,
             content: content
         };
-        xhr.onload = function() {
+        $.ajax({
+            url: `${getApiBaseAddress()}projects/${projectUuid}/file/edit`,
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        }).done(() => {
             alert("Saved!");
-        };
-        xhr.onerror = function() {
+        }).fail((jqXhr, textStatus, errorThrown) => {
             console.log("error!");
-        };
-        xhr.send(JSON.stringify(data));
+        });
     }
 
     function tryOpenExistFile(path) {
         if (path in tabMap) {
-            tabs.tabs({ active: getIndexOfEditorPanel(tabMap[path]) });
+            tabs.tabs({active: getIndexOfEditorPanel(tabMap[path])});
             return;
         }
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", getApiBaseAddress() + "projects/" + projectUuid + "/file/get");
-        xhr.setRequestHeader("Content-Type", "application/json");
-        var data = {
+        const data = {
             path: path
         };
-        xhr.onload = function() {
-            addTab(JSON.parse(xhr.responseText));
-        };
-        xhr.onerror = function() {
+        $.ajax({
+            url: `${getApiBaseAddress()}projects/${projectUuid}/file/get`,
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        }).done(result => {
+            addTab(result);
+        }).fail((jqXhr, textStatus, errorThrown) => {
             console.log("error!");
-        };
-        xhr.send(JSON.stringify(data));
+        });
     }
 
     function addTab(data) {
-        var label = data["name"];
-        var id = "pane-" + tabCounter;
+        const label = data["name"];
+        const id = "pane-" + tabCounter;
 
         tabMap[data["path"]] = id;
 
-        var li = $(tabTemplate.replace(/#\{id\}/g, "tab-" + id).replace(/#\{href\}/g, "#" + id)
+        const li = $(tabTemplate.replace(/#\{id\}/g, `tab-${id}`).replace(/#\{href\}/g, `#${id}`)
             .replace(/#\{label\}/g, label));
 
         tabs.find(".ui-tabs-nav").append(li);
-        tabs.append("<div id='" +
-            id +
-            "' class='editor-pane-root'><div id='editor-" +
-            id +
-            "' class='editor-pane'></div></div>");
+        tabs.append(`<div id='${id}' class='editor-pane-root'><div id='editor-${id}' class='editor-pane'></div></div>`);
         tabs.tabs("refresh");
         tabCounter++;
 
-        tabs.tabs({ active: getIndexOfEditorPanel(id) });
+        tabs.tabs({active: getIndexOfEditorPanel(id)});
 
         setupEditor(id, data);
     }
 
     function setupEditor(id, data) {
-        var editor = ace.edit("editor-" + id);
+        const editor = ace.edit(`editor-${id}`);
         editor.$blockScrolling = Infinity;
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/java");
         editor.setValue(data["content"], -1);
-        editor.getSession().on("change",
-            function() {
-                $("#tab-" + id).addClass("editor-tab-unsaved");
-            });
+        editor.getSession().on("change", () => {
+            $(`#tab-${id}`).addClass("editor-tab-unsaved");
+        });
     }
 
     function getIndexOfEditorPanel(id) {
-        var result = -1;
-        $(".ui-tabs-tab").each(function(i) {
+        let result = -1;
+        $(".ui-tabs-tab").each((i) => {
             if ($(this).attr("aria-controls") === id) {
                 result = i;
                 return false;
@@ -164,7 +156,7 @@
     }
 
     function getFullPath(node) {
-        var fullPathOrigin = getFullPathInternal(node);
+        const fullPathOrigin = getFullPathInternal(node);
         return fullPathOrigin.substr(fullPathOrigin.indexOf("/", 1) + 1);
     }
 
@@ -172,15 +164,12 @@
         if (node.parent === null) {
             return "";
         } else {
-            return getFullPathInternal(node.parent) + "/" + node.title;
+            return `${getFullPathInternal(node.parent)}/${node.title}`;
         }
     }
 
     function getApiBaseAddress() {
-        var url = window.location.protocol + "//";
-        url += window.location.host;
-        url += "/api/v1/";
-        return url;
+        return `${window.location.protocol}//${window.location.host}/api/v1/`;
     }
 
     // ======================
@@ -248,25 +237,25 @@
             tooltip: false, // Use title as tooltip (also a callback could be specified)
             toggleEffect: false,
 
-            focus: function() {
-                $("#tree-container").find("> .header").css("background-color", "#c6cfdf");
+            focus: () => {
+                $("#tree-container").find(".header").css("background-color", "#c6cfdf");
             },
 
-            blur: function() {
-                $("#tree-container").find("> .header").css("background-color", "#e4e4e4");
+            blur: () => {
+                $("#tree-container").find(".header").css("background-color", "#e4e4e4");
             },
 
-            dblclick: function(event, data) {
+            dblclick: (event, data) => {
                 if (!data.node.folder) {
                     tryOpenExistFile(getFullPath(data.node));
                 }
             },
 
-            renderNode: function (event, data) {
-                var node = data.node;
-                var $nodeSpan = $(node.span);
+            renderNode: (event, data) => {
+                const node = data.node;
+                const $nodeSpan = $(node.span);
                 if (!$nodeSpan.data("rendered")) {
-                    var backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
+                    const backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
                     $nodeSpan.append(backgroundDiv);
                     $nodeSpan.data("rendered", true);
                 }
