@@ -13,6 +13,7 @@
     "jquery-validation-unobtrusive": "^3.2.6",
     "jquery.fancytree": "^2.24.0",
     "jquery.layout-custom": "file:custom_repo/jquery.layout",
+    "merge-stream": "^1.0.1",
     "ress": "^1.2.2",
     "run-sequence": "^2.2.0"
   },

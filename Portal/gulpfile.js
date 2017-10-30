@@ -1,8 +1,9 @@
 ﻿/// <binding BeforeBuild='create' Clean='clean' />
 
-var gulp = require("gulp");
-var sequence = require("run-sequence");
-var del = require("del");
+const gulp = require("gulp");
+const sequence = require("run-sequence");
+const del = require("del");
+const merge = require("merge-stream");
 
 gulp.task("clean",
     function(cb) {
@@ -29,8 +30,14 @@ gulp.task("create_ress",
 
 gulp.task("create_jquery",
     function() {
-        return gulp.src("./node_modules/jquery/dist/**/*")
-            .pipe(gulp.dest("./wwwroot/lib/jquery"));
+        return merge(
+            gulp.src("./node_modules/jquery/dist/**/*")
+                .pipe(gulp.dest("./wwwroot/lib/jquery")),
+            gulp.src("./node_modules/jquery-validation/dist/**/*")
+                .pipe(gulp.dest("./wwwroot/lib/jquery-validation")),
+            gulp.src("./node_modules/jquery-validation-unobtrusive/*.js")
+                .pipe(gulp.dest("./wwwroot/lib/jquery-validation-unobtrusive"))
+        );
     });
 
 gulp.task("create_jquery_ui",
