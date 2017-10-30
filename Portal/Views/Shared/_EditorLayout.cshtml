@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <title>@ViewData["Title"] - Portal</title>
 
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/ress/ress.css" />
+        <link rel="stylesheet" href="~/lib/ress/ress.css"/>
         <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css"/>
         <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.css">
         <link rel="stylesheet" href="~/lib/jquery.fancytree/skin-lion/ui.fancytree.css">
@@ -21,7 +21,7 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/lib/ress/ress.min.css" />
+        <link rel="stylesheet" href="~/lib/ress/ress.min.css"/>
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"/>
@@ -49,13 +49,13 @@
     </environment>
 </head>
 <body>
-    @await Html.PartialAsync("_Toolbar")
-    <div class="body-content">
-        @RenderBody()
-    </div>
-    <footer>
-        <p>&copy; 2017!! - Portal</p>
-    </footer>
-    @RenderSection("Scripts", required: false)
+@await Html.PartialAsync("_Toolbar")
+<div class="body-content">
+    @RenderBody()
+</div>
+<footer>
+    <p>&copy; 2017!! - Portal</p>
+</footer>
+@RenderSection("Scripts", required: false)
 </body>
 </html>
