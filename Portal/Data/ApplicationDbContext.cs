@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Portal.Models;
 
 namespace Portal.Data
 {
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<User> SafeUsers { get; set; }

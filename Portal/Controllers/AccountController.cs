@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Portal.Data;
 using Portal.Models;
 using Portal.Models.AccountViewModels;
@@ -68,8 +66,8 @@ namespace Portal.Controllers
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe,
-                    lockoutOnFailure: false);
+                var result =
+                    await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -78,18 +76,19 @@ namespace Portal.Controllers
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToAction(nameof(SendCode),
-                        new {ReturnUrl = returnUrl, RememberMe = model.RememberMe});
+                        new
+                        {
+                            ReturnUrl = returnUrl,
+                            RememberMe = model.RememberMe
+                        });
                 }
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning(2, "User account locked out.");
                     return View("Lockout");
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
             }
 
             // If we got this far, something failed, redisplay form
@@ -134,7 +133,7 @@ namespace Portal.Controllers
                         //var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
                         //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
                         //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        await _signInManager.SignInAsync(user, false);
                         _logger.LogInformation(3, "User created a new account with password.");
                         return RedirectToLocal(returnUrl);
                     }
@@ -196,8 +195,7 @@ namespace Portal.Controllers
 
             // Sign in the user with this external login provider if the user already has a login.
             var result =
-                await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
-                    isPersistent: false);
+                await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
             if (result.Succeeded)
             {
                 _logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
@@ -211,14 +209,11 @@ namespace Portal.Controllers
             {
                 return View("Lockout");
             }
-            else
-            {
-                // If the user does not have an account, then ask the user to create an account.
-                ViewData["ReturnUrl"] = returnUrl;
-                ViewData["LoginProvider"] = info.LoginProvider;
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel {Email = email});
-            }
+            // If the user does not have an account, then ask the user to create an account.
+            ViewData["ReturnUrl"] = returnUrl;
+            ViewData["LoginProvider"] = info.LoginProvider;
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel {Email = email});
         }
 
         //
@@ -252,7 +247,7 @@ namespace Portal.Controllers
                         result = await _userManager.AddLoginAsync(user, info);
                         if (result.Succeeded)
                         {
-                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            await _signInManager.SignInAsync(user, false);
                             _logger.LogInformation(6, "User created an account using {Name} provider.",
                                 info.LoginProvider);
                             return RedirectToLocal(returnUrl);
@@ -310,7 +305,7 @@ namespace Portal.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
@@ -362,12 +357,12 @@ namespace Portal.Controllers
             if (user == null)
             {
                 // Don't reveal that the user does not exist
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                return RedirectToAction(nameof(ResetPasswordConfirmation), "Account");
             }
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                return RedirectToAction(nameof(ResetPasswordConfirmation), "Account");
             }
             AddErrors(result);
             return View();
@@ -440,7 +435,7 @@ namespace Portal.Controllers
             }
 
             return RedirectToAction(nameof(VerifyCode),
-                new {Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe});
+                new {Provider = model.SelectedProvider, model.ReturnUrl, model.RememberMe});
         }
 
         //
@@ -485,11 +480,8 @@ namespace Portal.Controllers
                 _logger.LogWarning(7, "User account locked out.");
                 return View("Lockout");
             }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Invalid code.");
-                return View(model);
-            }
+            ModelState.AddModelError(string.Empty, "Invalid code.");
+            return View(model);
         }
 
         //
@@ -516,10 +508,7 @@ namespace Portal.Controllers
             {
                 return Redirect(returnUrl);
             }
-            else
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         #endregion
