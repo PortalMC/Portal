@@ -6,30 +6,30 @@ const del = require("del");
 const merge = require("merge-stream");
 
 gulp.task("clean",
-    function(cb) {
+    function (cb) {
         return del(["./wwwroot/lib"], cb);
     });
 
 gulp.task("create_bootstrap",
-    function() {
+    function () {
         return gulp.src([
-                "./node_modules/bootstrap/dist/**/*",
-                "!./node_modules/bootstrap/dist/js/npm.js"
-            ])
+            "./node_modules/bootstrap/dist/**/*",
+            "!./node_modules/bootstrap/dist/js/npm.js"
+        ])
             .pipe(gulp.dest("./wwwroot/lib/bootstrap"));
     });
 
 gulp.task("create_ress",
-    function() {
+    function () {
         return gulp.src([
-                "./node_modules/ress/ress.css",
-                "./node_modules/ress/dist/ress.min.css"
-            ])
+            "./node_modules/ress/ress.css",
+            "./node_modules/ress/dist/ress.min.css"
+        ])
             .pipe(gulp.dest("./wwwroot/lib/ress"));
     });
 
 gulp.task("create_jquery",
-    function() {
+    function () {
         return merge(
             gulp.src("./node_modules/jquery/dist/**/*")
                 .pipe(gulp.dest("./wwwroot/lib/jquery")),
@@ -41,36 +41,36 @@ gulp.task("create_jquery",
     });
 
 gulp.task("create_jquery_ui",
-    function() {
+    function () {
         return gulp.src([
-                "./node_modules/jquery-ui-bundle/jquery-ui.js",
-                "./node_modules/jquery-ui-bundle/jquery-ui.min.js",
-                "./node_modules/jquery-ui-bundle/jquery-ui.css",
-                "./node_modules/jquery-ui-bundle/jquery-ui.min.css"
-            ])
+            "./node_modules/jquery-ui-bundle/jquery-ui.js",
+            "./node_modules/jquery-ui-bundle/jquery-ui.min.js",
+            "./node_modules/jquery-ui-bundle/jquery-ui.css",
+            "./node_modules/jquery-ui-bundle/jquery-ui.min.css"
+        ])
             .pipe(gulp.dest("./wwwroot/lib/jquery-ui"));
     });
 
 gulp.task("create_jquery_fancytree",
-    function() {
+    function () {
         return gulp.src("./node_modules/jquery.fancytree/dist/**/*")
             .pipe(gulp.dest("./wwwroot/lib/jquery.fancytree"));
     });
 
 gulp.task("create_jquery_layout",
-    function() {
+    function () {
         return gulp.src("./node_modules/jquery.layout-custom/dist/**/*")
             .pipe(gulp.dest("./wwwroot/lib/jquery.layout"));
     });
 
 gulp.task("create_ace_editor",
-    function() {
+    function () {
         return gulp.src("./node_modules/ace-builds/src/**/*")
             .pipe(gulp.dest("./wwwroot/lib/ace"));
     });
 
 gulp.task("create",
-    function(callback) {
+    function (callback) {
         return sequence(
             [
                 "create_bootstrap",
