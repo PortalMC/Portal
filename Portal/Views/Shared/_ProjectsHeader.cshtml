@@ -2,27 +2,27 @@
 <div id="project-index-header" class="body-content">
     <div class="container">
         <div id="project-index-page-title" class="page-title">
-            <h2>@ViewData["Name"]</h2>
-            <a class="btn btn-success" role="button" asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Open in editor</a>
+            <h2>@ViewBag.Name</h2>
+            <a class="btn btn-success" role="button" asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewBag.Uuid">Open in editor</a>
         </div>
         <ul class="nav nav-tabs">
             <li @if (Model == 0)
                 {
                     @:class="active"
                 }>
-                <a href="#">Overview</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="@ViewBag.Uuid">Overview</a>
             </li>
             <li @if (Model == 1)
                 {
                     @:class="active"
                 }>
-                <a href="#">Builds</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Builds" asp-route-uuid="@ViewBag.Uuid">Builds</a>
             </li>
             <li @if (Model == 2)
                 {
                     @:class="active"
                 }>
-                <a href="#">Settings</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Settings" asp-route-uuid="@ViewBag.Uuid">Settings</a>
             </li>
         </ul>
     </div>

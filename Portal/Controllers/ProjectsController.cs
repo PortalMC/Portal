@@ -58,8 +58,8 @@ namespace Portal.Controllers
             {
                 return NotFound();
             }
-            ViewData["Uuid"] = uuid;
-            ViewData["Name"] = result.project.Name;
+            ViewBag.Uuid = uuid;
+            ViewBag.Name = result.project.Name;
             return View("ProjectIndex");
         }
 
@@ -80,8 +80,8 @@ namespace Portal.Controllers
             {
                 return NotFound();
             }
-            ViewData["Uuid"] = uuid;
-            ViewData["Name"] = result.project.Name;
+            ViewBag.Uuid = uuid;
+            ViewBag.Name = result.project.Name;
             return View();
         }
 
