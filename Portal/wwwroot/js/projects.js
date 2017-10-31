@@ -1,6 +1,4 @@
-﻿import * as $ from "jquery";
-
-$(function () {
+﻿$(function () {
     let isConfirmClicked = false;
 
     setupDropdown("projects-new-version-minecraft");
