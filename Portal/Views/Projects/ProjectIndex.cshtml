@@ -3,11 +3,13 @@
     Layout = "_ProjectsLayout";
 }
 
-<div class="page-title">
+<div id="project-index-page-title" class="page-title">
     <h2>@ViewData["Name"]</h2>
+    <a class="btn btn-success" role="button" asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Open in editor</a>
 </div>
 
-
-<li>
-    <a asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Editor</a>
-</li>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#">Overview</a></li>
+    <li><a href="#">Builds</a></li>
+    <li><a href="#">Settings</a></li>
+</ul>

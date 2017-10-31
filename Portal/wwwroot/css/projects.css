@@ -1,9 +1,11 @@
 ﻿/* Common */
 
 .page-title {
-    margin-bottom: 30px;
     padding-bottom: 8px;
-    border-bottom: 1px #e1e4e8 solid;
+}
+
+.no-margin {
+    margin: 0;
 }
 
 /* /Projects */
@@ -80,6 +82,10 @@
 
 /* /Projects/New */
 
+.projects-new-form {
+    margin-top: 30px;
+}
+
 .projects-new-form label {
     font-weight: 600;
 }
@@ -105,4 +111,19 @@
     font-size: 21px;
     color: #586069;
     margin-bottom: 4px;
+}
+
+/* /Projects/{uuid} */
+
+#project-index-page-title {
+    display: flex;
+}
+
+#project-index-page-title > h2 {
+    flex: 1;
+}
+
+#project-index-page-title > a {
+    align-self: flex-end;
+    margin-bottom: 10px;
 }
