@@ -1,0 +1,29 @@
+﻿@model int
+<div id="project-index-header" class="body-content">
+    <div class="container">
+        <div id="project-index-page-title" class="page-title">
+            <h2>@ViewData["Name"]</h2>
+            <a class="btn btn-success" role="button" asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewData["Uuid"]">Open in editor</a>
+        </div>
+        <ul class="nav nav-tabs">
+            <li @if (Model == 0)
+                {
+                    @:class="active"
+                }>
+                <a href="#">Overview</a>
+            </li>
+            <li @if (Model == 1)
+                {
+                    @:class="active"
+                }>
+                <a href="#">Builds</a>
+            </li>
+            <li @if (Model == 2)
+                {
+                    @:class="active"
+                }>
+                <a href="#">Settings</a>
+            </li>
+        </ul>
+    </div>
+</div>

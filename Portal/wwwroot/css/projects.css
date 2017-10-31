@@ -127,3 +127,13 @@
     align-self: flex-end;
     margin-bottom: 10px;
 }
+
+#project-index-header {
+    background-color: #fafbfc;
+    background-clip: padding-box;
+    border-bottom: 1px solid #ddd;
+}
+
+#project-index-header .nav-tabs{
+    border-bottom: none;
+}
