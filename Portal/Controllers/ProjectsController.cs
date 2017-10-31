@@ -29,6 +29,11 @@ namespace Portal.Controllers
             _minecraftVersionProvider = minecraftVersionProvider;
         }
 
+        /**
+         * Projects/{uuid}
+         * Projects/New
+         * Projects
+         */
         public async Task<IActionResult> Index(string uuid)
         {
             if (uuid == null)
@@ -63,7 +68,60 @@ namespace Portal.Controllers
             return View("ProjectIndex");
         }
 
+        /**
+         * Projects/{uuid}/Editor
+         */
         public async Task<IActionResult> Editor(string uuid)
+        {
+            if (uuid == null)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
+            {
+                return NotFound();
+            }
+            ViewBag.Uuid = uuid;
+            ViewBag.Name = result.project.Name;
+            return View();
+        }
+
+        /**
+         * Projects/{uuid}/Builds
+         */
+        public async Task<IActionResult> Builds(string uuid)
+        {
+            if (uuid == null)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
+            {
+                return NotFound();
+            }
+            ViewBag.Uuid = uuid;
+            ViewBag.Name = result.project.Name;
+            return View();
+        }
+
+        /**
+         * Projects/{uuid}/Settings
+         */
+        public async Task<IActionResult> Settings(string uuid)
         {
             if (uuid == null)
             {
