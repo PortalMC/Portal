@@ -115,25 +115,39 @@
 
 /* /Projects/{uuid} */
 
-#project-index-page-title {
+#project-page-title {
     display: flex;
 }
 
-#project-index-page-title > h2 {
+#project-page-title > h2 {
     flex: 1;
 }
 
-#project-index-page-title > a {
+#project-page-title > a {
     align-self: flex-end;
     margin-bottom: 10px;
 }
 
-#project-index-header {
+#project-header {
     background-color: #fafbfc;
     background-clip: padding-box;
     border-bottom: 1px solid #ddd;
 }
 
-#project-index-header .nav-tabs{
+#project-header .nav-tabs {
     border-bottom: none;
+}
+
+#project-header .nav-tabs > li.active > a {
+    color: #24292e;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #e36209 #e1e4e8 transparent;
+}
+
+#project-header .nav-tabs > li > a {
+    color: #586069;
+    border: solid transparent;
+    border-width: 3px 1px 1px;
+    border-radius: 3px 3px 0 0;
 }
