@@ -6,6 +6,7 @@
     "ace-builds": "^1.2.8",
     "bootstrap": "^3.3.7",
     "del": "^3.0.0",
+    "font-awesome": "^4.7.0",
     "gulp": "^3.9.1",
     "jquery": "^3.2.1",
     "jquery-ui-bundle": "^1.12.1",

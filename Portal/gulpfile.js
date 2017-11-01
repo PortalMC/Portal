@@ -69,6 +69,16 @@ gulp.task("create_ace_editor",
             .pipe(gulp.dest("./wwwroot/lib/ace"));
     });
 
+gulp.task("create_font_awesome",
+    function () {
+        return merge(
+            gulp.src("./node_modules/font-awesome/css/*.css")
+                .pipe(gulp.dest("./wwwroot/lib/font-awesome/css")),
+            gulp.src("./node_modules/font-awesome/fonts/*")
+                .pipe(gulp.dest("./wwwroot/lib/font-awesome/fonts"))
+        );
+    });
+
 gulp.task("create",
     function (callback) {
         return sequence(
@@ -79,7 +89,8 @@ gulp.task("create",
                 "create_jquery_ui",
                 "create_jquery_fancytree",
                 "create_jquery_layout",
-                "create_ace_editor"
+                "create_ace_editor",
+                "create_font_awesome"
             ],
             callback
         );
