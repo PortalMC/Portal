@@ -139,6 +139,41 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
+        [HttpPatch("{uuid}")]
+        public async Task<IActionResult> PatchProject(string uuid, [FromBody] Project project)
+        {
+            if (uuid == null || project == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var result = await _context.CanAccessToProjectWithProjectAsync(_userManager.GetUserId(HttpContext.User), uuid, false);
+            if (!result.canAccess)
+            {
+                return NotFound();
+            }
+            try
+            {
+                result.project.UpdatedAt = DateTime.UtcNow;
+                result.project.Description = project.Description;
+                await _context.SaveChangesAsync();
+                return new NoContentResult();
+            }
+            catch (Exception e)
+            {
+                var root = new JObject
+                {
+                    {"success", new JValue(false)},
+                    {"message", new JValue(e.Message)}
+                };
+                return new OkObjectResult(root);
+            }
+        }
+
         [HttpPost("{uuid}/file/get")]
         public async Task<IActionResult> Get(string uuid, [FromBody] FileObject file)
         {

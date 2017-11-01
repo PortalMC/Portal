@@ -6,3 +6,31 @@
 @section Header {
     @Html.Partial("_ProjectsHeader", 0)
 }
+
+<div id="project-description-container">
+    @if (string.IsNullOrEmpty(ViewBag.Description))
+    {
+        <span id="project-description" class="project-description-empty" data-empty="No description provided.">
+            No description provided.
+        </span>
+    }
+    else
+    {
+        <span id="project-description">
+            @ViewBag.Description
+        </span>
+    }
+    <a id="project-description-edit" class="btn btn-default btn-sm" role="button">Edit</a>
+</div>
+
+<form id="project-description-edit-container">
+    <div>
+        <label>Description</label>
+        <input id="form-description" class="form-control" name="description" placeholder="Short description of this project" value="@ViewBag.Description"/>
+    </div>
+    <div>
+        <a id="project-description-edit-confirm" class="btn btn-default" role="button">Save</a>
+        or
+        <a id="project-description-edit-cancel">Cancel</a>
+    </div>
+</form>

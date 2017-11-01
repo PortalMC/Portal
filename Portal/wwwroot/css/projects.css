@@ -132,6 +132,7 @@
     background-color: #fafbfc;
     background-clip: padding-box;
     border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
 }
 
 #project-header .nav-tabs {
@@ -150,4 +151,43 @@
     border: solid transparent;
     border-width: 3px 1px 1px;
     border-radius: 3px 3px 0 0;
+}
+
+#project-description-container {
+    display: flex;
+}
+
+#project-description-container > a {
+    align-self: center;
+}
+
+#project-description {
+    flex: 1;
+    font-size: 16px;
+}
+
+.project-description-empty {
+    font-style: italic;
+}
+
+#project-description-edit-container {
+    display: none;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+#project-description-edit-container > div:first-child {
+    flex: 1;
+}
+
+#project-description-edit-container input {
+    max-width: none;
+}
+
+#project-description-edit-confirm {
+    margin-left: 12px;
+}
+
+#project-description-edit-cancel {
+    cursor: pointer;
 }

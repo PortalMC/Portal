@@ -19,6 +19,52 @@
         postNewProject();
     });
 
+    $("#project-description-edit").click((e) => {
+        e.preventDefault();
+        $("#project-description-container").css("display", "none");
+        $("#project-description-edit-container").css("display", "flex");
+    });
+
+    $("#project-description-edit-cancel").click((e) => {
+        e.preventDefault();
+        $("#project-description-container").css("display", "flex");
+        $("#project-description-edit-container").css("display", "none");
+        $("#form-description").val($("#project-description").text().trim());
+    });
+
+    $("#project-description-edit-confirm").click((e) => {
+        e.preventDefault();
+        updateDescription();
+    });
+
+    function updateDescription() {
+        const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/?/)[1];
+        const description = $("#form-description").val();
+        const data = {
+            description: description
+        };
+        $.ajax({
+            url: `${getApiBaseAddress()}projects/${projectUuid}`,
+            type: "patch",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        }).done(() => {
+            const projectDescription = $("#project-description");
+            if (description === null || description.length === 0) {
+                projectDescription.addClass("project-description-empty");
+                projectDescription.text(projectDescription.attr("data-empty"));
+            } else {
+                projectDescription.removeClass("project-description-empty");
+                projectDescription.text(description);
+            }
+            $("#project-description-container").css("display", "flex");
+            $("#project-description-edit-container").css("display", "none");
+        }).fail((jqXhr, textStatus, errorThrown) => {
+            console.log("error!");
+        });
+    }
+
     function postNewProject() {
         isConfirmClicked = true;
 

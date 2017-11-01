@@ -65,6 +65,7 @@ namespace Portal.Controllers
             }
             ViewBag.Uuid = uuid;
             ViewBag.Name = result.project.Name;
+            ViewBag.Description = result.project.Description;
             return View("ProjectIndex");
         }
 

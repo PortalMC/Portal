@@ -24,10 +24,11 @@ namespace Portal.Extensions
         public static async Task<(bool canAccess, Project project)> CanAccessToProjectWithProjectAsync(
             this ApplicationDbContext context,
             string userId,
-            string projectId)
+            string projectId,
+            bool noTracking = true)
         {
             var project = await context.AccessRights
-                .AsNoTracking()
+                .Ternary(noTracking, q => q.AsNoTracking(), q => q.AsTracking())
                 .Where(a => a.User.Id == userId)
                 .Select(a => a.Project)
                 .Where(p => p.Id == projectId)
@@ -41,6 +42,12 @@ namespace Portal.Extensions
                 .SingleAsync(p => p.Id == projectId);
             project.UpdatedAt = DateTime.UtcNow;
             await context.SaveChangesAsync();
+        }
+
+        private static IQueryable<TK> Ternary<TK>(this IQueryable<TK> q, bool cond,
+            Func<IQueryable<TK>, IQueryable<TK>> trueAction, Func<IQueryable<TK>, IQueryable<TK>> falseAction)
+        {
+            return cond ? trueAction(q) : falseAction(q);
         }
     }
 }
