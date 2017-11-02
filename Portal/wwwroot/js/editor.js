@@ -18,8 +18,8 @@
             tabs.tabs("refresh");
         }
     });
-    tabs.on("click", "span.editor-tab-icon-close", () => {
-        const panelId = $(this).closest("li").remove().attr("aria-controls");
+    tabs.on("click", "span.editor-tab-icon-close", (e) => {
+        const panelId = $(e.target).closest("li").remove().attr("aria-controls");
         $(`#${panelId}`).remove();
         const path = getPathByPanelId(panelId);
         delete tabMap[path];
