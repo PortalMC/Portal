@@ -193,7 +193,7 @@ span.fancytree-node > span {
 
 .breadcrumb > li:after {
     padding: 0 5px;
-    color: #ccc;
+    color: #a1a1a1;
     content: ">";
 }
 
@@ -221,6 +221,7 @@ span.fancytree-node > span {
     padding: 0;
     border-radius: 0;
     border: solid 1px #a1a1a1;
+    background-color: #f2f2f2;
 }
 
 #editor-menu .dropdown-menu > li {
@@ -268,4 +269,8 @@ span.fancytree-node > span {
 
 #editor-toolbar .breadcrumb {
     padding: 4px 15px;
+}
+
+#editor-menu, #editor-toolbar {
+    background-color: #f2f2f2;
 }
