@@ -172,8 +172,8 @@
 
     function getIndexOfEditorPanel(id) {
         let result = -1;
-        $(".ui-tabs-tab").each((i) => {
-            if ($(this).attr("aria-controls") === id) {
+        $(".ui-tabs-tab").each((i, e) => {
+            if ($(e).attr("aria-controls") === id) {
                 result = i;
                 return false;
             }
