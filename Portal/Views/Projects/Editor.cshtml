@@ -7,6 +7,55 @@
 {
     <script src="~/js/editor.js"></script>
 }
+<div id="editor-menu">
+    <div class="dropdown">
+        <span class="dropdown-toggle" id="editor-menu-dropdown-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            File
+        </span>
+        <ul class="dropdown-menu" aria-labelledby="editor-menu-dropdown-1">
+            <li>
+                <i class="dropdown-menu-icon dropdown-menu-icon-none" aria-hidden="true"></i>
+                <a href="#">Action</a>
+            </li>
+            <li>
+                <i class="dropdown-menu-icon dropdown-menu-icon-none" aria-hidden="true"></i>
+                <a href="#">Another action</a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li>
+                <i class="dropdown-menu-icon dropdown-menu-icon-none" aria-hidden="true"></i>
+                <a href="#">Separated link</a>
+            </li>
+        </ul>
+    </div>
+    <div class="dropdown">
+        <span class="dropdown-toggle" id="editor-menu-dropdown-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            View
+        </span>
+        <ul class="dropdown-menu" aria-labelledby="editor-menu-dropdown-2">
+            <li data-menu-command="navigation-bar">
+                <i class="dropdown-menu-icon fa fa-check" aria-hidden="true"></i>
+                <a href="#">Navigation Bar</a>
+            </li>
+            <li>
+                <i class="dropdown-menu-icon dropdown-menu-icon-none" aria-hidden="true"></i>
+                <a href="#">Another action</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="editor-toolbar">
+    <ol class="breadcrumb">
+        <li>
+            <a href="#">Home</a>
+        </li>
+        <li>
+            <a href="#">Library</a>
+        </li>
+        <li class="active">Data</li>
+    </ol>
+</div>
 
 <div id="editor-root">
     <div id="tree-container">

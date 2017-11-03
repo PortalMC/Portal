@@ -5,6 +5,9 @@
 
     const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
     const tabMap = {};
+    const setting = {
+        "show-navigation-bar": true
+    };
 
     $("#editor-root").layout(getPanelLayoutSettings());
     $("#tree-container").find("> .content").fancytree(getTreeSettings());
@@ -37,11 +40,37 @@
         }
     });
 
+    // Menu
+    $("#editor-menu").find("li").on("click", (e) => {
+        const command = $(e.target).attr("data-menu-command") === undefined
+            ? $(e.target.parentElement).attr("data-menu-command")
+            : $(e.target).attr("data-menu-command");
+        onClickMenu(command);
+    });
+
     fetchProjectTree();
 
     // ======================
     // Functions
     // ======================
+
+    function onClickMenu(command) {
+        console.log("on click menu : " + command);
+        switch (command) {
+            case "navigation-bar":
+                if (setting["show-navigation-bar"]) {
+                    $(".navbar").hide();
+                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").addClass("dropdown-menu-icon-none")
+                    setting["show-navigation-bar"] = false;
+                } else {
+                    $(".navbar").show();
+                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").removeClass("dropdown-menu-icon-none")
+                    setting["show-navigation-bar"] = true;
+                }
+                $("#editor-root").layout().resizeAll();
+                break;
+        }
+    }
 
     function fetchProjectTree() {
         $.ajax({

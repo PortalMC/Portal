@@ -3,7 +3,6 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding-top: 50px;
 }
 
 p {
@@ -12,6 +11,7 @@ p {
 
 .navbar {
     margin-bottom: 0;
+    position: relative;
 }
 
 .body-content {
@@ -123,7 +123,7 @@ span.fancytree-node > span {
 #editor-tab-root .ui-tabs-tab {
     display: flex;
     align-items: center;
-    margin: 0;
+    margin: -1px 0 0;
     padding: 0;
     border-radius: 0;
     background-color: #d4d4d4;
@@ -178,4 +178,83 @@ span.fancytree-node > span {
 
 .editor-tab-unsaved .editor-tab-icon-unsaved::before {
     content: "*";
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+    border-bottom: solid 1px #9b9b9b;
+    border-radius: 0;
+}
+
+.breadcrumb > li + li:before {
+    content: ">";
+}
+
+#editor-menu {
+    display: flex;
+    border-bottom: solid 1px #9b9b9b;
+    font-size: 14px;
+}
+
+#editor-menu .dropdown-toggle {
+    margin: 6px;
+    cursor: default;
+}
+
+#editor-menu .open {
+    background-color: #1a7dc4;
+}
+
+#editor-menu .open .dropdown-toggle {
+    color: white;
+}
+
+#editor-menu .dropdown-menu {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    border: solid 1px #a1a1a1;
+}
+
+#editor-menu .dropdown-menu > li {
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+}
+
+#editor-menu .dropdown-menu > li:hover, #editor-menu .dropdown-menu > li:focus {
+    color: white;
+    text-decoration: none;
+    background-color: #1a7dc4;
+}
+
+#editor-menu .dropdown-menu > li:hover > a, #editor-menu .dropdown-menu > li:focus > a {
+    color: white;
+    text-decoration: none;
+    background-color: inherit;
+}
+
+#editor-menu .dropdown-menu > li > a {
+    margin: 0;
+    padding: 0;
+    cursor: default;
+}
+
+#editor-menu .dropdown-menu > li > i {
+    margin-right: 4px;
+}
+
+#editor-menu .dropdown-menu-icon {
+    width: 14px;
+    min-width: 14px;
+}
+
+#editor-menu .dropdown-menu-icon-none:before {
+    content: none;
+}
+
+#editor-menu .dropdown-menu > li.divider {
+    display: flex;
+    padding: 0;
+    margin: 0;
 }
