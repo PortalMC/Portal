@@ -187,6 +187,13 @@ span.fancytree-node > span {
 }
 
 .breadcrumb > li + li:before {
+    padding: 0;
+    content: none;
+}
+
+.breadcrumb > li:after {
+    padding: 0 5px;
+    color: #ccc;
     content: ">";
 }
 
@@ -257,4 +264,8 @@ span.fancytree-node > span {
     display: flex;
     padding: 0;
     margin: 0;
+}
+
+#editor-toolbar .breadcrumb {
+    padding: 4px 15px;
 }

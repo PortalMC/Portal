@@ -14,7 +14,13 @@
 
     let tabCounter = 1;
     const tabTemplate = "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
-    const tabs = $("#editor-tabs").tabs();
+    const tabs = $("#editor-tabs").tabs({
+        activate: (e, ui) => {
+            const panelId = ui.newTab.attr("aria-controls");
+            const path = getPathByPanelId(panelId);
+            updateToolbarBreadcrumbPath(path);
+        }
+    });
     tabs.find(".ui-tabs-nav").sortable({
         axis: "x",
         stop: () => {
@@ -54,6 +60,19 @@
     // Functions
     // ======================
 
+    function fetchProjectTree() {
+        $.ajax({
+            url: `${getApiBaseAddress()}projects/${projectUuid}/file/list`,
+            type: "get",
+            dataType: "json"
+        }).done(data => {
+            $("#editor-toolbar-breadcrumb-root").text(data[0].title);
+            $("#tree-container").find("> .content").fancytree("option", "source", data);
+        }).fail((jqXhr, textStatus, errorThrown) => {
+            console.log("error!");
+        });
+    }
+
     function onClickMenu(command) {
         console.log("on click menu : " + command);
         switch (command) {
@@ -72,16 +91,16 @@
         }
     }
 
-    function fetchProjectTree() {
-        $.ajax({
-            url: `${getApiBaseAddress()}projects/${projectUuid}/file/list`,
-            type: "get",
-            dataType: "json"
-        }).done(data => {
-            $("#tree-container").find("> .content").fancytree("option", "source", data);
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-        });
+    function updateToolbarBreadcrumbPath(path) {
+        const container = $("#editor-toolbar-breadcrumb-container");
+        container.children(":not(#editor-toolbar-breadcrumb-root)").remove();
+        if (path === undefined) {
+            return
+        }
+        const paths = path.split("/");
+        for (let p of paths) {
+            container.append(`<li>${p}</li>`);
+        }
     }
 
     function getPathByPanelId(id) {
@@ -167,6 +186,9 @@
         editor.setValue(data["content"], -1);
         editor.getSession().on("change", () => {
             $(`#tab-${id}`).addClass("editor-tab-unsaved");
+        });
+        editor.on("focus", () => {
+            updateToolbarBreadcrumbPath(data.path);
         });
     }
 
@@ -264,7 +286,16 @@
             tooltip: false, // Use title as tooltip (also a callback could be specified)
             toggleEffect: false,
 
-            focus: () => {
+            focus: (event, data) => {
+                let node = data.node;
+                let paths = [];
+                while (node !== undefined && node !== null) {
+                    paths.unshift(node.title);
+                    node = node.parent;
+                }
+                paths.shift();
+                paths.shift();
+                updateToolbarBreadcrumbPath(paths.join("/"))
                 $("#tree-container").find(".header").css("background-color", "#c6cfdf");
             },
 
