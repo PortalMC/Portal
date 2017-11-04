@@ -48,10 +48,16 @@
 
     // Menu
     $("#editor-menu").find("li").on("click", (e) => {
-        const command = $(e.target).attr("data-menu-command") === undefined
-            ? $(e.target.parentElement).attr("data-menu-command")
-            : $(e.target).attr("data-menu-command");
-        onClickMenu(command);
+        const command = $(e.target).attr("data-command") === undefined
+            ? $(e.target.parentElement).attr("data-command")
+            : $(e.target).attr("data-command");
+        onClickCommand(command);
+    });
+
+    // Toolbar
+    $(".editor-toolbar-command").on("click", (e) => {
+        const command = $(e.target).attr("data-command");
+        onClickCommand(command);
     });
 
     fetchProjectTree();
@@ -73,8 +79,7 @@
         });
     }
 
-    function onClickMenu(command) {
-        console.log("on click menu : " + command);
+    function onClickCommand(command) {
         switch (command) {
             case "navigation-bar":
                 if (setting["show-navigation-bar"]) {
@@ -87,6 +92,12 @@
                     setting["show-navigation-bar"] = true;
                 }
                 $("#editor-root").layout().resizeAll();
+                break;
+            case "build":
+                console.log("Start build");
+                break;
+            default:
+                console.error("Unknown command : " + command);
                 break;
         }
     }
