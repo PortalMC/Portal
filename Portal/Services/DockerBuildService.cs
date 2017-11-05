@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
@@ -53,10 +54,10 @@ namespace Portal.Services
         public void StartBuild(string uuid)
         {
             Console.WriteLine("Start:" + uuid);
-            StartBuildInternal(uuid);
+            StartBuildInternal(uuid).FireAndForget();
         }
 
-        private async void StartBuildInternal(string uuid)
+        private async Task StartBuildInternal(string uuid)
         {
             Console.WriteLine("Creating container...");
             var container = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
@@ -75,44 +76,29 @@ namespace Portal.Services
                 AttachStderr = true,
                 Tty = true
             });
-            await _client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
-
-            /*
-            var result = await _client.Containers.ExecCreateContainerAsync(container.ID, new ContainerExecCreateParameters
+            var buffer = new byte[1024];
+            using (var stream = await _client.Containers.AttachContainerAsync(container.ID, true, new ContainerAttachParameters
             {
-                AttachStdout = true,
-                AttachStderr = true,
-                Tty = true,
-
-                Cmd = new List<string>
-                {
-                    "/bin/bash -c /portal/build.sh"
-                }
-            });
-            var stream = await _client.Containers.StartAndAttachContainerExecAsync(container.ID, false);
-            */
-            var stream = await _client.Containers.AttachContainerAsync(container.ID, true, new ContainerAttachParameters
-            {
-                Stderr = true,
                 Stdout = true,
+                Stderr = true,
                 Stream = true
-            });
-            try
+            }))
             {
-                byte[] buf = new byte[1024];
+                await _client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
                 while (true)
                 {
-                    CancellationTokenSource cancellation = new CancellationTokenSource();
-                    var res = await stream.ReadOutputAsync(buf, 0, 1024, cancellation.Token);
-                    _logger.LogDebug($"{res.Target} : {res.Count} : {System.Text.Encoding.Default.GetString(buf.Take(res.Count).ToArray())}");
+                    var result = await stream.ReadOutputAsync(buffer, 0, buffer.Length, default(CancellationToken));
+                    var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    Console.Write(text);
+                    if (result.EOF)
+                    {
+                        break;
+                    }
                 }
             }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "");
-                Console.WriteLine(e);
-                throw;
-            }
+            Console.WriteLine("Build finished. Removing container...");
+            await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
+            Console.WriteLine("Container removed.");
         }
     }
 }
