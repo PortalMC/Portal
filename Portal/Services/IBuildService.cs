@@ -2,6 +2,6 @@
 {
     public interface IBuildService
     {
-        void StartBuild(string uuid);
+        void StartBuild(string projectId, string userId);
     }
 }

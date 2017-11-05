@@ -189,12 +189,13 @@ namespace Portal.Controllers.Api.V1
                 // wrong uuid format
                 return BadRequest();
             }
-            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var canAccess = await _context.CanAccessToProjectAsync(userId, uuid);
             if (!canAccess)
             {
                 return NotFound();
             }
-            _buildService.StartBuild(uuid);
+            _buildService.StartBuild(uuid, userId);
             return new NoContentResult();
         }
 

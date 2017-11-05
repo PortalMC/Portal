@@ -60,11 +60,68 @@
         onClickCommand(command);
     });
 
+    let webSocket = null;
+    connectLogWebsocket();
+
     fetchProjectTree();
 
     // ======================
     // Functions
     // ======================
+
+    function connectLogWebsocket() {
+        const uri = `ws://${window.location.host}/api/v1/projects/${projectUuid}/ws`;
+        const buildLogContainer = $("#log-container").find(".content");
+
+        if (webSocket === undefined || webSocket === null) {
+            webSocket = new WebSocket(uri);
+            webSocket.onopen = onOpen;
+            webSocket.onmessage = onMessage;
+            webSocket.onclose = onClose;
+            webSocket.onerror = onError;
+        }
+
+        function onOpen(event) {
+            appendToBuildLog("接続しました。\r\n");
+        }
+
+        function onMessage(event) {
+            if (event && event.data) {
+                appendToBuildLog(event.data);
+            }
+        }
+
+        function onError(event) {
+            appendToBuildLog("Error");
+        }
+
+        function onClose(event) {
+            appendToBuildLog("Disconnected (" + event.code + ")");
+            webSocket = null;
+        }
+
+        let lastLine = "";
+        function appendToBuildLog(message) {
+            lastLine += message;
+            lastLine = checkLastLine(lastLine, "\r\n");
+            lastLine = checkLastLine(lastLine, "\r");
+            lastLine = checkLastLine(lastLine, "\n");
+            $("#log-last-line").text(lastLine);
+            buildLogContainer.animate({scrollTop: buildLogContainer[0].scrollHeight}, 0);
+        }
+
+        function checkLastLine(lastLine, newLineStr) {
+            const arr = lastLine.split(newLineStr);
+            if (arr.length > 2) {
+
+                for (let i = 0; i < arr.length - 1; ++i) {
+                    $("#log-last-line").before(`<div class="log-line">${arr[i]}</div>`);
+                }
+                return arr[arr.length - 1];
+            }
+            return lastLine;
+        }
+    }
 
     function fetchProjectTree() {
         $.ajax({
@@ -262,6 +319,19 @@
             west: {
                 paneSelector: "#tree-container",
                 size: 250,
+                spacing_closed: 21,
+                togglerLength_closed: 21,
+                togglerAlign_closed: "top",
+                togglerLength_open: 0,
+                togglerTip_open: "Close East Pane",
+                togglerTip_closed: "Open East Pane",
+                resizerTip_open: "Resize East Pane",
+                slideTrigger_open: "mouseover",
+                initClosed: false
+            },
+            south: {
+                paneSelector: "#log-container",
+                size: 70,
                 spacing_closed: 21,
                 togglerLength_closed: 21,
                 togglerAlign_closed: "top",

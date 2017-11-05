@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,14 +51,15 @@ namespace Portal
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
-            services.AddSingleton<IMinecraftVersionProvider>(
-                new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
+            services.AddSingleton<IMinecraftVersionProvider>(new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
             services.AddSingleton<IProjectSetting>(new ProjectSetting(Configuration.GetSection("Projects")));
             services.AddSingleton<IBuildService, DockerBuildService>();
+            services.AddSingleton<WebSocketConnectionManager>();
+            services.AddSingleton<WebSocketService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -77,6 +79,8 @@ namespace Portal
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            app.UseWebSockets();
 
             // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
 
@@ -104,6 +108,8 @@ namespace Portal
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            
+            app.Use(serviceProvider.GetService<WebSocketService>().Acceptor);
         }
     }
 }

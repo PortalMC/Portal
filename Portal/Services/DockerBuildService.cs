@@ -15,12 +15,14 @@ namespace Portal.Services
     {
         private IProjectSetting _projectSetting;
         private readonly ILogger<DockerBuildService> _logger;
+        private readonly WebSocketConnectionManager _connectionManager;
         private DockerClient _client;
 
-        public DockerBuildService(IProjectSetting projectSetting, ILogger<DockerBuildService> logger)
+        public DockerBuildService(IProjectSetting projectSetting, ILogger<DockerBuildService> logger, WebSocketConnectionManager connectionManager)
         {
             _projectSetting = projectSetting;
             _logger = logger;
+            _connectionManager = connectionManager;
             _client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine"))
                 .CreateClient();
             Console.WriteLine("Start checking Docker...");
@@ -51,13 +53,13 @@ namespace Portal.Services
             }
         }
 
-        public void StartBuild(string uuid)
+        public void StartBuild(string projectId, string userId)
         {
-            Console.WriteLine("Start:" + uuid);
-            StartBuildInternal(uuid).FireAndForget();
+            Console.WriteLine("Start:" + projectId);
+            StartBuildInternal(projectId, userId).FireAndForget();
         }
 
-        private async Task StartBuildInternal(string uuid)
+        private async Task StartBuildInternal(string projectId, string userId)
         {
             Console.WriteLine("Creating container...");
             var container = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
@@ -68,8 +70,8 @@ namespace Portal.Services
                 {
                     Binds = new List<string>
                     {
-                        $"{_projectSetting.GetProjectsRoot().ResolveDir(uuid).FullName}:/portal/src:ro",
-                        $"{_projectSetting.GetProjectsRoot().ResolveDir(uuid).FullName}:/portal/build:rw"
+                        $"{_projectSetting.GetProjectsRoot().ResolveDir(projectId).FullName}:/portal/src:ro",
+                        $"{_projectSetting.GetProjectsRoot().ResolveDir(projectId).FullName}:/portal/build:rw"
                     }
                 },
                 AttachStdout = true,
@@ -90,6 +92,7 @@ namespace Portal.Services
                     var result = await stream.ReadOutputAsync(buffer, 0, buffer.Length, default(CancellationToken));
                     var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     Console.Write(text);
+                    _connectionManager.SendMessage(projectId, userId, text);
                     if (result.EOF)
                     {
                         break;
