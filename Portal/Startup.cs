@@ -53,6 +53,7 @@ namespace Portal
             services.AddSingleton<IMinecraftVersionProvider>(
                 new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
             services.AddSingleton<IProjectSetting>(new ProjectSetting(Configuration.GetSection("Projects")));
+            services.AddSingleton<IBuildService, DockerBuildService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -26,16 +26,19 @@ namespace Portal.Controllers.Api.V1
         private readonly ApplicationDbContext _context;
         private readonly IMinecraftVersionProvider _minecraftVersionProvider;
         private readonly IProjectSetting _projectSetting;
+        private readonly IBuildService _buildService;
 
         public ProjectsController(UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
             IMinecraftVersionProvider minecraftVersionProvider,
-            IProjectSetting projectSetting)
+            IProjectSetting projectSetting,
+            IBuildService buildService)
         {
             _userManager = userManager;
             _context = context;
             _minecraftVersionProvider = minecraftVersionProvider;
             _projectSetting = projectSetting;
+            _buildService = buildService;
         }
 
         [HttpPost("")]
@@ -172,6 +175,27 @@ namespace Portal.Controllers.Api.V1
                 };
                 return new OkObjectResult(root);
             }
+        }
+
+        [HttpPost("{uuid}/build")]
+        public async Task<IActionResult> Build(string uuid)
+        {
+            if (uuid == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            _buildService.StartBuild(uuid);
+            return new NoContentResult();
         }
 
         [HttpPost("{uuid}/file/get")]

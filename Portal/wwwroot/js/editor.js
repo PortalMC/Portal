@@ -95,6 +95,15 @@
                 break;
             case "build":
                 console.log("Start build");
+                $.ajax({
+                    url: `${getApiBaseAddress()}projects/${projectUuid}/build`,
+                    type: "post",
+                    dataType: "json"
+                }).done(() => {
+                    alert("Start build");
+                }).fail((jqXhr, textStatus, errorThrown) => {
+                    console.log("error!");
+                });
                 break;
             default:
                 console.error("Unknown command : " + command);
