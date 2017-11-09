@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Portal.Data;
 using Portal.Models;
 using Portal.Services;
+using Portal.Settings;
 
 namespace Portal
 {
@@ -49,10 +50,13 @@ namespace Portal
             services.AddMvc();
 
             // Add application services.
+            var buildSetting = new BuildSetting(Configuration.GetSection("Builds"));
+            services.AddSingleton(new ProjectSetting(Configuration.GetSection("Projects")));
+            services.AddSingleton(buildSetting);
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddSingleton<IMinecraftVersionProvider>(new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
-            services.AddSingleton<IProjectSetting>(new ProjectSetting(Configuration.GetSection("Projects")));
+            services.AddBuildService(buildSetting.GetBuildMethodType());
             services.AddSingleton<IBuildService, DockerBuildService>();
             services.AddSingleton<WebSocketConnectionManager>();
             services.AddSingleton<WebSocketService>();
@@ -108,7 +112,7 @@ namespace Portal
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-            
+
             app.Use(serviceProvider.GetService<WebSocketService>().Acceptor);
         }
     }

@@ -3,8 +3,8 @@
 
 
 ace-builds@^1.2.8:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.2.8.tgz#062dc45772b00ece6a547a266a3081fe57591103"
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.2.9.tgz#2947fb47a881005e914e3dd8d095b6e84e5e5216"
 
 ansi-regex@^2.0.0:
   version "2.1.1"
@@ -617,13 +617,15 @@ jquery-validation@>=1.8, jquery-validation@^1.17.0:
     jquery "^1.7 || ^2.0 || ^3.1"
 
 jquery.fancytree@^2.24.0:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/jquery.fancytree/-/jquery.fancytree-2.24.0.tgz#60442a65648515d3e652197693efc0646af57629"
+  version "2.26.0"
+  resolved "https://registry.yarnpkg.com/jquery.fancytree/-/jquery.fancytree-2.26.0.tgz#aee32d484829f06bc612099395acc1c3dc372608"
+  dependencies:
+    jquery ">=1.9"
 
 "jquery.layout-custom@file:custom_repo/jquery.layout":
   version "1.4.4-custom"
 
-jquery@>=1.8, "jquery@^1.7 || ^2.0 || ^3.1", jquery@^3.2.1:
+jquery@>=1.8, jquery@>=1.9, "jquery@^1.7 || ^2.0 || ^3.1", jquery@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 

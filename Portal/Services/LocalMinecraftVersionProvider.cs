@@ -17,13 +17,14 @@ namespace Portal.Services
             _root = new DirectoryInfo(configuration.GetSection("Root").Value);
             _minecraftVersions = (from versionRaw in configuration.GetSection("Versions").GetChildren()
                 let minecraftVersionStr = versionRaw.GetValue("MinecraftVersion", "")
+                let dockerImageVersionStr = versionRaw.GetValue("DockerImageVersion", "1")
                 let forgeVersionsRaw = versionRaw.GetSection("ForgeVersions").GetChildren()
                 let forgeVersions = forgeVersionsRaw.Select(v =>
                         new ForgeVersion(v.GetValue("ForgeVersion", ""),
                             v.GetValue("File", ""),
                             v.GetValue("Recommended", false)))
                     .ToList()
-                select new MinecraftVersion(minecraftVersionStr, forgeVersions)).ToList();
+                select new MinecraftVersion(minecraftVersionStr, forgeVersions, dockerImageVersionStr)).ToList();
         }
 
         public ICollection<MinecraftVersion> GetMinecraftVersions()

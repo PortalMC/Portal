@@ -6,11 +6,13 @@ namespace Portal.Models
     {
         public string Version { get; }
         public ICollection<ForgeVersion> ForgeVersions { get; }
+        public string DockerImageVersion { get; }
 
-        public MinecraftVersion(string version, ICollection<ForgeVersion> forgeVersions)
+        public MinecraftVersion(string version, ICollection<ForgeVersion> forgeVersions, string dockerImageVersion)
         {
             Version = version;
             ForgeVersions = forgeVersions;
+            DockerImageVersion = dockerImageVersion;
         }
     }
 }

@@ -13,6 +13,7 @@ using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Services;
+using Portal.Settings;
 using Portal.Utils;
 
 namespace Portal.Controllers.Api.V1
@@ -25,21 +26,8 @@ namespace Portal.Controllers.Api.V1
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly IMinecraftVersionProvider _minecraftVersionProvider;
-        private readonly IProjectSetting _projectSetting;
+        private readonly ProjectSetting _projectSetting;
         private readonly IBuildService _buildService;
-
-        public ProjectsController(UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context,
-            IMinecraftVersionProvider minecraftVersionProvider,
-            IProjectSetting projectSetting,
-            IBuildService buildService)
-        {
-            _userManager = userManager;
-            _context = context;
-            _minecraftVersionProvider = minecraftVersionProvider;
-            _projectSetting = projectSetting;
-            _buildService = buildService;
-        }
 
         [HttpPost("")]
         public async Task<IActionResult> NewProject([FromBody] Project project)
@@ -142,6 +130,19 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
+        public ProjectsController(UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context,
+            IMinecraftVersionProvider minecraftVersionProvider,
+            ProjectSetting projectSetting,
+            IBuildService buildService)
+        {
+            _userManager = userManager;
+            _context = context;
+            _minecraftVersionProvider = minecraftVersionProvider;
+            _projectSetting = projectSetting;
+            _buildService = buildService;
+        }
+
         [HttpPatch("{uuid}")]
         public async Task<IActionResult> PatchProject(string uuid, [FromBody] Project project)
         {
@@ -190,12 +191,12 @@ namespace Portal.Controllers.Api.V1
                 return BadRequest();
             }
             var userId = _userManager.GetUserId(HttpContext.User);
-            var canAccess = await _context.CanAccessToProjectAsync(userId, uuid);
-            if (!canAccess)
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
             {
                 return NotFound();
             }
-            _buildService.StartBuild(uuid, userId);
+            _buildService.StartBuild(result.project, userId);
             return new NoContentResult();
         }
 

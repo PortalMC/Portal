@@ -8,77 +8,100 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using Portal.Extensions;
+using Portal.Models;
+using Portal.Settings;
 
 namespace Portal.Services
 {
     public class DockerBuildService : IBuildService
     {
-        private IProjectSetting _projectSetting;
+        private readonly ProjectSetting _projectSetting;
+        private readonly BuildSetting _buildSetting;
+        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
         private readonly ILogger<DockerBuildService> _logger;
         private readonly WebSocketConnectionManager _connectionManager;
-        private DockerClient _client;
+        private readonly DockerBuildMethodSetting _dockerSetting;
+        private readonly DockerClient _client;
 
-        public DockerBuildService(IProjectSetting projectSetting, ILogger<DockerBuildService> logger, WebSocketConnectionManager connectionManager)
+        public DockerBuildService(
+            ProjectSetting projectSetting,
+            BuildSetting buildSetting,
+            IMinecraftVersionProvider minecraftVersionProvider,
+            ILogger<DockerBuildService> logger,
+            WebSocketConnectionManager connectionManager)
         {
             _projectSetting = projectSetting;
+            _buildSetting = buildSetting;
+            _minecraftVersionProvider = minecraftVersionProvider;
             _logger = logger;
             _connectionManager = connectionManager;
-            _client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine"))
-                .CreateClient();
-            Console.WriteLine("Start checking Docker...");
+            _dockerSetting = buildSetting.GetBuildMethodSetting<DockerBuildMethodSetting>();
+            _client = new DockerClientConfiguration(_dockerSetting.ApiUri).CreateClient();
+            _logger.LogInformation("Start checking Docker...");
             CheckImageReady().Wait();
         }
 
         private async Task CheckImageReady()
         {
-            try
+            _logger.LogInformation("Checking builder image is available...");
+            var images = await _client.Images.ListImagesAsync(new ImagesListParameters());
+            foreach (var minecraftVersion in _minecraftVersionProvider.GetMinecraftVersions())
             {
-                Console.WriteLine("Searching jdk image...");
-                var images = await _client.Images.ListImagesAsync(new ImagesListParameters());
-                if (images.Count(i => i.RepoTags.Contains("openjdk:8-jdk-alpine")) == 0)
+                var repo = _dockerSetting.ImageName;
+                var tag = $"mc-{minecraftVersion.Version}-{minecraftVersion.DockerImageVersion}";
+                if (images.Any(i => i.RepoTags.Contains($"{repo}:{tag}"))) continue;
+                _logger.LogInformation($"Image '{repo}:{tag}' has not been pulled.");
+                _logger.LogInformation("Start pulling image.");
+                try
                 {
-                    Console.WriteLine("No pulled image found.");
-                    Console.WriteLine("Try pulling image.");
                     await _client.Images.CreateImageAsync(new ImagesCreateParameters
                     {
-                        Repo = "openjdk",
-                        Tag = "8-jdk-alpine"
+                        Repo = repo,
+                        Tag = tag
                     }, null, null);
-                    Console.WriteLine("Pulled image successfully!");
+                    _logger.LogInformation($"Pull image '{repo}:{tag}' successfully!");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Failed to pull image '{repo}:{tag}'. Reason: {ex.Message}");
                 }
             }
-            catch (Exception ex)
+        }
+
+        public void StartBuild(Project project, string userId)
+        {
+            _logger.LogInformation("Start build : " + project.Id);
+            StartBuildInternal(project, userId).FireAndForget();
+        }
+
+        private async Task StartBuildInternal(Project project, string userId)
+        {
+            var destination = _buildSetting.GetBuildStorageSetting().GetRootDirectory().ResolveDir(project.Id);
+            if (!destination.Exists)
             {
-                Console.WriteLine(ex);
+                destination.Create();
             }
-        }
-
-        public void StartBuild(string projectId, string userId)
-        {
-            Console.WriteLine("Start:" + projectId);
-            StartBuildInternal(projectId, userId).FireAndForget();
-        }
-
-        private async Task StartBuildInternal(string projectId, string userId)
-        {
-            Console.WriteLine("Creating container...");
+            _logger.LogInformation("Creating container...");
+            var repo = _dockerSetting.ImageName;
+            var minecraftVersion = _minecraftVersionProvider.GetMinecraftVersions().Single(a => a.Version == project.MinecraftVersion);
+            var tag = $"mc-{project.MinecraftVersion}-{minecraftVersion.DockerImageVersion}";
             var container = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 //Name = "portal-build-daemon",
-                Image = "rralphh/portal",
+                Image = $"{repo}:{tag}",
                 HostConfig = new HostConfig
                 {
                     Binds = new List<string>
                     {
-                        $"{_projectSetting.GetProjectsRoot().ResolveDir(projectId).FullName}:/portal/src:ro",
-                        $"{_projectSetting.GetProjectsRoot().ResolveDir(projectId).FullName}:/portal/build:rw"
+                        $"{_projectSetting.GetProjectsRoot().ResolveDir(project.Id).FullName}:{_dockerSetting.SourceDir}:ro",
+                        $"{destination.FullName}:{_dockerSetting.BuildDir}:rw"
                     }
                 },
                 AttachStdout = true,
                 AttachStderr = true,
                 Tty = true
             });
-            var buffer = new byte[1024];
+            var buffer = new byte[_dockerSetting.OutputBufferSize];
             using (var stream = await _client.Containers.AttachContainerAsync(container.ID, true, new ContainerAttachParameters
             {
                 Stdout = true,
@@ -92,16 +115,17 @@ namespace Portal.Services
                     var result = await stream.ReadOutputAsync(buffer, 0, buffer.Length, default(CancellationToken));
                     var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
                     Console.Write(text);
-                    _connectionManager.SendMessage(projectId, userId, text);
+                    _connectionManager.SendMessage(project.Id, userId, text);
                     if (result.EOF)
                     {
                         break;
                     }
                 }
             }
-            Console.WriteLine("Build finished. Removing container...");
+            _logger.LogInformation("Build finished. Removing container...");
             await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
-            Console.WriteLine("Container removed.");
+            _logger.LogInformation("Container removed.");
+            _buildSetting.GetBuildStorageSetting().AfterBuild(project.Id);
         }
     }
 }

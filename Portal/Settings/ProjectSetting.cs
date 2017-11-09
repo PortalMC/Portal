@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace Portal.Services
+namespace Portal.Settings
 {
-    public class ProjectSetting : IProjectSetting
+    public class ProjectSetting
     {
         private readonly DirectoryInfo _root;
 

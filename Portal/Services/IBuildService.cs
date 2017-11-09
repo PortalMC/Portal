@@ -1,7 +1,9 @@
-﻿namespace Portal.Services
+﻿using Portal.Models;
+
+namespace Portal.Services
 {
     public interface IBuildService
     {
-        void StartBuild(string projectId, string userId);
+        void StartBuild(Project project, string userId);
     }
 }
