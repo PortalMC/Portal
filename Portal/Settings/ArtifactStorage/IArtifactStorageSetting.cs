@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace Portal.Settings
+namespace Portal.Settings.ArtifactStorage
 {
-    public interface IBuildStorageSetting
+    public interface IArtifactStorageSetting
     {
         DirectoryInfo GetRootDirectory();
         void AfterBuild(string projectId);

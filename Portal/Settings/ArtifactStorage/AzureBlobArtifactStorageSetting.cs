@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace Portal.Settings
+namespace Portal.Settings.ArtifactStorage
 {
-    public class AzureBlobBuildStorageSetting : IBuildStorageSetting
+    public class AzureBlobArtifactStorageSetting : IArtifactStorageSetting
     {
         public DirectoryInfo GetRootDirectory()
         {

@@ -15,8 +15,7 @@ namespace Portal.Services
 {
     public class DockerBuildService : IBuildService
     {
-        private readonly ProjectSetting _projectSetting;
-        private readonly BuildSetting _buildSetting;
+        private readonly StorageSetting _storageSetting;
         private readonly IMinecraftVersionProvider _minecraftVersionProvider;
         private readonly ILogger<DockerBuildService> _logger;
         private readonly WebSocketConnectionManager _connectionManager;
@@ -24,14 +23,13 @@ namespace Portal.Services
         private readonly DockerClient _client;
 
         public DockerBuildService(
-            ProjectSetting projectSetting,
+            StorageSetting storageSetting,
             BuildSetting buildSetting,
             IMinecraftVersionProvider minecraftVersionProvider,
             ILogger<DockerBuildService> logger,
             WebSocketConnectionManager connectionManager)
         {
-            _projectSetting = projectSetting;
-            _buildSetting = buildSetting;
+            _storageSetting = storageSetting;
             _minecraftVersionProvider = minecraftVersionProvider;
             _logger = logger;
             _connectionManager = connectionManager;
@@ -76,7 +74,7 @@ namespace Portal.Services
 
         private async Task StartBuildInternal(Project project, string userId)
         {
-            var destination = _buildSetting.GetBuildStorageSetting().GetRootDirectory().ResolveDir(project.Id);
+            var destination = _storageSetting.GetArtifactStorageSetting().GetRootDirectory().ResolveDir(project.Id);
             if (!destination.Exists)
             {
                 destination.Create();
@@ -93,7 +91,7 @@ namespace Portal.Services
                 {
                     Binds = new List<string>
                     {
-                        $"{_projectSetting.GetProjectsRoot().ResolveDir(project.Id).FullName}:{_dockerSetting.SourceDir}:ro",
+                        $"{_storageSetting.GetProjectStorageSetting().GetRootDirectory().ResolveDir(project.Id).FullName}:{_dockerSetting.SourceDir}:ro",
                         $"{destination.FullName}:{_dockerSetting.BuildDir}:rw"
                     }
                 },
@@ -125,7 +123,7 @@ namespace Portal.Services
             _logger.LogInformation("Build finished. Removing container...");
             await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
             _logger.LogInformation("Container removed.");
-            _buildSetting.GetBuildStorageSetting().AfterBuild(project.Id);
+            _storageSetting.GetArtifactStorageSetting().AfterBuild(project.Id);
         }
     }
 }

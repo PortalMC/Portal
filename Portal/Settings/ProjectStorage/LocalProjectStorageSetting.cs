@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace Portal.Settings
+namespace Portal.Settings.ProjectStorage
 {
-    public class LocalBuildStorageSetting : IBuildStorageSetting
+    public class LocalProjectStorageSetting : IProjectStorageSetting
     {
         private readonly DirectoryInfo _root;
 
-        public LocalBuildStorageSetting(IConfiguration configuration)
+        public LocalProjectStorageSetting(IConfiguration configuration)
         {
             _root = new DirectoryInfo(configuration.GetValue<string>("Root"));
         }
@@ -15,10 +15,6 @@ namespace Portal.Settings
         public DirectoryInfo GetRootDirectory()
         {
             return _root;
-        }
-
-        public void AfterBuild(string projectId)
-        {
         }
     }
 }

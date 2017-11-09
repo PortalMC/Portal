@@ -3,34 +3,22 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Portal.Extensions;
 using Portal.Services;
-using static Portal.Settings.TypeEnumExtension;
+using static Portal.Extensions.EnumExtension;
+using static Portal.Settings.BuildMethodTypeEnumExtension;
 
 namespace Portal.Settings
 {
     public class BuildSetting
     {
-        private readonly StorageType _storageType;
-        private readonly IBuildStorageSetting _buildStorageSetting;
         private readonly BuildMethodType _buildMethodType;
         private readonly object _buildMethodSetting;
 
         public BuildSetting(IConfiguration configuration)
         {
-            _storageType = StorageTypeFrom(configuration.GetValue<string>("Storage"));
-            _buildStorageSetting = BuildStorageSettingFrom(_storageType, configuration.GetSection("StorageConfig"));
             _buildMethodType = BuildMethodTypeFrom(configuration.GetValue<string>("Method"));
-            _buildMethodSetting = BuildMethodSettingFrom(_buildMethodType, configuration.GetSection("BuildConfig"));
-        }
-
-        public StorageType GetStorageType()
-        {
-            return _storageType;
-        }
-
-        public IBuildStorageSetting GetBuildStorageSetting()
-        {
-            return _buildStorageSetting;
+            _buildMethodSetting = BuildMethodSettingFrom(_buildMethodType, configuration.GetSection("Config"));
         }
 
         public BuildMethodType GetBuildMethodType()
@@ -41,21 +29,6 @@ namespace Portal.Settings
         public T GetBuildMethodSetting<T>()
         {
             return (T) _buildMethodSetting;
-        }
-
-        private static StorageType StorageTypeFrom(string value)
-        {
-            var type = Enum.GetValues(typeof(StorageType)).Cast<StorageType>().FirstOrDefault(t => t.GetValue() == value);
-            if (type == default(StorageType))
-            {
-                throw new ArgumentException($"Builds/Storage value '{value}' is not defined.");
-            }
-            return type;
-        }
-
-        private static IBuildStorageSetting BuildStorageSettingFrom(StorageType storageType, IConfiguration configuration)
-        {
-            return (IBuildStorageSetting) storageType.GetStorageSettingType().InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[] {configuration});
         }
 
         private static BuildMethodType BuildMethodTypeFrom(string value)
@@ -74,13 +47,6 @@ namespace Portal.Settings
         }
     }
 
-    public enum StorageType
-    {
-        // ReSharper disable once UnusedMember.Global
-        Undefined,
-        [StorageSettingType(typeof(LocalBuildStorageSetting)), Value("Local")] Local,
-        [StorageSettingType(typeof(AzureBlobBuildStorageSetting)), Value("AzureBlob")] AzureBlob
-    }
 
     public enum BuildMethodType
     {
@@ -89,19 +55,8 @@ namespace Portal.Settings
         [BuildSettingType(typeof(DockerBuildMethodSetting)), Value("Docker")] Docker
     }
 
-    internal static class TypeEnumExtension
+    internal static class BuildMethodTypeEnumExtension
     {
-        [AttributeUsage(AttributeTargets.Field)]
-        public class StorageSettingTypeAttribute : Attribute
-        {
-            internal Type Type { get; }
-
-            public StorageSettingTypeAttribute(Type type)
-            {
-                Type = type;
-            }
-        }
-
         [AttributeUsage(AttributeTargets.Field)]
         public class BuildSettingTypeAttribute : Attribute
         {
@@ -113,38 +68,9 @@ namespace Portal.Settings
             }
         }
 
-        public static Type GetStorageSettingType(this Enum value)
-        {
-            return value.GetAttribute<StorageSettingTypeAttribute>()?.Type;
-        }
-
         public static Type GetBuildMethodSettingType(this Enum value)
         {
             return value.GetAttribute<BuildSettingTypeAttribute>()?.Type;
-        }
-
-        [AttributeUsage(AttributeTargets.Field)]
-        public class ValueAttribute : Attribute
-        {
-            internal string Value { get; }
-
-            public ValueAttribute(string value)
-            {
-                Value = value;
-            }
-        }
-
-        public static string GetValue(this Enum value)
-        {
-            return value.GetAttribute<ValueAttribute>()?.Value;
-        }
-
-        private static TAttribute GetAttribute<TAttribute>(this Enum value) where TAttribute : Attribute
-        {
-            var fieldInfo = value.GetType().GetField(value.ToString());
-            var attributes = fieldInfo.GetCustomAttributes(typeof(TAttribute), false).Cast<TAttribute>();
-            var enumerable = attributes as TAttribute[] ?? attributes.ToArray();
-            return !enumerable.Any() ? null : enumerable.First();
         }
     }
 

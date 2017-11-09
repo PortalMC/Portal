@@ -50,8 +50,8 @@ namespace Portal
             services.AddMvc();
 
             // Add application services.
-            var buildSetting = new BuildSetting(Configuration.GetSection("Builds"));
-            services.AddSingleton(new ProjectSetting(Configuration.GetSection("Projects")));
+            var buildSetting = new BuildSetting(Configuration.GetSection("Building"));
+            services.AddSingleton(new StorageSetting(Configuration.GetSection("Storages")));
             services.AddSingleton(buildSetting);
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();

@@ -26,8 +26,21 @@ namespace Portal.Controllers.Api.V1
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly IMinecraftVersionProvider _minecraftVersionProvider;
-        private readonly ProjectSetting _projectSetting;
+        private readonly StorageSetting _storageSetting;
         private readonly IBuildService _buildService;
+
+        public ProjectsController(UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context,
+            IMinecraftVersionProvider minecraftVersionProvider,
+            StorageSetting storageSetting,
+            IBuildService buildService)
+        {
+            _userManager = userManager;
+            _context = context;
+            _minecraftVersionProvider = minecraftVersionProvider;
+            _storageSetting = storageSetting;
+            _buildService = buildService;
+        }
 
         [HttpPost("")]
         public async Task<IActionResult> NewProject([FromBody] Project project)
@@ -105,7 +118,7 @@ namespace Portal.Controllers.Api.V1
                 await _context.SaveChangesAsync();
                 // Expand zip file
                 var projectId = createdProject.Entity.Id;
-                var targetDir = _projectSetting.GetProjectsRoot().ResolveDir(projectId);
+                var targetDir = _storageSetting.GetProjectStorageSetting().GetRootDirectory().ResolveDir(projectId);
                 ZipFile.ExtractToDirectory(forgeZipFile.FullName, targetDir.FullName);
                 var root = new JObject
                 {
@@ -128,19 +141,6 @@ namespace Portal.Controllers.Api.V1
                 };
                 return new OkObjectResult(root);
             }
-        }
-
-        public ProjectsController(UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context,
-            IMinecraftVersionProvider minecraftVersionProvider,
-            ProjectSetting projectSetting,
-            IBuildService buildService)
-        {
-            _userManager = userManager;
-            _context = context;
-            _minecraftVersionProvider = minecraftVersionProvider;
-            _projectSetting = projectSetting;
-            _buildService = buildService;
         }
 
         [HttpPatch("{uuid}")]
@@ -217,7 +217,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return NotFound();
             }
-            var projectRoot = Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid);
+            var projectRoot = Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid);
             var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
             if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
             {
@@ -262,7 +262,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return NotFound();
             }
-            var projectRoot = Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid);
+            var projectRoot = Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid);
             var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
             if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
             {
@@ -305,7 +305,7 @@ namespace Portal.Controllers.Api.V1
             {
                 return NotFound();
             }
-            var projectRoot = new DirectoryInfo(Path.Combine(_projectSetting.GetProjectsRoot().FullName, uuid));
+            var projectRoot = new DirectoryInfo(Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid));
             if (!projectRoot.Exists)
             {
                 return BadRequest();
