@@ -8,6 +8,12 @@
   <PropertyGroup>
     <UserSecretsId>aspnet-Portal-99e6143d-b381-4b50-8475-9e715ef5d714</UserSecretsId>
     <RootNamespace>Portal</RootNamespace>
+    <PackageLicenseUrl>https://github.com/PortalMC/Portal/blob/master/Portal-Web/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/PortalMC/Portal</PackageProjectUrl>
+    <Copyright>Copyright 2017 Tamaki Hidetsugu (Ralph) and other contributors</Copyright>
+    <RepositoryUrl>https://github.com/PortalMC/Portal.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <Description>The open-source online Minecraft mod developing application.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ConcurrentSet" Version="1.0.0" />
