@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using Portal.Extensions;
 using Portal.Models;
 using Portal.Services;
 using Portal.Settings;
+using Portal.Settings.ArtifactStorage;
 using Portal.Utils;
 
 namespace Portal.Controllers.Api.V1
@@ -324,6 +326,37 @@ namespace Portal.Controllers.Api.V1
                 }
             };
             return new OkObjectResult(root);
+        }
+
+        [HttpGet("{uuid}/artifact")]
+        public async Task<IActionResult> Artifact(string uuid)
+        {
+            if (uuid == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var userId = _userManager.GetUserId(HttpContext.User);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            if (!result.canAccess)
+            {
+                return NotFound();
+            }
+            switch (_storageSetting.GetArtifactStorageSetting().GetArtifactProvideMethod())
+            {
+                case ArtifactProvideMethod.Stream:
+                    var stream = await _storageSetting.GetArtifactStorageSetting().GetArtifactStreamAsync(uuid, "1");
+                    return File(stream, "application/octet-stream");
+                case ArtifactProvideMethod.Redirect:
+                    var uri = await _storageSetting.GetArtifactStorageSetting().GetArtifactRedirectUriAsync(uuid, "1");
+                    return Redirect(uri);
+                default:
+                    return StatusCode(StatusCodes.Status500InternalServerError, "ArtifactProvideMethod is out of range.");
+            }
         }
 
         private static readonly string[] BlacklistElements =

@@ -1,9 +1,11 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Portal.Extensions;
 
 namespace Portal.Settings.ArtifactStorage
 {
-    public class LocalArtifactStorageSetting : IArtifactStorageSetting
+    public class LocalArtifactStorageSetting : ArtifactStorageSetting
     {
         private readonly DirectoryInfo _root;
 
@@ -12,13 +14,24 @@ namespace Portal.Settings.ArtifactStorage
             _root = new DirectoryInfo(configuration.GetValue<string>("Root"));
         }
 
-        public DirectoryInfo GetRootDirectory()
+        public override DirectoryInfo GetRootDirectory()
         {
             return _root;
         }
 
-        public void AfterBuild(string projectId)
+        public override Task AfterBuildAsync(string projectId)
         {
+            return Task.CompletedTask;
+        }
+
+        public override ArtifactProvideMethod GetArtifactProvideMethod()
+        {
+            return ArtifactProvideMethod.Stream;
+        }
+
+        public override Task<Stream> GetArtifactStreamAsync(string projectId, string buildId)
+        {
+            return Task.FromResult<Stream>(GetRootDirectory().ResolveDir(projectId).Resolve($"{buildId}.jar").OpenRead());
         }
     }
 }

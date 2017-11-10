@@ -13,7 +13,7 @@ namespace Portal.Settings
     public class StorageSetting
     {
         private readonly IProjectStorageSetting _projectStorageSetting;
-        private readonly IArtifactStorageSetting _artifactStorageSetting;
+        private readonly ArtifactStorageSetting _artifactStorageSetting;
 
         public StorageSetting(IConfiguration configuration)
         {
@@ -30,7 +30,7 @@ namespace Portal.Settings
             return _projectStorageSetting;
         }
 
-        public IArtifactStorageSetting GetArtifactStorageSetting()
+        public ArtifactStorageSetting GetArtifactStorageSetting()
         {
             return _artifactStorageSetting;
         }
@@ -60,9 +60,9 @@ namespace Portal.Settings
             return (IProjectStorageSetting) storageType.GetProjectStorageSettingType().InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[] {configuration});
         }
 
-        private static IArtifactStorageSetting ArtifactStorageSettingFrom(ArtifactStorageType storageType, IConfiguration configuration)
+        private static ArtifactStorageSetting ArtifactStorageSettingFrom(ArtifactStorageType storageType, IConfiguration configuration)
         {
-            return (IArtifactStorageSetting) storageType.GetArtifactStorageSettingType().InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[] {configuration});
+            return (ArtifactStorageSetting) storageType.GetArtifactStorageSettingType().InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[] {configuration});
         }
     }
 

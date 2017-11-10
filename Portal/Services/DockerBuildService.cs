@@ -123,7 +123,7 @@ namespace Portal.Services
             _logger.LogInformation("Build finished. Removing container...");
             await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
             _logger.LogInformation("Container removed.");
-            _storageSetting.GetArtifactStorageSetting().AfterBuild(project.Id);
+            await _storageSetting.GetArtifactStorageSetting().AfterBuildAsync(project.Id);
         }
     }
 }
