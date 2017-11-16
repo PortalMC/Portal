@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenIddict.Core;
-using OpenIddict.Models;
 using Portal.Data;
 using Portal.Models;
 using Portal.Services;
@@ -20,6 +17,7 @@ using Portal.Settings;
 
 namespace Portal
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -30,6 +28,7 @@ namespace Portal
         private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
@@ -91,6 +90,7 @@ namespace Portal
             // Add application services.
             var buildSetting = new BuildSetting(Configuration.GetSection("Building"));
             services.AddSingleton(new GeneralSetting(Configuration.GetSection("General")));
+            services.AddSingleton(new SecureSetting(Configuration.GetSection("Secure")));
             services.AddSingleton(new StorageSetting(Configuration.GetSection("Storages")));
             services.AddSingleton(buildSetting);
             services.AddTransient<IEmailSender, AuthMessageSender>();
@@ -103,6 +103,7 @@ namespace Portal
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -154,37 +155,6 @@ namespace Portal
             });
 
             app.Use(serviceProvider.GetService<WebSocketService>().Acceptor);
-
-            InitializeAsync(app.ApplicationServices, CancellationToken.None).GetAwaiter().GetResult();
-        }
-
-        private async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)
-        {
-            // Create a new service scope to ensure the database context is correctly disposed when this methods returns.
-            using (var scope = services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                await context.Database.EnsureCreatedAsync(cancellationToken);
-
-                var manager = scope.ServiceProvider.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-                var clients = Configuration.GetSection("Secure").GetSection("ApiClients").GetChildren();
-
-                foreach (var client in clients)
-                {
-                    var id = client.GetValue<string>("ClientId");
-                    if (await manager.FindByClientIdAsync(id, cancellationToken) == null)
-                    {
-                        var descriptor = new OpenIddictApplicationDescriptor
-                        {
-                            ClientId = id,
-                            ClientSecret = client.GetValue<string>("ClientSecret"),
-                            DisplayName = client.GetValue<string>("DisplayName")
-                        };
-
-                        await manager.CreateAsync(descriptor, cancellationToken);
-                    }
-                }
-            }
         }
     }
 }
