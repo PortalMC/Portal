@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +23,6 @@ namespace Portal.Controllers.Api.V1
 {
     [Produces("application/json")]
     [Route("api/v1/projects")]
-    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -45,6 +45,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("")]
+        [Authorize]
         public async Task<IActionResult> NewProject([FromBody] Project project)
         {
             if (project == null)
@@ -146,6 +147,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPatch("{uuid}")]
+        [Authorize]
         public async Task<IActionResult> PatchProject(string uuid, [FromBody] Project project)
         {
             if (uuid == null || project == null)
@@ -181,6 +183,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("{uuid}/build")]
+        [Authorize]
         public async Task<IActionResult> Build(string uuid)
         {
             if (uuid == null)
@@ -203,6 +206,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("{uuid}/file/get")]
+        [Authorize]
         public async Task<IActionResult> Get(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
@@ -248,6 +252,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpPost("{uuid}/file/edit")]
+        [Authorize]
         public async Task<IActionResult> Edit(string uuid, [FromBody] FileObject file)
         {
             if (uuid == null || file == null)
@@ -290,6 +295,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpGet("{uuid}/file/list")]
+        [Authorize]
         public async Task<IActionResult> FileList(string uuid)
         {
             if (uuid == null)
@@ -329,6 +335,7 @@ namespace Portal.Controllers.Api.V1
         }
 
         [HttpGet("{uuid}/artifact")]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Artifact(string uuid)
         {
             if (uuid == null)
