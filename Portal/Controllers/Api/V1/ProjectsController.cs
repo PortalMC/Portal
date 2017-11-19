@@ -44,6 +44,33 @@ namespace Portal.Controllers.Api.V1
             _buildService = buildService;
         }
 
+        [HttpGet("")]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> NewProject([FromQuery] string minecraft)
+        {
+            // TODO* Pagination
+            object[] projects = await _context.AccessRights
+                .AsNoTracking()
+                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
+                .Select(a => a.Project)
+                .Where(p => string.IsNullOrEmpty(minecraft) || p.MinecraftVersion == minecraft)
+                .Select(p => new JObject
+                    {
+                        {"id", new JValue(p.Id)},
+                        {"name", new JValue(p.Name)},
+                        {"minecraftVersion", new JValue(p.MinecraftVersion)},
+                        {"forgeVersion", new JValue(p.ForgeVersion)}
+                    }
+                )
+                .ToArrayAsync();
+            var root = new JObject
+            {
+                {"success", new JValue(true)},
+                {"data", new JArray(projects)}
+            };
+            return new OkObjectResult(root);
+        }
+
         [HttpPost("")]
         [Authorize]
         public async Task<IActionResult> NewProject([FromBody] Project project)
