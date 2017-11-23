@@ -1,5 +1,7 @@
-﻿@inject SignInManager<ApplicationUser> SignInManager
+﻿@using Portal.Settings
+@inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject GeneralSetting GeneralSetting
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -17,9 +19,12 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li>
-            <a asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-        </li>
+        @if (GeneralSetting.CreateAccount)
+        {
+            <li>
+                <a asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+            </li>
+        }
         <li>
             <a asp-area="" asp-controller="Account" asp-action="Login">Log in</a>
         </li>

@@ -12,6 +12,7 @@ using Portal.Data;
 using Portal.Models;
 using Portal.Models.AccountViewModels;
 using Portal.Services;
+using Portal.Settings;
 
 namespace Portal.Controllers
 {
@@ -24,6 +25,7 @@ namespace Portal.Controllers
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
         private readonly ApplicationDbContext _context;
+        private readonly GeneralSetting _generalSetting;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -31,7 +33,8 @@ namespace Portal.Controllers
             IEmailSender emailSender,
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            GeneralSetting generalSetting)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -39,6 +42,7 @@ namespace Portal.Controllers
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
             _context = context;
+            _generalSetting = generalSetting;
         }
 
         //
@@ -101,6 +105,10 @@ namespace Portal.Controllers
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
+            if (!_generalSetting.CreateAccount)
+            {
+                return NotFound();
+            }
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -112,6 +120,10 @@ namespace Portal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
+            if (!_generalSetting.CreateAccount)
+            {
+                return NotFound();
+            }
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
