@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Portal.Data;
 using System;
 
-namespace Portal.Migrations
+namespace Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171123170734_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,7 +261,7 @@ namespace Portal.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AccessRight");
+                    b.ToTable("AccessRights");
                 });
 
             modelBuilder.Entity("Portal.Models.ApplicationUser", b =>
@@ -337,7 +338,7 @@ namespace Portal.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Project");
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Portal.Models.User", b =>
@@ -347,7 +348,7 @@ namespace Portal.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SafeUser");
+                    b.ToTable("SafeUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

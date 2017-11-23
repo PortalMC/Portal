@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
 
-namespace Portal.Migrations
+namespace Portal.Data.Migrations
 {
     public partial class Initial : Migration
     {
@@ -81,7 +81,7 @@ namespace Portal.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Project",
+                name: "Projects",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
@@ -94,18 +94,18 @@ namespace Portal.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Project", x => x.Id);
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SafeUser",
+                name: "SafeUsers",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SafeUser", x => x.Id);
+                    table.PrimaryKey("PK_SafeUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -238,7 +238,7 @@ namespace Portal.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AccessRight",
+                name: "AccessRights",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
@@ -248,17 +248,17 @@ namespace Portal.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccessRight", x => x.Id);
+                    table.PrimaryKey("PK_AccessRights", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AccessRight_Project_ProjectId",
+                        name: "FK_AccessRights_Projects_ProjectId",
                         column: x => x.ProjectId,
-                        principalTable: "Project",
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_AccessRight_SafeUser_UserId",
+                        name: "FK_AccessRights_SafeUsers_UserId",
                         column: x => x.UserId,
-                        principalTable: "SafeUser",
+                        principalTable: "SafeUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -297,13 +297,13 @@ namespace Portal.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AccessRight_ProjectId",
-                table: "AccessRight",
+                name: "IX_AccessRights_ProjectId",
+                table: "AccessRights",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AccessRight_UserId",
-                table: "AccessRight",
+                name: "IX_AccessRights_UserId",
+                table: "AccessRights",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -374,7 +374,7 @@ namespace Portal.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AccessRight");
+                name: "AccessRights");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -398,10 +398,10 @@ namespace Portal.Migrations
                 name: "OpenIddictTokens");
 
             migrationBuilder.DropTable(
-                name: "Project");
+                name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "SafeUser");
+                name: "SafeUsers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
