@@ -35,14 +35,13 @@ namespace Portal.Services
             _connectionManager = connectionManager;
             _dockerSetting = buildSetting.GetBuildMethodSetting<DockerBuildMethodSetting>();
             _client = new DockerClientConfiguration(_dockerSetting.ApiUri).CreateClient();
-            _logger.LogInformation("Start checking Docker...");
-            CheckImageReady().Wait();
         }
 
-        private async Task CheckImageReady()
+        public async Task CheckImageAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Start checking Docker...");
             _logger.LogInformation("Checking builder image is available...");
-            var images = await _client.Images.ListImagesAsync(new ImagesListParameters());
+            var images = await _client.Images.ListImagesAsync(new ImagesListParameters(), cancellationToken);
             foreach (var minecraftVersion in _minecraftVersionProvider.GetMinecraftVersions())
             {
                 var repo = _dockerSetting.ImageName;
@@ -56,7 +55,7 @@ namespace Portal.Services
                     {
                         Repo = repo,
                         Tag = tag
-                    }, null, null);
+                    }, null, null, cancellationToken);
                     _logger.LogInformation($"Pull image '{repo}:{tag}' successfully!");
                 }
                 catch (Exception ex)
