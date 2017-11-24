@@ -7,15 +7,15 @@
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/ress/ress.css"/>
-        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css"/>
+        @Html.Partial("Lib/_Bootstrap.css")
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
         <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.css">
         <link rel="stylesheet" href="~/lib/jquery.fancytree/skin-lion/ui.fancytree.css">
         <link rel="stylesheet" href="~/css/editor.css"/>
 
-        <script src="~/lib/jquery/jquery.js"></script>
+        @Html.Partial("Lib/_jQuery.js")
+        @Html.Partial("Lib/_Bootstrap.js")
         <script src="~/lib/jquery-ui/jquery-ui.js"></script>
-        <script src="~/lib/bootstrap/js/bootstrap.js"></script>
         <script src="~/lib/jquery.layout/jquery.layout.js"></script>
         <script src="~/lib/jquery.fancytree/jquery.fancytree-all.js"></script>
         <script src="~/lib/ace/ace.js"></script>
@@ -23,25 +23,13 @@
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/ress/ress.min.css"/>
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"/>
+        @Html.Partial("Lib/_Bootstrap.min.css")
         <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css">
         <link rel="stylesheet" href="~/lib/jquery.fancytree/skin-lion/ui.fancytree.min.css">
         <link rel="stylesheet" href="~/css/editor.min.css" asp-append-version="true"/>
 
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.2.1.min.js"
-                asp-fallback-src="~/lib/jquery/jquery.min.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f">
-        </script>
-        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                crossorigin="anonymous"
-                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-        </script>
+        @Html.Partial("Lib/_jQuery.min.js")
+        @Html.Partial("Lib/_Bootstrap.min.js")
         <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
         <script src="~/lib/jquery.layout/jquery.layout.min.js"></script>
         <script src="~/lib/jquery.fancytree/jquery.fancytree-all.min.js"></script>
