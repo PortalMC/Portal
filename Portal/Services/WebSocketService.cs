@@ -6,8 +6,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
@@ -20,10 +22,12 @@ namespace Portal.Services
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly WebSocketConnectionManager _connectionManager;
+        private readonly ILogger _logger;
 
-        public WebSocketService(WebSocketConnectionManager connectionManager)
+        public WebSocketService(WebSocketConnectionManager connectionManager, ILoggerFactory loggerFactory)
         {
             _connectionManager = connectionManager;
+            _logger = loggerFactory.CreateLogger<WebSocketService>();
         }
 
         public async Task Acceptor(HttpContext httpContext, Func<Task> next)
@@ -31,6 +35,7 @@ namespace Portal.Services
             var match = Regex.Match(httpContext.Request.Path);
             if (match.Success)
             {
+                _logger.LogInformation("Request catched in WebSocket service");
                 if (httpContext.WebSockets.IsWebSocketRequest)
                 {
                     var projectId = match.Groups["projectId"].Value;
@@ -43,6 +48,7 @@ namespace Portal.Services
                         httpContext.Response.StatusCode = 404;
                         return;
                     }
+                    _logger.LogInformation($"WebSocket access allowed. URL: {httpContext.Request.GetDisplayUrl()}");
                     var webSocket = await httpContext.WebSockets.AcceptWebSocketAsync();
                     var client = new WebSocketClient(webSocket, projectId, userId);
                     _connectionManager.AddClient(projectId, userId, client);
@@ -51,6 +57,8 @@ namespace Portal.Services
                 }
                 else
                 {
+                    _logger.LogInformation("Non-websocket request call websocket endpoint.");
+                    _logger.LogInformation("If server is runnning under reverse proxy, you must add additional configuration for web server.");
                     httpContext.Response.StatusCode = 400;
                 }
             }
