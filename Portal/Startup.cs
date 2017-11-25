@@ -142,6 +142,16 @@ namespace Portal
                     }
                 );
                 routes.MapRoute(
+                    "Admin",
+                    "Admin/{action}/{id?}/{subaction?}",
+                    new
+                    {
+                        controller = "Admin",
+                        action = "Index",
+                        uuid = ""
+                    }
+                );
+                routes.MapRoute(
                     "StatusCode",
                     "StatusCode/{statusCode}",
                     new

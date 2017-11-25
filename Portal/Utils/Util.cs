@@ -10,7 +10,7 @@ namespace Portal.Utils
 
         public static bool IsCorrectUuid(string uuid)
         {
-            return UuidRegex.IsMatch(uuid);
+            return uuid != null && UuidRegex.IsMatch(uuid);
         }
     }
 }

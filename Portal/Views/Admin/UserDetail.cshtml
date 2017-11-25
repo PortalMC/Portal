@@ -1,0 +1,71 @@
+﻿@using Portal.Extensions
+@using Portal.Utils
+@model Portal.Models.AdminViewModels.UserDetailViewModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Home Page";
+}
+
+@section Sidebar {
+    @Html.Partial("_AdminSidebar", 1)
+}
+
+@switch (ViewBag.Message)
+{
+    case "success_change_password":
+        <div class="alert alert-success" role="alert">Password Changed.</div>
+        break;
+}
+
+<h3>User : @Model.User.UserName</h3>
+
+<div id="user-detail-panel-information" class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Information</h3>
+    </div>
+    <div class="panel-body">
+        @Html.GravatarImage(Model.User.Email, 48, GravatarHtmlHelper.DefaultImage.Identicon)
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">Id : <span class="font-weight-bold">@Model.User.Id</span></li>
+        <li class="list-group-item">UserName : <span class="font-weight-bold">@Model.User.UserName</span></li>
+        <li class="list-group-item">Email : <span class="font-weight-bold">@Model.User.Email</span></li>
+        <li class="list-group-item">Two-Facter : <span class="font-weight-bold">@Model.User.TwoFactorEnabled</span></li>
+        <li class="list-group-item">Roles : <span class="font-weight-bold">@Model.Roles.JoinString(", ")</span></li>
+    </ul>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Action</h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <div class="action-container">
+                <div>
+                    <p>Login as this user</p>
+                    <p>Login as this user. The authority is changed to this user's authority.</p>
+                </div>
+                <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Login">Login</a>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="action-container">
+                <div>
+                    <p>Reset password</p>
+                    <p>Reset this user's password.</p>
+                </div>
+                <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="ResetPassword">Reset password</a>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="action-container">
+                <div>
+                    <p>Delete user</p>
+                    <p>Delete all of this user, included projects and build data.</p>
+                </div>
+                <a class="btn btn-danger" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete">Delete</a>
+            </div>
+        </li>
+    </ul>
+</div>

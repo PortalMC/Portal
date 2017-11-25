@@ -1,4 +1,4 @@
-﻿@model Portal.Models.AdminViewModels.NewUserViewModel
+﻿@model Portal.Models.AdminViewModels.UserDetailPostViewModel
 @{
     Layout = "_AdminLayout";
     ViewBag.Title = "Create new user";
@@ -13,17 +13,17 @@
 <form asp-controller="Admin" asp-action="Users" asp-route-id="New" asp-route-returnurl="@ViewBag.ReturnUrl" method="post" class="form-horizontal">
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
+        <label asp-for="NewUserViewModel.Email" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Email" class="form-control"/>
-            <span asp-validation-for="Email" class="text-danger"></span>
+            <input asp-for="NewUserViewModel.Email" class="form-control"/>
+            <span asp-validation-for="NewUserViewModel.Email" class="text-danger"></span>
         </div>
     </div>
     <div class="form-group">
-        <label asp-for="Password" class="col-md-2 control-label"></label>
+        <label asp-for="NewUserViewModel.Password" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Password" class="form-control"/>
-            <span asp-validation-for="Password" class="text-danger"></span>
+            <input asp-for="NewUserViewModel.Password" class="form-control"/>
+            <span asp-validation-for="NewUserViewModel.Password" class="text-danger"></span>
         </div>
     </div>
     <div class="form-group">

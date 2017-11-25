@@ -10,36 +10,83 @@ using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Models.AdminViewModels;
+using Portal.Utils;
 
 namespace Portal.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AccountController> _logger;
 
         public AdminController(
+            SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
             ILoggerFactory loggerFactory)
         {
+            _signInManager = signInManager;
             _userManager = userManager;
             _context = context;
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Users(string id)
+        [HttpGet]
+        public async Task<IActionResult> Users(string id, string subaction, string message = null)
         {
+            ViewBag.Message = message;
             if (id == "New")
             {
                 return View("NewUser");
+            }
+            if (Util.IsCorrectUuid(id))
+            {
+                switch (subaction)
+                {
+                    case null:
+                    {
+                        var user = await _userManager.FindByIdAsync(id);
+                        var safeUser = await _context.SafeUsers.AsNoTracking().Where(u => u.Id == id).FirstAsync();
+                        var roles = await _userManager.GetRolesAsync(user);
+                        return View("UserDetail", new UserDetailViewModel
+                        {
+                            User = user,
+                            SafeUser = safeUser,
+                            Roles = roles
+                        });
+                    }
+                    case "Login":
+                    {
+                        var user = await _userManager.FindByIdAsync(id);
+                        await _signInManager.SignOutAsync();
+                        await _signInManager.SignInAsync(user, false);
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                    case "ResetPassword":
+                    {
+                        var user = await _userManager.FindByIdAsync(id);
+                        return View("UserDetailResetPassword", new UserDetailPostViewModel
+                        {
+                            ResetPasswordViewModel = new UserDetailResetPasswordViewModel
+                            {
+                                User = user
+                            }
+                        });
+                    }
+                    case "Delete":
+                        break;
+                    default:
+                        return NotFound();
+                }
             }
             var applicationUsers = _context.Users.AsNoTracking().Take(10).ToArray();
             return View(applicationUsers);
@@ -47,18 +94,15 @@ namespace Portal.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Users(string id, NewUserViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Users(string id, string subaction, UserDetailPostViewModel model, string returnUrl = null)
         {
-            if (id != "New")
+            if (id == "New")
             {
-                return NotFound();
-            }
-            ViewBag.ReturnUrl = returnUrl;
-            if (ModelState.IsValid)
-            {
+                ViewBag.ReturnUrl = returnUrl;
+                if (!ModelState.IsValid) return View(model);
                 try
                 {
-                    var ret = await _userManager.CreateWithPortalAsync(_context, model.Email, model.Password);
+                    var ret = await _userManager.CreateWithPortalAsync(_context, model.NewUserViewModel.Email, model.NewUserViewModel.Password);
                     if (ret.result.Succeeded)
                     {
                         _logger.LogInformation(3, "New account is created by admin.");
@@ -73,11 +117,32 @@ namespace Portal.Controllers
                                                  "Try again, and if the problem persists " +
                                                  "see your system administrator.");
                 }
+                return View(model);
             }
-
-            return View(model);
+            if (Util.IsCorrectUuid(id))
+            {
+                if (subaction == "ResetPassword")
+                {
+                    var user = await _userManager.FindByIdAsync(id);
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var result = await _userManager.ResetPasswordAsync(user, code, model.ResetPasswordViewModel.Password);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction(nameof(Users), "Admin", new RouteValueDictionary
+                        {
+                            {"id", id},
+                            {"subaction", ""},
+                            {"message", "success_change_password"}
+                        });
+                    }
+                    AddErrors(result);
+                    return View();
+                }
+            }
+            return NotFound();
         }
 
+        [HttpGet]
         public IActionResult Error()
         {
             return View();

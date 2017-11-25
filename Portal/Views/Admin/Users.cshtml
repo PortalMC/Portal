@@ -10,7 +10,7 @@
 
 <div id="admin-header">
     <h3>Users</h3>
-    <a class="btn btn-success" type="button" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>
+    <a class="btn btn-success" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>
 </div>
 
 <hr/>
@@ -28,20 +28,11 @@
             @{
                 string email = user.Email;
             }
-            @Html.GravatarImage(
-                email,
-                size: 32,
-                defaultImage: GravatarHtmlHelper.DefaultImage.Identicon,
-                rating: GravatarHtmlHelper.Rating.PG,
-                cssClass: "gravatar img-responsive")
+            @Html.GravatarImage(email, 32, GravatarHtmlHelper.DefaultImage.Identicon)
             <span class="admin-user-email">
                 @user.UserName
             </span>
-            <div class="btn-group" role="group" aria-label="...">
-                <button type="button" class="btn btn-default">Login as this user</button>
-                <button type="button" class="btn btn-default">Reset password</button>
-                <button type="button" class="btn btn-danger">Delete</button>
-            </div>
+            <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@user.Id">Detail</a>
         </div>
     }
 </div>

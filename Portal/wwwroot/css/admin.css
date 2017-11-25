@@ -75,10 +75,52 @@ a.list-group-item:hover {
     border-bottom: 1px solid #eee;
 }
 
-.admin-user > .btn-group {
+.admin-user > *:last-child {
     margin-left: auto;
 }
 
 .admin-user-email {
     margin: 0 10px;
+}
+
+.font-weight-bold {
+    font-weight: 600;
+}
+
+#user-detail-panel-information {
+    margin-top: 20px;
+}
+
+.action-container {
+    display: flex;
+    align-items: flex-start;
+}
+
+.action-container > div {
+    margin-right: auto;
+}
+
+.action-container > div > p:first-child {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.action-container > div > p:last-child {
+    margin: 0;
+}
+
+#password-reset-user-info {
+    margin-right: -15px;
+    margin-left: -15px;
+    margin-bottom: 15px;
+}
+
+#password-reset-user-info > span {
+    text-align: right;
+    font-weight: bold;
+    line-height: 32px;
+}
+
+#password-reset-user-info > div > span {
+    margin-left: 10px;
 }
