@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Portal.Data;
+using Portal.Extensions;
 using Portal.Models;
 using Portal.Models.AccountViewModels;
 using Portal.Services;
@@ -129,15 +130,8 @@ namespace Portal.Controllers
             {
                 try
                 {
-                    var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
-                    var safeUser = new User
-                    {
-                        Id = user.Id,
-                    };
-                    await _context.SafeUsers.AddAsync(safeUser);
-                    await _context.SaveChangesAsync();
-                    var result = await _userManager.CreateAsync(user, model.Password);
-                    if (result.Succeeded)
+                    var ret = await _userManager.CreateWithPortalAsync(_context, model.Email, model.Password);
+                    if (ret.result.Succeeded)
                     {
                         // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
                         // Send an email with this link
@@ -145,11 +139,11 @@ namespace Portal.Controllers
                         //var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
                         //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
                         //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                        await _signInManager.SignInAsync(user, false);
+                        await _signInManager.SignInAsync(ret.user, false);
                         _logger.LogInformation(3, "User created a new account with password.");
                         return RedirectToLocal(returnUrl);
                     }
-                    AddErrors(result);
+                    AddErrors(ret.result);
                 }
                 catch (DbUpdateException /* ex */)
                 {
@@ -246,26 +240,19 @@ namespace Portal.Controllers
                 }
                 try
                 {
-                    var user = new ApplicationUser {UserName = model.Email, Email = model.Email};
-                    var safeUser = new User
+                    var ret = await _userManager.CreateWithPortalAsync(_context, model.Email);
+                    if (ret.result.Succeeded)
                     {
-                        Id = user.Id,
-                    };
-                    await _context.SafeUsers.AddAsync(safeUser);
-                    await _context.SaveChangesAsync();
-                    var result = await _userManager.CreateAsync(user);
-                    if (result.Succeeded)
-                    {
-                        result = await _userManager.AddLoginAsync(user, info);
-                        if (result.Succeeded)
+                        ret.result = await _userManager.AddLoginAsync(ret.user, info);
+                        if (ret.result.Succeeded)
                         {
-                            await _signInManager.SignInAsync(user, false);
+                            await _signInManager.SignInAsync(ret.user, false);
                             _logger.LogInformation(6, "User created an account using {Name} provider.",
                                 info.LoginProvider);
                             return RedirectToLocal(returnUrl);
                         }
                     }
-                    AddErrors(result);
+                    AddErrors(ret.result);
                 }
                 catch (DbUpdateException /* ex */)
                 {
