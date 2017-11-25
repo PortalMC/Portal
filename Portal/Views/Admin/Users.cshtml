@@ -1,0 +1,47 @@
+﻿@using Portal.Utils
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Users";
+}
+
+@section Sidebar {
+    @Html.Partial("_AdminSidebar", 1)
+}
+
+<div id="admin-header">
+    <h3>Users</h3>
+    <a class="btn btn-success" type="button" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>
+</div>
+
+<hr/>
+<div class="input-group">
+    <input type="text" class="form-control" placeholder="Search for..." aria-label="Search for...">
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button">Search</button>
+    </span>
+</div>
+
+<div id="admin-user-container">
+    @foreach (var user in Model)
+    {
+        <div class="admin-user">
+            @{
+                string email = user.Email;
+            }
+            @Html.GravatarImage(
+                email,
+                size: 32,
+                defaultImage: GravatarHtmlHelper.DefaultImage.Identicon,
+                rating: GravatarHtmlHelper.Rating.PG,
+                cssClass: "gravatar img-responsive")
+            <span class="admin-user-email">
+                @user.UserName
+            </span>
+            <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default">Login as this user</button>
+                <button type="button" class="btn btn-default">Reset password</button>
+                <button type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    }
+</div>
