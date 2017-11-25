@@ -34,12 +34,19 @@ namespace Portal.Controllers
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
+        // GET /Admin
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        // GET /Admin/Users
+        // GET /Admin/Users/{uuid}
+        // GET /Admin/Users/{uuid}/New
+        // GET /Admin/Users/{uuid}/Login
+        // GET /Admin/Users/{uuid}/ResetPassword
+        // GET /Admin/Users/{uuid}/Delete
         [HttpGet]
         public async Task<IActionResult> Users(string id, string subaction, string message = null)
         {
@@ -50,11 +57,10 @@ namespace Portal.Controllers
             }
             if (Util.IsCorrectUuid(id))
             {
+                var user = await _userManager.FindByIdAsync(id);
                 switch (subaction)
                 {
                     case null:
-                    {
-                        var user = await _userManager.FindByIdAsync(id);
                         var safeUser = await _context.SafeUsers.AsNoTracking().Where(u => u.Id == id).FirstAsync();
                         var roles = await _userManager.GetRolesAsync(user);
                         return View("UserDetail", new UserDetailViewModel
@@ -63,27 +69,22 @@ namespace Portal.Controllers
                             SafeUser = safeUser,
                             Roles = roles
                         });
-                    }
                     case "Login":
-                    {
-                        var user = await _userManager.FindByIdAsync(id);
                         await _signInManager.SignOutAsync();
                         await _signInManager.SignInAsync(user, false);
                         return RedirectToAction(nameof(HomeController.Index), "Home");
-                    }
                     case "ResetPassword":
-                    {
-                        var user = await _userManager.FindByIdAsync(id);
                         return View("UserDetailResetPassword", new UserDetailPostViewModel
                         {
-                            ResetPasswordViewModel = new UserDetailResetPasswordViewModel
-                            {
-                                User = user
-                            }
+                            User = user,
+                            ResetPasswordViewModel = new UserDetailResetPasswordViewModel()
                         });
-                    }
                     case "Delete":
-                        break;
+                        return View("UserDetailDelete", new UserDetailPostViewModel
+                        {
+                            User = user,
+                            DeleteViewModel = new UserDetailDeleteViewModel()
+                        });
                     default:
                         return NotFound();
                 }
@@ -92,6 +93,9 @@ namespace Portal.Controllers
             return View(applicationUsers);
         }
 
+        // POST /Admin/Users/{uuid}/New
+        // POST /Admin/Users/{uuid}/ResetPassword
+        // POST /Admin/Users/{uuid}/Delete
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Users(string id, string subaction, UserDetailPostViewModel model, string returnUrl = null)
@@ -121,22 +125,47 @@ namespace Portal.Controllers
             }
             if (Util.IsCorrectUuid(id))
             {
-                if (subaction == "ResetPassword")
+                if (!ModelState.IsValid) return View(model);
+                switch (subaction)
                 {
-                    var user = await _userManager.FindByIdAsync(id);
-                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    var result = await _userManager.ResetPasswordAsync(user, code, model.ResetPasswordViewModel.Password);
-                    if (result.Succeeded)
+                    case "ResetPassword":
                     {
-                        return RedirectToAction(nameof(Users), "Admin", new RouteValueDictionary
+                        var user = await _userManager.FindByIdAsync(id);
+                        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                        var result = await _userManager.ResetPasswordAsync(user, code, model.ResetPasswordViewModel.Password);
+                        if (result.Succeeded)
                         {
-                            {"id", id},
-                            {"subaction", ""},
-                            {"message", "success_change_password"}
-                        });
+                            return RedirectToAction(nameof(Users), "Admin", new RouteValueDictionary
+                            {
+                                {"id", id},
+                                {"subaction", ""},
+                                {"message", "success_change_password"}
+                            });
+                        }
+                        AddErrors(result);
+                        return View();
                     }
-                    AddErrors(result);
-                    return View();
+                    case "Delete":
+                    {
+                        var user = await _userManager.FindByIdAsync(id);
+                        var safeUser = await _context.SafeUsers.Where(u => u.Id == id).FirstAsync();
+                        _context.SafeUsers.Remove(safeUser);
+                        await _context.SaveChangesAsync();
+                        var resultDelete = await _userManager.DeleteAsync(user);
+                        if (resultDelete.Succeeded)
+                        {
+                            return RedirectToAction(nameof(Users), "Admin", new RouteValueDictionary
+                            {
+                                {"id", ""},
+                                {"subaction", ""},
+                                {"message", "success_delete_user"}
+                            });
+                        }
+                        AddErrors(resultDelete);
+                        return View();
+                    }
+                    default:
+                        return NotFound();
                 }
             }
             return NotFound();

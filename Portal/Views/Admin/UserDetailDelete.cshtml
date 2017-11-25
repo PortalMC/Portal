@@ -1,0 +1,45 @@
+﻿@using Portal.Utils
+@model Portal.Models.AdminViewModels.UserDetailPostViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Delete";
+}
+
+@section Sidebar {
+    @Html.Partial("_AdminSidebar", 1)
+}
+
+<h3>Delete user</h3>
+<hr/>
+
+<p>
+    This action <span class="font-weight-bold">connot</span> be undone. This will permanently delete this user and all projects created by this user.
+</p>
+<p>Please type in the username to confirm.</p>
+
+<form asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete" asp-route-returnurl="@ViewBag.ReturnUrl" method="post" class="form-horizontal">
+    <div class="row form-user-info">
+        <span class="col-md-2">User</span>
+        <div class="col-md-10">
+            @Html.GravatarImage(Model.User.Email, 32, GravatarHtmlHelper.DefaultImage.Identicon)
+            <span>@Model.User.UserName</span>
+        </div>
+    </div>
+    <input asp-for="DeleteViewModel.UserNameConfirm" class="form-control" type="hidden" value="@Model.User.UserName"/>
+    <div class="form-group">
+        <label asp-for="DeleteViewModel.UserName" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="DeleteViewModel.UserName" class="form-control"/>
+            <span asp-validation-for="DeleteViewModel.UserName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

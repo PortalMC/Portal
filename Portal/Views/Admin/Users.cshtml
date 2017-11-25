@@ -8,6 +8,13 @@
     @Html.Partial("_AdminSidebar", 1)
 }
 
+@switch (ViewBag.Message)
+{
+    case "success_delete_user":
+        <div class="alert alert-success" role="alert">User Deleted.</div>
+        break;
+}
+
 <div id="admin-header">
     <h3>Users</h3>
     <a class="btn btn-success" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>

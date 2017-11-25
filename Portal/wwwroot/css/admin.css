@@ -109,18 +109,18 @@ a.list-group-item:hover {
     margin: 0;
 }
 
-#password-reset-user-info {
+.form-user-info {
     margin-right: -15px;
     margin-left: -15px;
     margin-bottom: 15px;
 }
 
-#password-reset-user-info > span {
+.form-user-info > span {
     text-align: right;
     font-weight: bold;
     line-height: 32px;
 }
 
-#password-reset-user-info > div > span {
+.form-user-info > div > span {
     margin-left: 10px;
 }
