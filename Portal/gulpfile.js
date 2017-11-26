@@ -1,6 +1,10 @@
 ﻿/// <binding BeforeBuild='create' Clean='clean' />
 
 const gulp = require("gulp");
+const babel = require('gulp-babel');
+const uglify = require('gulp-uglify');
+const cleanCSS = require('gulp-clean-css');
+const rename = require('gulp-rename');
 const sequence = require("run-sequence");
 const del = require("del");
 const merge = require("merge-stream");
@@ -9,6 +13,36 @@ gulp.task("clean",
     function (cb) {
         return del(["./wwwroot/lib"], cb);
     });
+
+gulp.task('minify_js', function () {
+    return gulp.src(
+        [
+            "!./wwwroot/js/*.min.js",
+            "./wwwroot/js/*.js"
+        ])
+        .pipe(babel())
+        .pipe(uglify())
+        .on('error', function (e) {
+            console.log(e);
+        })
+        .pipe(rename({
+            extname: '.min.js'
+        }))
+        .pipe(gulp.dest('./wwwroot/js/'));
+});
+
+gulp.task('minify_css', function () {
+    return gulp.src(
+        [
+            "!./wwwroot/css/*.min.css",
+            "./wwwroot/css/*.css"
+        ])
+        .pipe(cleanCSS())
+        .pipe(rename({
+            extname: '.min.css'
+        }))
+        .pipe(gulp.dest('./wwwroot/css/'));
+});
 
 gulp.task("create_bootstrap",
     function () {
@@ -83,6 +117,8 @@ gulp.task("create",
     function (callback) {
         return sequence(
             [
+                "minify_js",
+                "minify_css",
                 "create_bootstrap",
                 "create_ress",
                 "create_jquery",
