@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Settings;
+using static Docker.DotNet.MultiplexedStream;
 
 namespace Portal.Services
 {
@@ -107,17 +108,14 @@ namespace Portal.Services
             }))
             {
                 await _client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
-                while (true)
+                ReadResult result;
+                do
                 {
-                    var result = await stream.ReadOutputAsync(buffer, 0, buffer.Length, default(CancellationToken));
+                    result = await stream.ReadOutputAsync(buffer, 0, buffer.Length, default(CancellationToken));
                     var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    Console.Write(text);
+                    Console.Write(result.Target + text);
                     _connectionManager.SendMessage(project.Id, userId, text);
-                    if (result.EOF)
-                    {
-                        break;
-                    }
-                }
+                } while (!result.EOF);
             }
             _logger.LogInformation("Build finished. Removing container...");
             await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
