@@ -22,7 +22,8 @@
     "jquery.layout-custom": "file:custom_repo/jquery.layout",
     "merge-stream": "^1.0.1",
     "ress": "^1.2.2",
-    "run-sequence": "^2.2.0"
+    "run-sequence": "^2.2.0",
+    "ui-contextmenu": "^1.18.1"
   },
   "devDependencies": {}
 }

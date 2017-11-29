@@ -9,8 +9,10 @@
         "show-navigation-bar": true
     };
 
-    $("#editor-root").layout(getPanelLayoutSettings());
-    $("#tree-container").find("> .content").fancytree(getTreeSettings());
+    const editor_root = $("#editor-root");
+    const tree_container = $("#tree-container");
+    editor_root.layout(getPanelLayoutSettings());
+    const tree = tree_container.find("> .content").fancytree(getTreeSettings());
 
     let tabCounter = 1;
     const tabTemplate = "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
@@ -60,6 +62,9 @@
         onClickCommand(command);
     });
 
+    // Context Menu
+    tree_container.contextmenu(getTreeContextMenuSettings());
+
     let webSocket = null;
     connectLogWebsocket();
 
@@ -101,6 +106,7 @@
         }
 
         let lastLine = "";
+
         function appendToBuildLog(message) {
             lastLine += message;
             lastLine = checkLastLine(lastLine, "\r\n");
@@ -385,12 +391,12 @@
                 }
                 paths.shift();
                 paths.shift();
-                updateToolbarBreadcrumbPath(paths.join("/"))
-                $("#tree-container").find(".header").css("background-color", "#c6cfdf");
+                updateToolbarBreadcrumbPath(paths.join("/"));
+                $("#tree-container").addClass("pane-focused");
             },
 
             blur: () => {
-                $("#tree-container").find(".header").css("background-color", "#e4e4e4");
+                $("#tree-container").removeClass("pane-focused");
             },
 
             dblclick: (event, data) => {
@@ -406,10 +412,130 @@
                     const backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
                     $nodeSpan.append(backgroundDiv);
                     $nodeSpan.data("rendered", true);
+                    $nodeSpan.attr("data-key", node.key)
                 }
             },
 
             source: []
+        };
+    }
+
+    function getTreeContextMenuSettings() {
+        return {
+            delegate: ".fancytree-node",
+            autoFocus: true,
+            preventContextMenuForPopup: true,
+            show: false,
+            hide: false,
+            menu: [
+                {
+
+                    title: "New",
+                    children: [
+                        {
+                            title: "Class",
+                            cmd: "new-java-class",
+                            uiIcon: "fa fa-file-code-o"
+                        },
+                        {
+                            title: "Interface",
+                            cmd: "new-java-interface",
+                            uiIcon: "fa fa-file-code-o"
+                        },
+                        {
+                            title: "Enum",
+                            cmd: "new-java-enum",
+                            uiIcon: "fa fa-file-code-o"
+                        },
+                        {
+                            title: "----"
+                        },
+                        {
+                            title: "BlockState JSON File",
+                            cmd: "new-json-blockstate",
+                            uiIcon: "fa fa-file-text-o"
+                        },
+                        {
+                            title: "Item JSON File",
+                            cmd: "new-json-item",
+                            uiIcon: "fa fa-file-text-o"
+                        },
+                        {
+                            title: "Model JSON File",
+                            cmd: "new-json-model",
+                            uiIcon: "fa fa-file-text-o"
+                        },
+                        {
+                            title: "JSON File",
+                            cmd: "new-json",
+                            uiIcon: "fa fa-file-text-o"
+                        },
+                        {
+                            title: "----"
+                        },
+                        {
+                            title: "Other",
+                            cmd: "new-other",
+                            uiIcon: "fa fa-file-o"
+                        }
+                    ]
+                },
+                {
+                    title: "Upload",
+                    cmd: "upload",
+                    uiIcon: "fa fa-upload"
+                },
+                {
+                    title: "----"
+                },
+                {
+                    title: "Copy",
+                    cmd: "copy",
+                    uiIcon: "fa fa-files-o"
+                },
+                {
+                    title: "Paste",
+                    cmd: "paste",
+                    uiIcon: "fa fa-clipboard"
+                },
+                {
+                    title: "Rename",
+                    cmd: "rename"
+                },
+                {
+                    title: "----"
+                },
+                {
+                    title: "Delete",
+                    cmd: "delete",
+                    uiIcon: "fa fa-trash-o"
+                }
+            ],
+            select: function (event, ui) {
+                alert("select " + ui.cmd + " on " + ui.target.text());
+            },
+            beforeOpen: function (event, ui) {
+                var $menu = ui.menu,
+                    $target = ui.target,
+                    extraData = ui.extraData; // passed when menu was opened by call to open()
+
+                console.log("beforeOpen", event, ui, event.originalEvent.type);
+                tree.fancytree("getTree").activateKey($target.parent().attr("data-key"));
+                $("#tree-container").toggleClass("tree-contextmenu-open", true);
+                // Optionally return false, to prevent opening the menu now
+                $menu.find(".ui-icon").addClass("fa");
+                $menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
+                //$menu.find(".ui-icon").removeClass("ui-menu-icon");
+                //$menu.find(".ui-icon").removeClass("ui-icon");
+            },
+            open: function (event, ui) {
+                $("#tree-container").toggleClass("tree-contextmenu-open", true);
+                console.log("open");
+            },
+            close: function (event, ui) {
+                $("#tree-container").toggleClass("tree-contextmenu-open", false);
+                console.log("close");
+            }
         };
     }
 });

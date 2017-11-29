@@ -1114,7 +1114,7 @@ jquery.fancytree@^2.24.0:
 "jquery.layout-custom@file:custom_repo/jquery.layout":
   version "1.4.4-custom"
 
-jquery@>=1.8, jquery@>=1.9, "jquery@^1.7 || ^2.0 || ^3.1", jquery@^3.2.1:
+jquery@>=1.7, jquery@>=1.8, jquery@>=1.9, "jquery@^1.7 || ^2.0 || ^3.1", jquery@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.2.1.tgz#5c4d9de652af6cd0a770154a631bba12b015c787"
 
@@ -1753,6 +1753,12 @@ uglify-js@^3.0.5:
   dependencies:
     commander "~2.12.1"
     source-map "~0.6.1"
+
+ui-contextmenu@^1.18.1:
+  version "1.18.1"
+  resolved "https://registry.yarnpkg.com/ui-contextmenu/-/ui-contextmenu-1.18.1.tgz#87ac29a1845ca60429836f9fe2bbe4b83f7ff42d"
+  dependencies:
+    jquery ">=1.7"
 
 unc-path-regex@^0.1.0:
   version "0.1.2"

@@ -96,13 +96,18 @@ li.toolbar-item-only-pc {
 #tree-container > .header,
 #log-container > .header {
     padding: 2px 0 2px 10px;
-    background-color: #c6cfdf;
+    background-color: #e4e4e4;
     overflow: hidden;
     border-bottom: solid 1px #9b9b9b;
 }
 
 #log-container > .header {
     border-top: solid 1px #9b9b9b;
+}
+
+#tree-container.pane-focused > .header,
+#tree-container.tree-contextmenu-open > .header {
+    background-color: #c6cfdf;
 }
 
 #log-container > .content {
@@ -135,8 +140,19 @@ span.fancytree-active .fancytree-node-background {
 }
 
 .fancytree-treefocus span.fancytree-selected .fancytree-node-background,
-.fancytree-treefocus span.fancytree-active .fancytree-node-background {
+.fancytree-treefocus span.fancytree-active .fancytree-node-background,
+.tree-contextmenu-open span.fancytree-active .fancytree-node-background {
     background-color: #3875d6;
+}
+
+.tree-contextmenu-open span.fancytree-selected span.fancytree-title,
+.tree-contextmenu-open span.fancytree-active span.fancytree-title {
+    color: white;
+}
+
+span.fancytree-selected span.fancytree-title,
+span.fancytree-active span.fancytree-title {
+    background-color: transparent;
 }
 
 span.fancytree-node {
@@ -365,4 +381,16 @@ span.fancytree-node > span {
     border: solid 1px #c4c4c4;
     margin-right: -1px;
     background-color: #d9d9d9;
+}
+
+.ui-contextmenu .ui-icon {
+    background-image: none;
+}
+
+.ui-menu-item-wrapper .fa {
+    text-indent: 0;
+}
+
+.ui-menu {
+    width: 200px;
 }

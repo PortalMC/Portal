@@ -97,6 +97,15 @@ gulp.task("create_jquery_layout",
             .pipe(gulp.dest("./wwwroot/lib/jquery.layout"));
     });
 
+gulp.task("create_jquery_ui_contextmenu",
+    function () {
+        return gulp.src([
+            "./node_modules/ui-contextmenu/jquery.ui-contextmenu.js",
+            "./node_modules/ui-contextmenu/jquery.ui-contextmenu.min.js"
+        ])
+            .pipe(gulp.dest("./wwwroot/lib/jquery.ui-contextmenu"));
+    });
+
 gulp.task("create_ace_editor",
     function () {
         return gulp.src("./node_modules/ace-builds/src/**/*")
@@ -125,6 +134,7 @@ gulp.task("create",
                 "create_jquery_ui",
                 "create_jquery_fancytree",
                 "create_jquery_layout",
+                "create_jquery_ui_contextmenu",
                 "create_ace_editor",
                 "create_font_awesome"
             ],

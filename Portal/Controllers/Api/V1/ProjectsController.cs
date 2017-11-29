@@ -346,7 +346,8 @@ namespace Portal.Controllers.Api.V1
                 return BadRequest();
             }
             var projectRootObj = new JArray();
-            AddDirectories(projectRoot, projectRootObj);
+            var id = 0;
+            AddDirectories(projectRoot, projectRootObj, ref id);
             CheckBlacklistElemenets(projectRootObj);
             var root = new JArray
             {
@@ -407,16 +408,17 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
-        private static void AddDirectories(DirectoryInfo directory, JArray store)
+        private static void AddDirectories(DirectoryInfo directory, JArray store, ref int id)
         {
             var subDirectories = directory.GetDirectories().OrderByDescending(a => a.Name);
             foreach (var subDirectory in subDirectories)
             {
                 var subDirectoryStore = new JArray();
-                AddDirectories(subDirectory, subDirectoryStore);
+                AddDirectories(subDirectory, subDirectoryStore, ref id);
                 var directoryObject = new JObject
                 {
                     {"title", new JValue(subDirectory.Name)},
+                    {"key", new JValue($"key_{++id}")},
                     {"folder", new JValue(true)},
                     {"children", subDirectoryStore}
                 };
@@ -428,6 +430,7 @@ namespace Portal.Controllers.Api.V1
                 var fileObject = new JObject
                 {
                     {"title", new JValue(file.Name)},
+                    {"key", new JValue($"key_{++id}")}
                 };
                 store.Add(fileObject);
             }
