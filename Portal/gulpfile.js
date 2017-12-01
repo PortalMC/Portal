@@ -82,16 +82,19 @@ gulp.task("create_jquery",
         );
     });
 
-gulp.task("create_jquery_ui",
-    function () {
-        return gulp.src([
+gulp.task("create_jquery_ui", function () {
+    return merge(
+        gulp.src([
             "./node_modules/jquery-ui-bundle/jquery-ui.js",
             "./node_modules/jquery-ui-bundle/jquery-ui.min.js",
             "./node_modules/jquery-ui-bundle/jquery-ui.css",
-            "./node_modules/jquery-ui-bundle/jquery-ui.min.css"
-        ])
-            .pipe(gulp.dest("./wwwroot/lib/jquery-ui"));
-    });
+            "./node_modules/jquery-ui-bundle/jquery-ui.min.css",
+            "./node_modules/jquery-ui-bundle/images/*"])
+            .pipe(gulp.dest("./wwwroot/lib/jquery-ui")),
+        gulp.src("./node_modules/jquery-ui-bundle/images/*")
+            .pipe(gulp.dest("./wwwroot/lib/jquery-ui/images"))
+    )
+});
 
 gulp.task("create_jquery_fancytree",
     function () {
