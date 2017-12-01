@@ -17,6 +17,10 @@ gulp.task("clean",
         return del(["./wwwroot/lib"], cb);
     });
 
+gulp.task("watch", function () {
+    gulp.watch(["./wwwroot/js/editor.js"], ["webpack"])
+});
+
 gulp.task("webpack", function (cb) {
     return webpackStream(webpackConfig, webpack)
         .pipe(gulp.dest("."));

@@ -24,7 +24,6 @@ $(document).ready(() => {
     setupProjectTree();
 
     let tabCounter = 1;
-    const tabTemplate = "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
     const tabs = $("#editor-tabs").tabs({
         activate: (e, ui) => {
             const panelId = ui.newTab.attr("aria-controls");
@@ -406,8 +405,7 @@ $(document).ready(() => {
 
         tabMap[data["path"]] = id;
 
-        const li = $(tabTemplate.replace(/#\{id\}/g, `tab-${id}`).replace(/#\{href\}/g, `#${id}`)
-            .replace(/#\{label\}/g, label));
+        const li = `<li id='tab-${id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#${id}'>${label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>`;
 
         tabs.find(".ui-tabs-nav").append(li);
         tabs.append(`<div id='${id}' class='editor-pane-root'><div id='editor-${id}' class='editor-pane'></div></div>`);
