@@ -8,6 +8,7 @@ $(document).ready(() => {
 
     const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
     const tabMap = {};
+    const keyPathMap = {};
     const setting = {
         "show-navigation-bar": true
     };
@@ -140,9 +141,22 @@ $(document).ready(() => {
         }).done(data => {
             $("#editor-toolbar-breadcrumb-root").text(data[0].title);
             $("#tree-container").find("> .content").fancytree("option", "source", data);
+            data[0].children.forEach(v => updateKeyPathMapping(v, "/"))
         }).fail((jqXhr, textStatus, errorThrown) => {
             console.log("error!");
         });
+    }
+
+    function updateKeyPathMapping(data, parentPath) {
+        keyPathMap[data.key] = {
+            parent: parentPath,
+            name: data.title,
+            path: parentPath + data.title,
+            folder: !!data.folder
+        };
+        if (data.folder === true) {
+            data.children.forEach(v => updateKeyPathMapping(v, parentPath + data.title + "/"))
+        }
     }
 
     function onClickCommand(command) {
@@ -173,6 +187,103 @@ $(document).ready(() => {
                 break;
             default:
                 console.error("Unknown command : " + command);
+                break;
+        }
+    }
+
+    function onFileTreeCommand(command, path) {
+        console.log(`Received file tree command : ${command}`, path);
+        switch (command) {
+            case "new-java-class":
+                dialog.showSingleInputDialog(`Create: Class`, "Enter name: ", "NewClass", "Class name", "OK", "Cancel",
+                    (name) => {
+                        console.log("Yes" + name);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-java-interface":
+                dialog.showSingleInputDialog(`Cleate: Interface`, "Enter name: ", "NewInterface", "Interface name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-java-enum":
+                dialog.showSingleInputDialog(`Cleate: Enum`, "Enter name: ", "NewEnum", "Enum name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-json-blockstate":
+                dialog.showSingleInputDialog(`Cleate: Blockstate JSON`, "Enter name: ", "new_block", "Blockstate JSON name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-json-item":
+                dialog.showSingleInputDialog(`Cleate: Item JSON`, "Enter name: ", "new_item", "Blockstate Item name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-json-model":
+                dialog.showSingleInputDialog(`Cleate: Model JSON`, "Enter name: ", "new_model", "Model JSON name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-json":
+                dialog.showSingleInputDialog(`Cleate: JSON`, "Enter name: ", "new_json", "JSON name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-file":
+                dialog.showSingleInputDialog(`Cleate: File`, "Enter name: ", "NewFile.txt", "File name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "new-directory":
+                dialog.showSingleInputDialog(`Cleate: Directory`, "Enter name: ", "NewDirectory", "Directory name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "upload":
+                break;
+            case "copy":
+                break;
+            case "paste":
+                break;
+            case "rename":
+                dialog.showSingleInputDialog(`Rename ${path.name}`, "Enter a new name: ", path.name, "New name", "OK", "Cancel",
+                    (newName) => {
+                        console.log("Yes" + newName);
+                    }, () => {
+                        console.log("Cancel");
+                    });
+                break;
+            case "delete":
+                break;
+            default:
+                console.error(`Unknown tree command : ${command}`);
                 break;
         }
     }
@@ -438,17 +549,17 @@ $(document).ready(() => {
                         {
                             title: "Class",
                             cmd: "new-java-class",
-                            uiIcon: "fa fa-file-code-o"
+                            uiIcon: "fa-file-code-o"
                         },
                         {
                             title: "Interface",
                             cmd: "new-java-interface",
-                            uiIcon: "fa fa-file-code-o"
+                            uiIcon: "fa-file-code-o"
                         },
                         {
                             title: "Enum",
                             cmd: "new-java-enum",
-                            uiIcon: "fa fa-file-code-o"
+                            uiIcon: "fa-file-code-o"
                         },
                         {
                             title: "----"
@@ -456,37 +567,42 @@ $(document).ready(() => {
                         {
                             title: "BlockState JSON File",
                             cmd: "new-json-blockstate",
-                            uiIcon: "fa fa-file-text-o"
+                            uiIcon: "fa-file-text-o"
                         },
                         {
                             title: "Item JSON File",
                             cmd: "new-json-item",
-                            uiIcon: "fa fa-file-text-o"
+                            uiIcon: "fa-file-text-o"
                         },
                         {
                             title: "Model JSON File",
                             cmd: "new-json-model",
-                            uiIcon: "fa fa-file-text-o"
+                            uiIcon: "fa-file-text-o"
                         },
                         {
                             title: "JSON File",
                             cmd: "new-json",
-                            uiIcon: "fa fa-file-text-o"
+                            uiIcon: "fa-file-text-o"
                         },
                         {
                             title: "----"
                         },
                         {
-                            title: "Other",
-                            cmd: "new-other",
-                            uiIcon: "fa fa-file-o"
+                            title: "File",
+                            cmd: "new-file",
+                            uiIcon: "fa-file-o"
+                        },
+                        {
+                            title: "Directory",
+                            cmd: "new-directory",
+                            uiIcon: "fa-folder-o"
                         }
                     ]
                 },
                 {
                     title: "Upload",
                     cmd: "upload",
-                    uiIcon: "fa fa-upload"
+                    uiIcon: "fa-upload"
                 },
                 {
                     title: "----"
@@ -494,12 +610,12 @@ $(document).ready(() => {
                 {
                     title: "Copy",
                     cmd: "copy",
-                    uiIcon: "fa fa-files-o"
+                    uiIcon: "fa-files-o"
                 },
                 {
                     title: "Paste",
                     cmd: "paste",
-                    uiIcon: "fa fa-clipboard"
+                    uiIcon: "fa-clipboard"
                 },
                 {
                     title: "Rename",
@@ -511,33 +627,24 @@ $(document).ready(() => {
                 {
                     title: "Delete",
                     cmd: "delete",
-                    uiIcon: "fa fa-trash-o"
+                    uiIcon: "fa-trash-o"
                 }
             ],
             select: function (event, ui) {
-                alert("select " + ui.cmd + " on " + ui.target.text());
+                onFileTreeCommand(ui.cmd, keyPathMap[ui.target.parent().attr("data-key")]);
             },
             beforeOpen: function (event, ui) {
-                var $menu = ui.menu,
-                    $target = ui.target,
-                    extraData = ui.extraData; // passed when menu was opened by call to open()
-
-                console.log("beforeOpen", event, ui, event.originalEvent.type);
-                tree.fancytree("getTree").activateKey($target.parent().attr("data-key"));
+                const menu = ui.menu;
+                tree.fancytree("getTree").activateKey(ui.target.parent().attr("data-key"));
                 $("#tree-container").toggleClass("tree-contextmenu-open", true);
-                // Optionally return false, to prevent opening the menu now
-                $menu.find(".ui-icon").addClass("fa");
-                $menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
-                //$menu.find(".ui-icon").removeClass("ui-menu-icon");
-                //$menu.find(".ui-icon").removeClass("ui-icon");
+                menu.find(".ui-icon").addClass("fa");
+                menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
             },
-            open: function (event, ui) {
+            open: function () {
                 $("#tree-container").toggleClass("tree-contextmenu-open", true);
-                console.log("open");
             },
-            close: function (event, ui) {
+            close: function () {
                 $("#tree-container").toggleClass("tree-contextmenu-open", false);
-                console.log("close");
             }
         };
     }

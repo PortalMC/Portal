@@ -394,3 +394,11 @@ span.fancytree-node > span {
 .ui-menu {
     width: 200px;
 }
+
+.dialog-root .dialog-message {
+    margin-bottom: 10px;
+}
+
+.dialog-root input[type=text] {
+    width: 100%;
+}
