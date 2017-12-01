@@ -1,4 +1,5 @@
 ﻿import * as config from "./editor/config";
+import ApiClient from './editor/api_client';
 import * as dialog from "./editor/dialog";
 
 $(document).ready(() => {
@@ -8,6 +9,7 @@ $(document).ready(() => {
     // ======================
 
     const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
+    const apiClient = new ApiClient(`${window.location.protocol}//${window.location.host}/api/v1/`, projectUuid);
     const components = {};
     const tabMap = {};
     const keyPathMap = {};
@@ -196,17 +198,15 @@ $(document).ready(() => {
     }
 
     function fetchProjectTree() {
-        $.ajax({
-            url: `${getApiBaseAddress()}projects/${projectUuid}/file/list`,
-            type: "get",
-            dataType: "json"
-        }).done(data => {
-            $("#editor-toolbar-breadcrumb-root").text(data[0].title);
-            $("#tree-container").find("> .content").fancytree("option", "source", data);
-            data[0].children.forEach(v => updateKeyPathMapping(v, "/"))
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-        });
+        apiClient.getProjectFileList()
+            .done(data => {
+                $("#editor-toolbar-breadcrumb-root").text(data[0].title);
+                $("#tree-container").find("> .content").fancytree("option", "source", data);
+                data[0].children.forEach(v => updateKeyPathMapping(v, "/"))
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function updateKeyPathMapping(data, parentPath) {
@@ -226,26 +226,24 @@ $(document).ready(() => {
             case "navigation-bar":
                 if (setting["show-navigation-bar"]) {
                     $(".navbar").hide();
-                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").addClass("dropdown-menu-icon-none")
+                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").addClass("dropdown-menu-icon-none");
                     setting["show-navigation-bar"] = false;
                 } else {
                     $(".navbar").show();
-                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").removeClass("dropdown-menu-icon-none")
+                    $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").removeClass("dropdown-menu-icon-none");
                     setting["show-navigation-bar"] = true;
                 }
                 $("#editor-root").layout().resizeAll();
                 break;
             case "build":
                 console.log("Start build");
-                $.ajax({
-                    url: `${getApiBaseAddress()}projects/${projectUuid}/build`,
-                    type: "post",
-                    dataType: "json"
-                }).done(() => {
-                    alert("Start build");
-                }).fail((jqXhr, textStatus, errorThrown) => {
-                    console.log("error!");
-                });
+                apiClient.startProjectBuild()
+                    .done(() => {
+                        alert("Start build");
+                    })
+                    .fail((jqXhr, textStatus, errorThrown) => {
+                        console.log("error! : " + errorThrown.toString());
+                    });
                 break;
             default:
                 console.error("Unknown command : " + command);
@@ -352,6 +350,7 @@ $(document).ready(() => {
 
     function updateToolbarBreadcrumbPath(path) {
         const container = $("#editor-toolbar-breadcrumb-container");
+        // noinspection JSValidateTypes
         container.children(":not(#editor-toolbar-breadcrumb-root)").remove();
         if (path === undefined) {
             return
@@ -378,22 +377,13 @@ $(document).ready(() => {
         const content = editor.getValue();
 
         tab.removeClass("editor-tab-unsaved");
-
-        const data = {
-            path: path,
-            content: content
-        };
-        $.ajax({
-            url: `${getApiBaseAddress()}projects/${projectUuid}/file/edit`,
-            type: "post",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "json"
-        }).done(() => {
-            alert("Saved!");
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-        });
+        apiClient.saveProjectFile(path, content)
+            .done(() => {
+                alert("Saved!");
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function tryOpenExistFile(path) {
@@ -401,21 +391,13 @@ $(document).ready(() => {
             tabs.tabs({active: getIndexOfEditorPanel(tabMap[path])});
             return;
         }
-
-        const data = {
-            path: path
-        };
-        $.ajax({
-            url: `${getApiBaseAddress()}projects/${projectUuid}/file/get`,
-            type: "post",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "json"
-        }).done(result => {
-            addTab(result);
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-        });
+        apiClient.getProjectFile(path)
+            .done(result => {
+                addTab(result);
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function addTab(data) {
@@ -474,9 +456,5 @@ $(document).ready(() => {
         } else {
             return `${getFullPathInternal(node.parent)}/${node.title}`;
         }
-    }
-
-    function getApiBaseAddress() {
-        return `${window.location.protocol}//${window.location.host}/api/v1/`;
     }
 });
