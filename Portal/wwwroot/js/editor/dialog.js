@@ -2,13 +2,13 @@ export function showMessageDialog() {
 
 }
 
-export function showSingleInputDialog(title, message, defaultValue, placeholder, yesButton, noButton, yesAction, noAction) {
+export function showSingleInputDialog(title, message, defaultValue, placeholder, yesButton, noButton, yesAction, noAction = undefined) {
     $(`<div>
-             <p class="dialog-message">${message}</p>
-             <form>
-               <input type="text" name="name" id="name" value="${defaultValue}" placeholder="${placeholder}" class="text ui-widget-content ui-corner-all">
-             </form>
-           </div>`).dialog({
+         <p class="dialog-message">${message}</p>
+         <form>
+           <input type="text" name="name" id="name" value="${defaultValue}" placeholder="${placeholder}" class="text ui-widget-content ui-corner-all">
+         </form>
+       </div>`).dialog({
         title: title,
         dialogClass: "dialog-root",
         width: 400,
@@ -16,15 +16,17 @@ export function showSingleInputDialog(title, message, defaultValue, placeholder,
             {
                 text: yesButton,
                 click: function () {
-                    $(this).dialog('close');
+                    $(this).dialog("close");
                     yesAction($(this).find("input[type=text]").val());
                 }
             },
             {
                 text: noButton,
                 click: function () {
-                    $(this).dialog('close');
-                    noAction();
+                    $(this).dialog("close");
+                    if (noAction) {
+                        noAction();
+                    }
                 }
             }
         ],
