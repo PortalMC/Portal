@@ -8,11 +8,19 @@ const rename = require('gulp-rename');
 const sequence = require("run-sequence");
 const del = require("del");
 const merge = require("merge-stream");
+const webpack = require("webpack");
+const webpackStream = require("webpack-stream");
+const webpackConfig = require("./webpack.config");
 
 gulp.task("clean",
     function (cb) {
         return del(["./wwwroot/lib"], cb);
     });
+
+gulp.task("webpack", function (cb) {
+    return webpackStream(webpackConfig, webpack)
+        .pipe(gulp.dest("."));
+});
 
 gulp.task('minify_js', function () {
     return gulp.src(
@@ -125,6 +133,9 @@ gulp.task("create_font_awesome",
 gulp.task("create",
     function (callback) {
         return sequence(
+            [
+                "webpack"
+            ],
             [
                 "minify_js",
                 "minify_css",

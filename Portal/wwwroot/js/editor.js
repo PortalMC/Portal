@@ -1,4 +1,7 @@
-﻿$(document).ready(() => {
+﻿import * as dialog from "./editor/dialog";
+
+$(document).ready(() => {
+
     // ======================
     // Initialize
     // ======================

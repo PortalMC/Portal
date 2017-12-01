@@ -1,6 +1,7 @@
 wwwroot/lib
 wwwroot/css/*.min.css
 wwwroot/js/*.min.js
+wwwroot/js/*.bundle.js
 projectsroot/
 forgeroot/
 buildsroot/

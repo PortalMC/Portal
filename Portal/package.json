@@ -9,6 +9,7 @@
     "bootstrap": "^3.3.7",
     "del": "^3.0.0",
     "font-awesome": "^4.7.0",
+    "global": "^4.3.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.0",
     "gulp-clean-css": "^3.9.0",
@@ -23,7 +24,9 @@
     "merge-stream": "^1.0.1",
     "ress": "^1.2.2",
     "run-sequence": "^2.2.0",
-    "ui-contextmenu": "^1.18.1"
+    "ui-contextmenu": "^1.18.1",
+    "webpack": "^3.9.1",
+    "webpack-stream": "^4.0.0"
   },
   "devDependencies": {}
 }
