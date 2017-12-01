@@ -1,4 +1,5 @@
-﻿import * as dialog from "./editor/dialog";
+﻿import * as config from "./editor/config";
+import * as dialog from "./editor/dialog";
 
 $(document).ready(() => {
 
@@ -7,6 +8,7 @@ $(document).ready(() => {
     // ======================
 
     const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
+    const components = {};
     const tabMap = {};
     const keyPathMap = {};
     const setting = {
@@ -15,8 +17,9 @@ $(document).ready(() => {
 
     const editor_root = $("#editor-root");
     const tree_container = $("#tree-container");
-    editor_root.layout(getPanelLayoutSettings());
-    const tree = tree_container.find("> .content").fancytree(getTreeSettings());
+    editor_root.layout(config.getPanelLayoutSettings());
+
+    setupProjectTree();
 
     let tabCounter = 1;
     const tabTemplate = "<li id='#{id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#{href}'>#{label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>";
@@ -67,12 +70,71 @@ $(document).ready(() => {
     });
 
     // Context Menu
-    tree_container.contextmenu(getTreeContextMenuSettings());
+    setupProjectTreeMenu();
 
     let webSocket = null;
     connectLogWebsocket();
 
     fetchProjectTree();
+
+    // ======================
+    // Setup Functions
+    // ======================
+
+    function setupProjectTree() {
+        const tree = tree_container.find("> .content").fancytree(config.getTreeSettings());
+        components.tree = tree;
+        tree.fancytree("option", "focus", (event, data) => {
+            let node = data.node;
+            let paths = [];
+            while (node !== undefined && node !== null) {
+                paths.unshift(node.title);
+                node = node.parent;
+            }
+            paths.shift();
+            paths.shift();
+            updateToolbarBreadcrumbPath(paths.join("/"));
+            $("#tree-container").addClass("pane-focused");
+        });
+        tree.fancytree("option", "blur", () => {
+            $("#tree-container").removeClass("pane-focused");
+        });
+        tree.fancytree("option", "dblclick", (event, data) => {
+            if (!data.node.folder) {
+                tryOpenExistFile(getFullPath(data.node));
+            }
+        });
+        tree.fancytree("option", "renderNode", (event, data) => {
+            const node = data.node;
+            const $nodeSpan = $(node.span);
+            if (!$nodeSpan.data("rendered")) {
+                const backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
+                $nodeSpan.append(backgroundDiv);
+                $nodeSpan.data("rendered", true);
+                $nodeSpan.attr("data-key", node.key)
+            }
+        });
+    }
+
+    function setupProjectTreeMenu() {
+        const menu = tree_container.contextmenu(config.getTreeContextMenuSettings());
+        menu.contextmenu("option", "select", function (event, ui) {
+            onFileTreeCommand(ui.cmd, keyPathMap[ui.target.parent().attr("data-key")]);
+        });
+        menu.contextmenu("option", "beforeOpen", function (event, ui) {
+            const menu = ui.menu;
+            components.tree.fancytree("getTree").activateKey(ui.target.parent().attr("data-key"));
+            $("#tree-container").toggleClass("tree-contextmenu-open", true);
+            menu.find(".ui-icon").addClass("fa");
+            menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
+        });
+        menu.contextmenu("option", "open", function () {
+            $("#tree-container").toggleClass("tree-contextmenu-open", true);
+        });
+        menu.contextmenu("option", "close", function () {
+            $("#tree-container").toggleClass("tree-contextmenu-open", false);
+        });
+    }
 
     // ======================
     // Functions
@@ -416,236 +478,5 @@ $(document).ready(() => {
 
     function getApiBaseAddress() {
         return `${window.location.protocol}//${window.location.host}/api/v1/`;
-    }
-
-    // ======================
-    // Configuration
-    // ======================
-    function getPanelLayoutSettings() {
-        return {
-            name: "editorLayout",
-            defaults: {
-                size: "auto",
-                minSize: 50,
-                resizerClass: "resizer",
-                togglerClass: "toggler",
-                buttonClass: "button",
-                contentSelector: ".content",
-                contentIgnoreSelector: "span",
-                togglerLength_open: 35,
-                togglerLength_closed: 35,
-                hideTogglerOnSlide: true
-            },
-            west: {
-                paneSelector: "#tree-container",
-                size: 250,
-                spacing_closed: 21,
-                togglerLength_closed: 21,
-                togglerAlign_closed: "top",
-                togglerLength_open: 0,
-                togglerTip_open: "Close East Pane",
-                togglerTip_closed: "Open East Pane",
-                resizerTip_open: "Resize East Pane",
-                slideTrigger_open: "mouseover",
-                initClosed: false
-            },
-            south: {
-                paneSelector: "#log-container",
-                size: 70,
-                spacing_closed: 21,
-                togglerLength_closed: 21,
-                togglerAlign_closed: "top",
-                togglerLength_open: 0,
-                togglerTip_open: "Close East Pane",
-                togglerTip_closed: "Open East Pane",
-                resizerTip_open: "Resize East Pane",
-                slideTrigger_open: "mouseover",
-                initClosed: false
-            },
-            center: {
-                paneSelector: "#editor-container",
-                minWidth: 200,
-                minHeight: 200
-            }
-        };
-    }
-
-    function getTreeSettings() {
-        return {
-            activeVisible: true, // Make sure, active nodes are visible (expanded)
-            aria: true, // Enable WAI-ARIA support
-            autoActivate: true, // Automatically activate a node when it is focused using keyboard
-            autoCollapse: false, // Automatically collapse all siblings, when a node is expanded
-            autoScroll: false, // Automatically scroll nodes into visible area
-            clickFolderMode: 4, // 1:activate, 2:expand, 3:activate and expand, 4:activate (dblclick expands)
-            checkbox: false, // Show checkboxes
-            debugLevel: 0, // 0:quiet, 1:normal, 2:debug
-            disabled: false, // Disable control
-            focusOnSelect: false, // Set focus when node is checked by a mouse click
-            escapeTitles: true, // Escape `node.title` content for display
-            generateIds: false, // Generate id attributes like <span id='fancytree-id-KEY'>
-            idPrefix: "ft_", // Used to generate node idÂ´s like <span id='fancytree-id-<key>'>
-            icon: true, // Display node icons
-            keyboard: true, // Support keyboard navigation
-            keyPathSeparator: "/", // Used by node.getKeyPath() and tree.loadKeyPath()
-            minExpandLevel: 1, // 1: root node is not collapsible
-            quicksearch: false, // Navigate to next node by typing the first letters
-            selectMode: 2, // 1:single, 2:multi, 3:multi-hier
-            tabindex: "0", // Whole tree behaves as one single control
-            titlesTabbable: false, // Node titles can receive keyboard focus
-            tooltip: false, // Use title as tooltip (also a callback could be specified)
-            toggleEffect: false,
-
-            focus: (event, data) => {
-                let node = data.node;
-                let paths = [];
-                while (node !== undefined && node !== null) {
-                    paths.unshift(node.title);
-                    node = node.parent;
-                }
-                paths.shift();
-                paths.shift();
-                updateToolbarBreadcrumbPath(paths.join("/"));
-                $("#tree-container").addClass("pane-focused");
-            },
-
-            blur: () => {
-                $("#tree-container").removeClass("pane-focused");
-            },
-
-            dblclick: (event, data) => {
-                if (!data.node.folder) {
-                    tryOpenExistFile(getFullPath(data.node));
-                }
-            },
-
-            renderNode: (event, data) => {
-                const node = data.node;
-                const $nodeSpan = $(node.span);
-                if (!$nodeSpan.data("rendered")) {
-                    const backgroundDiv = $("<div class='fancytree-node-background'><span></span></div>");
-                    $nodeSpan.append(backgroundDiv);
-                    $nodeSpan.data("rendered", true);
-                    $nodeSpan.attr("data-key", node.key)
-                }
-            },
-
-            source: []
-        };
-    }
-
-    function getTreeContextMenuSettings() {
-        return {
-            delegate: ".fancytree-node",
-            autoFocus: true,
-            preventContextMenuForPopup: true,
-            show: false,
-            hide: false,
-            menu: [
-                {
-
-                    title: "New",
-                    children: [
-                        {
-                            title: "Class",
-                            cmd: "new-java-class",
-                            uiIcon: "fa-file-code-o"
-                        },
-                        {
-                            title: "Interface",
-                            cmd: "new-java-interface",
-                            uiIcon: "fa-file-code-o"
-                        },
-                        {
-                            title: "Enum",
-                            cmd: "new-java-enum",
-                            uiIcon: "fa-file-code-o"
-                        },
-                        {
-                            title: "----"
-                        },
-                        {
-                            title: "BlockState JSON File",
-                            cmd: "new-json-blockstate",
-                            uiIcon: "fa-file-text-o"
-                        },
-                        {
-                            title: "Item JSON File",
-                            cmd: "new-json-item",
-                            uiIcon: "fa-file-text-o"
-                        },
-                        {
-                            title: "Model JSON File",
-                            cmd: "new-json-model",
-                            uiIcon: "fa-file-text-o"
-                        },
-                        {
-                            title: "JSON File",
-                            cmd: "new-json",
-                            uiIcon: "fa-file-text-o"
-                        },
-                        {
-                            title: "----"
-                        },
-                        {
-                            title: "File",
-                            cmd: "new-file",
-                            uiIcon: "fa-file-o"
-                        },
-                        {
-                            title: "Directory",
-                            cmd: "new-directory",
-                            uiIcon: "fa-folder-o"
-                        }
-                    ]
-                },
-                {
-                    title: "Upload",
-                    cmd: "upload",
-                    uiIcon: "fa-upload"
-                },
-                {
-                    title: "----"
-                },
-                {
-                    title: "Copy",
-                    cmd: "copy",
-                    uiIcon: "fa-files-o"
-                },
-                {
-                    title: "Paste",
-                    cmd: "paste",
-                    uiIcon: "fa-clipboard"
-                },
-                {
-                    title: "Rename",
-                    cmd: "rename"
-                },
-                {
-                    title: "----"
-                },
-                {
-                    title: "Delete",
-                    cmd: "delete",
-                    uiIcon: "fa-trash-o"
-                }
-            ],
-            select: function (event, ui) {
-                onFileTreeCommand(ui.cmd, keyPathMap[ui.target.parent().attr("data-key")]);
-            },
-            beforeOpen: function (event, ui) {
-                const menu = ui.menu;
-                tree.fancytree("getTree").activateKey(ui.target.parent().attr("data-key"));
-                $("#tree-container").toggleClass("tree-contextmenu-open", true);
-                menu.find(".ui-icon").addClass("fa");
-                menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
-            },
-            open: function () {
-                $("#tree-container").toggleClass("tree-contextmenu-open", true);
-            },
-            close: function () {
-                $("#tree-container").toggleClass("tree-contextmenu-open", false);
-            }
-        };
     }
 });
