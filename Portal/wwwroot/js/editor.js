@@ -345,7 +345,7 @@ $(document).ready(() => {
         if (path.folder) {
             p = path.path + name;
         } else {
-            p = path.parent + "/" + name;
+            p = path.parent + name;
         }
         apiClient.createProjectFile(p, isDirectory, snippetName)
             .done(() => {
