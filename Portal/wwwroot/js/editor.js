@@ -383,7 +383,6 @@ $(document).ready(() => {
 
     function getKeyByPanelId(id) {
         return id.substr(5);
-        // return Object.keys(keyTabMap).filter(key => keyTabMap[key] === id)[0];
     }
 
     function trySaveCurrentEditor() {
