@@ -77,9 +77,9 @@ $(document).ready(() => {
             activate: (e, ui) => {
                 const panelId = ui.newTab.attr("aria-controls");
                 if (panelId === "editor-pane-empty") {
-                    updateToolbarBreadcrumbPath("/");
+                    updateToolbarBreadcrumbPath("");
                 } else {
-                    updateToolbarBreadcrumbPath(keyPathMap[getKeyByPanelId(panelId)].path);
+                    updateToolbarBreadcrumbPath(keyPathMap[getKeyByPanelId(panelId)].path.substr(1));
                 }
             }
         });
@@ -361,7 +361,7 @@ $(document).ready(() => {
         const container = $("#editor-toolbar-breadcrumb-container");
         // noinspection JSValidateTypes
         container.children(":not(#editor-toolbar-breadcrumb-root)").remove();
-        if (path === undefined) {
+        if (path === undefined || path === null || path.length === 0) {
             return
         }
         const paths = path.split("/");
