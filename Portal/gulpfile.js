@@ -22,7 +22,12 @@ gulp.task("watch", function () {
 });
 
 gulp.task("webpack", function (cb) {
-    return webpackStream(webpackConfig, webpack)
+    return gulp.src("./wwwroot/js/editor.js")
+        .pipe(webpackStream(webpackConfig, webpack))
+        .on('error', function (error) {
+            console.log('* error handler: ' + error);
+            this.emit('end');
+        })
         .pipe(gulp.dest("."));
 });
 
