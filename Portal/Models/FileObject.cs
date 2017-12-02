@@ -8,5 +8,6 @@
         public string Content { get; set; }
         public bool IsDirectory { get; set; }
         public string NewPath { get; set; }
+        public string SnippetType { get; set; }
     }
 }

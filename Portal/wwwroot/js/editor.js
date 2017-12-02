@@ -1,6 +1,7 @@
 ﻿import * as config from "./editor/config";
 import ApiClient from './editor/api_client';
 import * as dialog from "./editor/dialog";
+import * as util from "./editor/util";
 
 $(document).ready(() => {
 
@@ -201,6 +202,12 @@ $(document).ready(() => {
             .done(data => {
                 $("#editor-toolbar-breadcrumb-root").text(data[0].title);
                 $("#tree-container").find("> .content").fancytree("option", "source", data);
+                keyPathMap[data[0].key] = {
+                    parent: "",
+                    name: "",
+                    path: "/",
+                    folder: true
+                };
                 data[0].children.forEach(v => updateKeyPathMapping(v, "/"))
             })
             .fail((jqXhr, textStatus, errorThrown) => {
@@ -209,13 +216,14 @@ $(document).ready(() => {
     }
 
     function updateKeyPathMapping(data, parentPath) {
+        const isDirectory = !!data.folder;
         keyPathMap[data.key] = {
             parent: parentPath,
             name: data.title,
-            path: parentPath + data.title,
-            folder: !!data.folder
+            path: isDirectory ? parentPath + data.title + "/" : parentPath + data.title,
+            folder: isDirectory
         };
-        if (data.folder === true) {
+        if (isDirectory) {
             data.children.forEach(v => updateKeyPathMapping(v, parentPath + data.title + "/"))
         }
     }
@@ -256,73 +264,55 @@ $(document).ready(() => {
             case "new-java-class":
                 dialog.showSingleInputDialog(`Create: Class`, "Enter name: ", "NewClass", "Class name", "OK", "Cancel",
                     (name) => {
-                        console.log("Yes" + name);
-                    }, () => {
-                        console.log("Cancel");
+                        createNewFile(path, util.checkExtension(name, "java"), false, "java-class");
                     });
                 break;
             case "new-java-interface":
                 dialog.showSingleInputDialog(`Cleate: Interface`, "Enter name: ", "NewInterface", "Interface name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "java"), false, "java-interface");
                     });
                 break;
             case "new-java-enum":
                 dialog.showSingleInputDialog(`Cleate: Enum`, "Enter name: ", "NewEnum", "Enum name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "java"), false, "java-enum");
                     });
                 break;
             case "new-json-blockstate":
                 dialog.showSingleInputDialog(`Cleate: Blockstate JSON`, "Enter name: ", "new_block", "Blockstate JSON name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "json"), false, "json-blockstate");
                     });
                 break;
             case "new-json-item":
                 dialog.showSingleInputDialog(`Cleate: Item JSON`, "Enter name: ", "new_item", "Blockstate Item name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "json"), false, "json-item");
                     });
                 break;
             case "new-json-model":
                 dialog.showSingleInputDialog(`Cleate: Model JSON`, "Enter name: ", "new_model", "Model JSON name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "json"), false, "json-model");
                     });
                 break;
             case "new-json":
                 dialog.showSingleInputDialog(`Cleate: JSON`, "Enter name: ", "new_json", "JSON name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, util.checkExtension(name, "json"), false, "json");
                     });
                 break;
             case "new-file":
                 dialog.showSingleInputDialog(`Cleate: File`, "Enter name: ", "NewFile.txt", "File name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, name, false);
                     });
                 break;
             case "new-directory":
                 dialog.showSingleInputDialog(`Cleate: Directory`, "Enter name: ", "NewDirectory", "Directory name", "OK", "Cancel",
-                    (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                    (name) => {
+                        createNewFile(path, name, true);
                     });
                 break;
             case "upload":
@@ -350,6 +340,23 @@ $(document).ready(() => {
                 console.error(`Unknown tree command : ${command}`);
                 break;
         }
+    }
+
+    function createNewFile(path, name, isDirectory, snippetName = undefined) {
+        let p;
+        if (path.folder) {
+            p = path.path + name;
+        } else {
+            p = path.parent + "/" + name;
+        }
+        apiClient.createProjectFile(p, isDirectory, snippetName)
+            .done(() => {
+                fetchProjectTree();
+                console.log("Yes" + p);
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function updateToolbarBreadcrumbPath(path) {

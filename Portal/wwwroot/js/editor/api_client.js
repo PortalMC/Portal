@@ -58,6 +58,22 @@ export default class {
         });
     }
 
+    createProjectFile(path, isDirectory, snippetType = "") {
+        const data = {
+            path: path,
+            isDirectory: isDirectory,
+            snippetType: snippetType
+        };
+        // noinspection ES6ModulesDependencies
+        return $.ajax({
+            url: `${this.baseAddress}projects/${this.projectId}/file/create`,
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        })
+    }
+
     startProjectBuild() {
         // noinspection ES6ModulesDependencies
         return $.ajax({

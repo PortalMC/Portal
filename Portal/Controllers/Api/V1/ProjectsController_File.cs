@@ -183,6 +183,73 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
+        [HttpPost("{uuid}/file/create")]
+        [Authorize]
+        public async Task<IActionResult> Create(string uuid, [FromBody] FileObject file)
+        {
+            if (uuid == null || file == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            var projectRoot = Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid);
+            if (file.IsDirectory)
+            {
+                var rawDirectory = new DirectoryInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
+                if (!rawDirectory.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Maybe directory traversal
+                    return NotFound();
+                }
+                if (rawDirectory.Exists)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, "Directory is already exist.");
+                }
+                try
+                {
+                    rawDirectory.Create();
+                    await _context.UpdateProjectUpdatedAtAsync(uuid);
+                    return NoContent();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+            var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
+            if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                // Maybe directory traversal
+                return NotFound();
+            }
+            if (rawFile.Exists)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "File is already exist.");
+            }
+            try
+            {
+                // TODO: Snippet support
+                rawFile.Create().Close();
+                await _context.UpdateProjectUpdatedAtAsync(uuid);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         [HttpGet("{uuid}/file/list")]
         [Authorize]
         public async Task<IActionResult> FileList(string uuid)
@@ -216,6 +283,7 @@ namespace Portal.Controllers.Api.V1
                 new JObject
                 {
                     {"title", new JValue(result.project.Name)},
+                    {"key", new JValue($"key_{++id}")},
                     {"folder", new JValue(true)},
                     {"expanded", new JValue(true)},
                     {"children", projectRootObj}
