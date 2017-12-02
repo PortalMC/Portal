@@ -42,6 +42,22 @@ export default class {
         });
     }
 
+    moveProjectFile(path, newPath, isDirectory) {
+        const data = {
+            path: path,
+            isDirectory: isDirectory,
+            newPath: newPath
+        };
+        // noinspection ES6ModulesDependencies
+        return $.ajax({
+            url: `${this.baseAddress}projects/${this.projectId}/file/move`,
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        });
+    }
+
     startProjectBuild() {
         // noinspection ES6ModulesDependencies
         return $.ajax({

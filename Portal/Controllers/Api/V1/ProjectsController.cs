@@ -321,6 +321,82 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
+        [HttpPost("{uuid}/file/move")]
+        [Authorize]
+        public async Task<IActionResult> Move(string uuid, [FromBody] FileObject file)
+        {
+            if (uuid == null || file == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            var projectRoot = Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid);
+            if (file.IsDirectory)
+            {
+                var rawDirectory = new DirectoryInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
+                var rawDirectoryNew = new DirectoryInfo(Path.Combine(projectRoot, Path.Combine(file.NewPath.Split('/'))));
+                if (!rawDirectory.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase) || !rawDirectoryNew.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Maybe directory traversal
+                    return NotFound();
+                }
+                if (!rawDirectory.Exists)
+                {
+                    return NotFound();
+                }
+                if (rawDirectoryNew.Exists)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, "Destination path is already exist.");
+                }
+                try
+                {
+                    rawDirectory.MoveTo(rawDirectoryNew.FullName);
+                    return NoContent();
+                }
+                catch (Exception e)
+                {
+                    StatusCode(StatusCodes.Status500InternalServerError, "An error occueerd while moving project file.");
+                    throw;
+                }
+            }
+            // File
+            var rawFile = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.Path.Split('/'))));
+            var rawFileNew = new FileInfo(Path.Combine(projectRoot, Path.Combine(file.NewPath.Split('/'))));
+            if (!rawFile.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase) || !rawFileNew.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                // Maybe directory traversal
+                return NotFound();
+            }
+            if (!rawFile.Exists)
+            {
+                return NotFound();
+            }
+            if (rawFileNew.Exists)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Destination path is already exist.");
+            }
+
+            try
+            {
+                rawFile.MoveTo(rawFileNew.FullName);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                StatusCode(StatusCodes.Status500InternalServerError, "An error occueerd while moving project file.");
+                throw;
+            }
+        }
+
         [HttpGet("{uuid}/file/list")]
         [Authorize]
         public async Task<IActionResult> FileList(string uuid)

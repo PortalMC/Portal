@@ -334,9 +334,14 @@ $(document).ready(() => {
             case "rename":
                 dialog.showSingleInputDialog(`Rename ${path.name}`, "Enter a new name: ", path.name, "New name", "OK", "Cancel",
                     (newName) => {
-                        console.log("Yes" + newName);
-                    }, () => {
-                        console.log("Cancel");
+                        apiClient.moveProjectFile(path.path, path.parent + newName, path.folder)
+                            .done(() => {
+                                fetchProjectTree();
+                                console.log("Yes" + newName);
+                            })
+                            .fail((jqXhr, textStatus, errorThrown) => {
+                                console.log("error! : " + errorThrown.toString());
+                            });
                     });
                 break;
             case "delete":
