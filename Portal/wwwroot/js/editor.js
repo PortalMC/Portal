@@ -333,6 +333,17 @@ $(document).ready(() => {
                     });
                 break;
             case "delete":
+                dialog.showConfirmDialog(`Delete`, path.folder ? "Delete 1 folder?" : "Delete 1 file?", "Delete", "Cancel",
+                    () => {
+                        apiClient.deleteProjectFile(path.path, path.folder)
+                            .done(() => {
+                                fetchProjectTree();
+                                console.log("Deleted" + path.path);
+                            })
+                            .fail((jqXhr, textStatus, errorThrown) => {
+                                console.log("error! : " + errorThrown.toString());
+                            });
+                    });
                 break;
             default:
                 console.error(`Unknown tree command : ${command}`);

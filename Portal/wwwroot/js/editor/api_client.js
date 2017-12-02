@@ -74,6 +74,21 @@ export default class {
         })
     }
 
+    deleteProjectFile(path, isDirectory) {
+        const data = {
+            path: path,
+            isDirectory: isDirectory
+        };
+        // noinspection ES6ModulesDependencies
+        return $.ajax({
+            url: `${this.baseAddress}projects/${this.projectId}/file/delete`,
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json"
+        })
+    }
+
     startProjectBuild() {
         // noinspection ES6ModulesDependencies
         return $.ajax({
