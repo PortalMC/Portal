@@ -1,5 +1,6 @@
 ﻿import * as config from "./editor/config";
 import ApiClient from './editor/api_client';
+import Path from './editor/path';
 import * as dialog from "./editor/dialog";
 import * as util from "./editor/util";
 
@@ -12,71 +13,24 @@ $(document).ready(() => {
     const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/Editor/)[1];
     const apiClient = new ApiClient(`${window.location.protocol}//${window.location.host}/api/v1/`, projectUuid);
     const components = {};
-    const tabMap = {};
     const keyPathMap = {};
     const setting = {
         "show-navigation-bar": true
     };
+    let webSocket = null;
 
-    const editor_root = $("#editor-root");
-    const tree_container = $("#tree-container");
-    editor_root.layout(config.getPanelLayoutSettings());
+    components.editor_root = $("#editor-root");
+    components.tree_container = $("#tree-container");
+    components.editor_root.layout(config.getPanelLayoutSettings());
 
     setupProjectTree();
-
-    let tabCounter = 1;
-    const tabs = $("#editor-tabs").tabs({
-        activate: (e, ui) => {
-            const panelId = ui.newTab.attr("aria-controls");
-            const path = getPathByPanelId(panelId);
-            updateToolbarBreadcrumbPath(path);
-        }
-    });
-    tabs.find(".ui-tabs-nav").sortable({
-        axis: "x",
-        stop: () => {
-            tabs.tabs("refresh");
-        }
-    });
-    tabs.on("click", "span.editor-tab-icon-close", (e) => {
-        const panelId = $(e.target).closest("li").remove().attr("aria-controls");
-        $(`#${panelId}`).remove();
-        const path = getPathByPanelId(panelId);
-        delete tabMap[path];
-        tabs.tabs("refresh");
-    });
-
-    $(window).bind("keydown", (event) => {
-        if (event.ctrlKey || event.metaKey) {
-            switch (String.fromCharCode(event.which).toLowerCase()) {
-                case "s":
-                    event.preventDefault();
-                    trySaveCurrentEditor();
-                    break;
-            }
-        }
-    });
-
-    // Menu
-    $("#editor-menu").find("li").on("click", (e) => {
-        const command = $(e.target).attr("data-command") === undefined
-            ? $(e.target.parentElement).attr("data-command")
-            : $(e.target).attr("data-command");
-        onClickCommand(command);
-    });
-
-    // Toolbar
-    $(".editor-toolbar-command").on("click", (e) => {
-        const command = $(e.target).attr("data-command");
-        onClickCommand(command);
-    });
-
-    // Context Menu
+    setupTab();
+    setupMenu();
+    setupToolbar();
     setupProjectTreeMenu();
+    setupKeyboardEvent();
 
-    let webSocket = null;
     connectLogWebsocket();
-
     fetchProjectTree();
 
     // ======================
@@ -84,7 +38,7 @@ $(document).ready(() => {
     // ======================
 
     function setupProjectTree() {
-        const tree = tree_container.find("> .content").fancytree(config.getTreeSettings());
+        const tree = components.tree_container.find("> .content").fancytree(config.getTreeSettings());
         components.tree = tree;
         tree.fancytree("option", "focus", (event, data) => {
             let node = data.node;
@@ -96,14 +50,14 @@ $(document).ready(() => {
             paths.shift();
             paths.shift();
             updateToolbarBreadcrumbPath(paths.join("/"));
-            $("#tree-container").addClass("pane-focused");
+            components.tree_container.addClass("pane-focused");
         });
         tree.fancytree("option", "blur", () => {
-            $("#tree-container").removeClass("pane-focused");
+            components.tree_container.removeClass("pane-focused");
         });
         tree.fancytree("option", "dblclick", (event, data) => {
             if (!data.node.folder) {
-                tryOpenExistFile(getFullPath(data.node));
+                tryOpenExistFile(data.node.key);
             }
         });
         tree.fancytree("option", "renderNode", (event, data) => {
@@ -118,23 +72,77 @@ $(document).ready(() => {
         });
     }
 
+    function setupTab() {
+        const tabs = $("#editor-tabs").tabs({
+            activate: (e, ui) => {
+                const panelId = ui.newTab.attr("aria-controls");
+                if (panelId === "editor-pane-empty") {
+                    updateToolbarBreadcrumbPath("/");
+                } else {
+                    updateToolbarBreadcrumbPath(keyPathMap[getKeyByPanelId(panelId)].path);
+                }
+            }
+        });
+        components.tab = tabs;
+        tabs.find(".ui-tabs-nav").sortable({
+            axis: "x",
+            stop: () => {
+                tabs.tabs("refresh");
+            }
+        });
+        tabs.on("click", "span.editor-tab-icon-close", (e) => {
+            const panelId = $(e.target).closest("li").remove().attr("aria-controls");
+            $(`#${panelId}`).remove();
+            tabs.tabs("refresh");
+        });
+    }
+
+    function setupMenu() {
+        $("#editor-menu").find("li").on("click", (e) => {
+            const command = $(e.target).attr("data-command") === undefined
+                ? $(e.target.parentElement).attr("data-command")
+                : $(e.target).attr("data-command");
+            onClickCommand(command);
+        });
+    }
+
+    function setupToolbar() {
+        $(".editor-toolbar-command").on("click", (e) => {
+            const command = $(e.target).attr("data-command");
+            onClickCommand(command);
+        });
+    }
+
     function setupProjectTreeMenu() {
-        const menu = tree_container.contextmenu(config.getTreeContextMenuSettings());
+        const menu = components.tree_container.contextmenu(config.getTreeContextMenuSettings());
         menu.contextmenu("option", "select", function (event, ui) {
             onFileTreeCommand(ui.cmd, keyPathMap[ui.target.parent().attr("data-key")]);
         });
         menu.contextmenu("option", "beforeOpen", function (event, ui) {
             const menu = ui.menu;
             components.tree.fancytree("getTree").activateKey(ui.target.parent().attr("data-key"));
-            $("#tree-container").toggleClass("tree-contextmenu-open", true);
+            components.tree_container.toggleClass("tree-contextmenu-open", true);
             menu.find(".ui-icon").addClass("fa");
             menu.find(".ui-icon-caret-1-e").addClass("fa-caret-right").removeClass("ui-icon-caret-1-e");
         });
         menu.contextmenu("option", "open", function () {
-            $("#tree-container").toggleClass("tree-contextmenu-open", true);
+            components.tree_container.toggleClass("tree-contextmenu-open", true);
         });
         menu.contextmenu("option", "close", function () {
-            $("#tree-container").toggleClass("tree-contextmenu-open", false);
+            components.tree_container.toggleClass("tree-contextmenu-open", false);
+        });
+    }
+
+    function setupKeyboardEvent() {
+        $(window).bind("keydown", (event) => {
+            if (event.ctrlKey || event.metaKey) {
+                switch (String.fromCharCode(event.which).toLowerCase()) {
+                    case "s":
+                        event.preventDefault();
+                        trySaveCurrentEditor();
+                        break;
+                }
+            }
         });
     }
 
@@ -201,13 +209,8 @@ $(document).ready(() => {
         apiClient.getProjectFileList()
             .done(data => {
                 $("#editor-toolbar-breadcrumb-root").text(data[0].title);
-                $("#tree-container").find("> .content").fancytree("option", "source", data);
-                keyPathMap[data[0].key] = {
-                    parent: "",
-                    name: "",
-                    path: "/",
-                    folder: true
-                };
+                components.tree_container.find("> .content").fancytree("option", "source", data);
+                keyPathMap[data[0].key] = new Path("", "", true);
                 data[0].children.forEach(v => updateKeyPathMapping(v, "/"))
             })
             .fail((jqXhr, textStatus, errorThrown) => {
@@ -217,12 +220,7 @@ $(document).ready(() => {
 
     function updateKeyPathMapping(data, parentPath) {
         const isDirectory = !!data.folder;
-        keyPathMap[data.key] = {
-            parent: parentPath,
-            name: data.title,
-            path: isDirectory ? parentPath + data.title + "/" : parentPath + data.title,
-            folder: isDirectory
-        };
+        keyPathMap[data.key] = new Path(parentPath, data.title, isDirectory);
         if (isDirectory) {
             data.children.forEach(v => updateKeyPathMapping(v, parentPath + data.title + "/"))
         }
@@ -240,7 +238,7 @@ $(document).ready(() => {
                     $('[data-menu-command="navigation-bar"]').find(".dropdown-menu-icon").removeClass("dropdown-menu-icon-none");
                     setting["show-navigation-bar"] = true;
                 }
-                $("#editor-root").layout().resizeAll();
+                components.editor_root.layout().resizeAll();
                 break;
             case "build":
                 console.log("Start build");
@@ -372,8 +370,9 @@ $(document).ready(() => {
         }
     }
 
-    function getPathByPanelId(id) {
-        return Object.keys(tabMap).filter(key => tabMap[key] === id)[0];
+    function getKeyByPanelId(id) {
+        return id.substr(5);
+        // return Object.keys(keyTabMap).filter(key => keyTabMap[key] === id)[0];
     }
 
     function trySaveCurrentEditor() {
@@ -384,7 +383,7 @@ $(document).ready(() => {
             return;
         }
         const editor = ace.edit("editor-" + id);
-        const path = getPathByPanelId(id);
+        const path = keyPathMap[getKeyByPanelId(id)].path;
         const content = editor.getValue();
 
         tab.removeClass("editor-tab-unsaved");
@@ -397,34 +396,31 @@ $(document).ready(() => {
             });
     }
 
-    function tryOpenExistFile(path) {
-        if (path in tabMap) {
-            tabs.tabs({active: getIndexOfEditorPanel(tabMap[path])});
+    function tryOpenExistFile(key) {
+        const id = `pane-${key}`;
+        if ($(`#${id}`).length !== 0) {
+            components.tab.tabs({active: getIndexOfEditorPanel(id)});
             return;
         }
+        const path = keyPathMap[key].path;
         apiClient.getProjectFile(path)
             .done(result => {
-                addTab(result);
+                addTab(key, result);
             })
             .fail((jqXhr, textStatus, errorThrown) => {
                 console.log("error! : " + errorThrown.toString());
             });
     }
 
-    function addTab(data) {
+    function addTab(key, data) {
         const label = data["name"];
-        const id = "pane-" + tabCounter;
-
-        tabMap[data["path"]] = id;
-
+        const id = `pane-${key}`;
         const li = `<li id='tab-${id}'><span class='editor-tab-icon editor-tab-icon-unsaved'></span><a href='#${id}'>${label}</a> <span class='editor-tab-icon editor-tab-icon-close'>×</span></li>`;
 
-        tabs.find(".ui-tabs-nav").append(li);
-        tabs.append(`<div id='${id}' class='editor-pane-root'><div id='editor-${id}' class='editor-pane'></div></div>`);
-        tabs.tabs("refresh");
-        tabCounter++;
-
-        tabs.tabs({active: getIndexOfEditorPanel(id)});
+        components.tab.find(".ui-tabs-nav").append(li);
+        components.tab.append(`<div id='${id}' class='editor-pane-root'><div id='editor-${id}' class='editor-pane'></div></div>`);
+        components.tab.tabs("refresh");
+        components.tab.tabs({active: getIndexOfEditorPanel(id)});
 
         setupEditor(id, data);
     }
@@ -453,18 +449,5 @@ $(document).ready(() => {
             // ReSharper disable once NotAllPathsReturnValue
         });
         return result;
-    }
-
-    function getFullPath(node) {
-        const fullPathOrigin = getFullPathInternal(node);
-        return fullPathOrigin.substr(fullPathOrigin.indexOf("/", 1) + 1);
-    }
-
-    function getFullPathInternal(node) {
-        if (node.parent === null) {
-            return "";
-        } else {
-            return `${getFullPathInternal(node.parent)}/${node.title}`;
-        }
     }
 });
