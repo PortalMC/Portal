@@ -18,7 +18,7 @@ gulp.task("clean",
     });
 
 gulp.task("watch", function () {
-    gulp.watch(["./wwwroot/js/editor.js"], ["webpack"])
+    gulp.watch(["./wwwroot/js/editor.js", "./wwwroot/js/editor/*.js"], ["webpack"])
 });
 
 gulp.task("webpack", function (cb) {
