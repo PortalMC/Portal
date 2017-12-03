@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenIddict.Core;
@@ -27,6 +29,7 @@ namespace Portal
                 InitializeRoleAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeApiClientAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeDefaultUserAsync(scope.ServiceProvider).Wait(cancellationToken);
+                InitializeSnippetAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeDockerAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
             }
         }
@@ -114,6 +117,40 @@ namespace Portal
                     logger.LogError(3, $"Can't create default user : {username}");
                 }
             }
+        }
+
+        private static async Task InitializeSnippetAsync(IServiceProvider services, CancellationToken cancellationToken)
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            var snippetGroups = services.GetRequiredService<IConfiguration>().GetSection("SnippetGroups");
+            foreach (var group in snippetGroups.GetChildren())
+            {
+                if (!await context.SnippetGroups.AnyAsync(g => g.Id == group.GetValue<string>("Id"), cancellationToken))
+                {
+                    await context.SnippetGroups.AddAsync(new SnippetGroup()
+                    {
+                        Id = group.GetValue<string>("Id"),
+                        DisplayName = group.GetValue<string>("DisplayName"),
+                        Order = group.GetValue<int>("Order"),
+                    }, cancellationToken);
+                }
+            }
+            var snippets = services.GetRequiredService<IConfiguration>().GetSection("Snippets");
+            foreach (var snippet in snippets.GetChildren())
+            {
+                if (!await context.Snippets.AsNoTracking().AnyAsync(s => s.Type == snippet.GetValue<string>("Type"), cancellationToken))
+                {
+                    await context.Snippets.AddAsync(new Snippet
+                    {
+                        Type = snippet.GetValue<string>("Type"),
+                        DisplayName = snippet.GetValue<string>("DisplayName"),
+                        Group = context.SnippetGroups.Find(snippet.GetValue<string>("GroupId")),
+                        Order = snippet.GetValue<int>("Order"),
+                        Content = snippet.GetValue<string>("Content")
+                    }, cancellationToken);
+                }
+            }
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

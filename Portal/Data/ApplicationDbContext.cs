@@ -11,6 +11,8 @@ namespace Portal.Data
         public DbSet<User> SafeUsers { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<AccessRight> AccessRights { get; set; }
+        public DbSet<Snippet> Snippets { get; set; }
+        public DbSet<SnippetGroup> SnippetGroups { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

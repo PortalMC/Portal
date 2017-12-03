@@ -11,9 +11,10 @@ using System;
 namespace Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171203174625_AddSnippetDisplayName")]
+    partial class AddSnippetDisplayName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,7 +350,7 @@ namespace Portal.Data.Migrations
 
                     b.Property<string>("DisplayName");
 
-                    b.Property<string>("GroupId");
+                    b.Property<string>("Group");
 
                     b.Property<int>("Order");
 
@@ -357,23 +358,7 @@ namespace Portal.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("Snippets");
-                });
-
-            modelBuilder.Entity("Portal.Models.SnippetGroup", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("DisplayName");
-
-                    b.Property<int>("Order");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SnippetGroups");
                 });
 
             modelBuilder.Entity("Portal.Models.User", b =>
@@ -460,13 +445,6 @@ namespace Portal.Data.Migrations
                     b.HasOne("Portal.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("Portal.Models.Snippet", b =>
-                {
-                    b.HasOne("Portal.Models.SnippetGroup", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId");
                 });
 #pragma warning restore 612, 618
         }

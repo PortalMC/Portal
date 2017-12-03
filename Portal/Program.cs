@@ -34,7 +34,11 @@ namespace Portal
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .ConfigureAppConfiguration((hostContext, config) => { config.AddJsonFile("versions.json", optional: true, reloadOnChange: true); })
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    config.AddJsonFile("versions.json", optional: true, reloadOnChange: true);
+                    config.AddYamlFile("snippets.yml", true, true);
+                })
                 .Build();
     }
 }
