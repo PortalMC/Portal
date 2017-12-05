@@ -171,6 +171,13 @@ namespace Portal.Controllers
             return NotFound();
         }
 
+        // GET /Admin/Snippet
+        [HttpGet]
+        public IActionResult Snippet()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Error()
         {

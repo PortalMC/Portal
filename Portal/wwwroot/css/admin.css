@@ -87,7 +87,8 @@ a.list-group-item:hover {
     font-weight: 600;
 }
 
-#user-detail-panel-information {
+#user-detail-panel-information,
+.snippet-group-panel:first-of-type {
     margin-top: 20px;
 }
 
@@ -123,4 +124,17 @@ a.list-group-item:hover {
 
 .form-user-info > div > span {
     margin-left: 10px;
+}
+
+.panel-btn-container {
+    display: flex;
+    align-items: center;
+}
+
+.panel-btn-container > *:first-child {
+    margin-right: auto;
+}
+
+.panel-btn-container > p {
+    margin-bottom: 0;
 }

@@ -15,4 +15,11 @@
        asp-controller="Admin" asp-action="Users" asp-route-id="">
         Users
     </a>
+    <a class="list-group-item @if (Model == 2)
+                              {
+                                  @:active 
+                              }"
+       asp-controller="Admin" asp-action="Snippet" asp-route-id="">
+        Snippet
+    </a>
 </div>
