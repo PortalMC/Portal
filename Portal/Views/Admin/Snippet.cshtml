@@ -10,24 +10,33 @@
     @Html.Partial("_AdminSidebar", 2)
 }
 
+@switch (ViewBag.Message)
+{
+    case "success_save_snippet":
+        <div class="alert alert-success" role="alert">Snippet Saved.</div>
+        break;
+}
+
 <h3>Snippet</h3>
 
-@foreach (var group in DbContext.Snippets.AsNoTracking().Include(s => s.Group).GroupBy(s => s.Group).OrderBy(g => g.Key.Order))
-{
-    <div class="panel panel-default snippet-group-panel">
-        <div class="panel-heading">
-            <h3 class="panel-title">@group.Key.DisplayName</h3>
+<div id="snippet-group-container">
+    @foreach (var group in DbContext.Snippets.AsNoTracking().Include(s => s.Group).GroupBy(s => s.Group).OrderBy(g => g.Key.Order))
+    {
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">@group.Key.DisplayName</h3>
+            </div>
+            <ul class="list-group">
+                @foreach (var snippet in group.OrderBy(snippet => snippet.Order))
+                {
+                    <li class="list-group-item">
+                        <div class="panel-btn-container">
+                            <p>@snippet.DisplayName</p>
+                            <a class="btn btn-default" asp-controller="Admin" asp-action="Snippet" asp-route-id="@snippet.Id" asp-route-subaction="Edit">Edit</a>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
-        <ul class="list-group">
-            @foreach (var snippet in group.OrderBy(snippet => snippet.Order))
-            {
-                <li class="list-group-item">
-                    <div class="panel-btn-container">
-                        <p>@snippet.DisplayName</p>
-                        <a class="btn btn-default" asp-controller="Admin" asp-action="Snippet" asp-route-id="@snippet.Id" asp-route-subaction="Edit">Edit</a>
-                    </div>
-                </li>
-            }
-        </ul>
-    </div>
-}
+    }
+</div>

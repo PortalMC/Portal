@@ -172,10 +172,54 @@ namespace Portal.Controllers
         }
 
         // GET /Admin/Snippet
+        // GET /Admin/Snippet/{uuid}/Edit
         [HttpGet]
-        public IActionResult Snippet()
+        public async Task<IActionResult> Snippet(string id, string subaction, string message = null)
         {
+            ViewBag.Message = message;
+            if (Util.IsCorrectUuid(id))
+            {
+                var snippet = await _context.Snippets.Include(s => s.Group).FirstAsync(s => s.Id == id);
+                switch (subaction)
+                {
+                    case "Edit":
+                        return View("EditSnippet", snippet);
+                    default:
+                        return NotFound();
+                }
+            }
+            if (id != null)
+            {
+                return NotFound();
+            }
             return View();
+        }
+
+        // POST /Admin/Snippet/{uuid}/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Snippet(string id, string subaction, Snippet snippet)
+        {
+            if (Util.IsCorrectUuid(id))
+            {
+                switch (subaction)
+                {
+                    case "Edit":
+                        var s = await _context.Snippets.FindAsync(id);
+                        s.Content = snippet.Content;
+                        _context.Snippets.Update(s);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Snippet), "Admin", new RouteValueDictionary
+                        {
+                            {"id", ""},
+                            {"subaction", ""},
+                            {"message", "success_save_snippet"}
+                        });
+                    default:
+                        return NotFound();
+                }
+            }
+            return NotFound();
         }
 
         [HttpGet]

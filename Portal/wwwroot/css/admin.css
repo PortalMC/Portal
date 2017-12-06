@@ -51,15 +51,15 @@ a.list-group-item:hover {
     background-color: #e36209;
 }
 
-#admin-header {
+.header-btn {
     display: flex;
 }
 
-#admin-header > h3 {
+.header-btn > h3 {
     flex: 1;
 }
 
-#admin-header > a {
+.header-btn > a {
     align-self: center;
 }
 
@@ -88,7 +88,7 @@ a.list-group-item:hover {
 }
 
 #user-detail-panel-information,
-.snippet-group-panel:first-of-type {
+#snippet-group-container {
     margin-top: 20px;
 }
 
@@ -137,4 +137,10 @@ a.list-group-item:hover {
 
 .panel-btn-container > p {
     margin-bottom: 0;
+}
+
+#snippet-editor {
+    height: 50vh;
+    margin-top: 20px;
+    border: solid 1px #eee;
 }

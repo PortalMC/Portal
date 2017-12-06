@@ -1,0 +1,34 @@
+﻿@model Snippet
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Snippet";
+}
+@section Sidebar {
+    @Html.Partial("_AdminSidebar", 2)
+}
+
+<div class="header-btn">
+    <h3>@Model.Group.DisplayName : @Model.DisplayName</h3>
+    <form asp-controller="Admin" asp-action="Snippet" asp-route-id="@Model.Id" asp-route-subaction="Edit" method="post">
+        <input id="hidden_input" type="hidden" asp-for="Content" class="form-control"/>
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
+
+<div id="snippet-editor"></div>
+
+@section Scripts {
+    <environment names="Development">
+        <script src="~/lib/ace/ace.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/lib/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    </environment>
+    <script>
+        var editor = ace.edit("snippet-editor");
+        editor.setValue("@Model.Content".replace(/&#xD;/g, "\r").replace(/&#xA;/g, "\n"), -1);
+        $("form").submit(function() {
+            $("#hidden_input").val(editor.getSession().getValue());
+        });
+    </script>
+}
