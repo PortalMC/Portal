@@ -321,6 +321,57 @@ namespace Portal.Controllers.Api.V1
             }
         }
 
+        [HttpPost("{uuid}/file/upload")]
+        [Authorize]
+        public async Task<IActionResult> Upload(string uuid)
+        {
+            if (uuid == null)
+            {
+                return BadRequest();
+            }
+            if (!Util.IsCorrectUuid(uuid))
+            {
+                // wrong uuid format
+                return BadRequest();
+            }
+            var canAccess = await _context.CanAccessToProjectAsync(_userManager.GetUserId(HttpContext.User), uuid);
+            if (!canAccess)
+            {
+                return NotFound();
+            }
+            var projectRoot = Path.Combine(_storageSetting.GetProjectStorageSetting().GetRootDirectory().FullName, uuid);
+            var path = HttpContext.Request.Form["path"].ToString();
+            var destinationDirectory = new DirectoryInfo(Path.Combine(projectRoot, Path.Combine(path.Split('/'))));
+            if (!destinationDirectory.FullName.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                // Maybe directory traversal
+                return NotFound();
+            }
+
+            foreach (var formFile in HttpContext.Request.Form.Files)
+            {
+                var rawFile = new FileInfo(Path.Combine(projectRoot, formFile.FileName));
+                if (rawFile.Exists)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, new JObject
+                    {
+                        {"success", new JValue(false)},
+                        {"error", "File already exists."}
+                    });
+                }
+                using (var file = rawFile.Create())
+                {
+                    await formFile.OpenReadStream().CopyToAsync(file);
+                }
+                await _context.UpdateProjectUpdatedAtAsync(uuid);
+            }
+
+            return Ok(new JObject
+            {
+                {"success", new JValue(true)}
+            });
+        }
+
         [HttpGet("{uuid}/file/list")]
         [Authorize]
         public async Task<IActionResult> FileList(string uuid)

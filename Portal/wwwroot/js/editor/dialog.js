@@ -76,3 +76,67 @@ export function showConfirmDialog(title, message, yesButton, noButton, yesAction
         }
     });
 }
+
+export function showUploadDialog(title, uuid, path, yesButton, noButton, yesAction, noAction = undefined) {
+    let dialog;
+    $(
+        `<div>
+           <p class="dialog-message">Destination: ${path}</p>
+           <div id="file-uploader"></div>
+         </div>`).dialog({
+        title: title,
+        dialogClass: "dialog-root",
+        width: 800,
+        buttons: [
+            {
+                text: yesButton,
+                click: function () {
+                    dialog = $(this);
+                    $('#file-uploader').fineUploader('uploadStoredFiles');
+                }
+            },
+            {
+                text: noButton,
+                click: function () {
+                    $(this).dialog("close");
+                    if (noAction) {
+                        noAction();
+                    }
+                }
+            }
+        ],
+        modal: true,
+        close: function () {
+            $(this).remove();
+        },
+        open: function () {
+            $('#file-uploader').fineUploader({
+                template: 'template-file-upload-item',
+                autoUpload: false,
+                request: {
+                    endpoint: `/api/v1/projects/${uuid}/file/upload`,
+                    params: {
+                        "path": path
+                    }
+                },
+                thumbnails: {
+                    placeholders: {
+                        waitingPath: '/lib/fine-uploader/placeholders/waiting-generic.png',
+                        notAvailablePath: '/lib/fine-uploader/placeholders/not_available-generic.png'
+                    }
+                },
+                callbacks: {
+                    onComplete: function () {
+                        dialog.dialog("close");
+                        yesAction();
+                    }
+                }
+            });
+            $(this).parent().position({
+                my: "center",
+                at: "center",
+                of: window
+            });
+        }
+    });
+}

@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
         <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.css">
         <link rel="stylesheet" href="~/lib/jquery.fancytree/skin-lion/ui.fancytree.css">
+        <link rel="stylesheet" href="~/lib/jquery.fine-uploader/fine-uploader-new.css">
         <link rel="stylesheet" href="~/css/editor.css"/>
 
         @Html.Partial("Lib/_jQuery.js")
@@ -20,8 +21,12 @@
         <script src="~/lib/jquery.fancytree/jquery.fancytree-all.js"></script>
         <script src="~/lib/jquery.ui-contextmenu/jquery.ui-contextmenu.js"></script>
         <script src="~/lib/ace/ace.js"></script>
+        <script src="~/lib/jquery.fine-uploader/jquery.fine-uploader.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/editor.bundle.js" asp-append-version="true"></script>
+        <script type="text/template" id="template-file-upload-item">
+            @Html.Partial("Misc/_FineUploaderTemplate")
+        </script>
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/ress/ress.min.css"/>

@@ -142,6 +142,12 @@ gulp.task("create_font_awesome",
         );
     });
 
+gulp.task("create_fine_uploader",
+    function () {
+        return gulp.src("./node_modules/fine-uploader/jquery.fine-uploader/**")
+            .pipe(gulp.dest("./wwwroot/lib/fine-uploader"))
+    });
+
 gulp.task("create",
     function (callback) {
         return sequence(
@@ -159,7 +165,8 @@ gulp.task("create",
                 "create_jquery_layout",
                 "create_jquery_ui_contextmenu",
                 "create_ace_editor",
-                "create_font_awesome"
+                "create_font_awesome",
+                "create_fine_uploader"
             ],
             callback
         );

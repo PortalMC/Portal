@@ -1272,6 +1272,10 @@ findup-sync@^0.4.2:
     micromatch "^2.3.7"
     resolve-dir "^0.1.0"
 
+fine-uploader@^5.15.4:
+  version "5.15.4"
+  resolved "https://registry.yarnpkg.com/fine-uploader/-/fine-uploader-5.15.4.tgz#ce6d084fcaa54b53f52c02e60b8d4e7da7a7ec7a"
+
 fined@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fined/-/fined-1.1.0.tgz#b37dc844b76a2f5e7081e884f7c0ae344f153476"

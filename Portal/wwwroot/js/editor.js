@@ -314,6 +314,11 @@ $(document).ready(() => {
                     });
                 break;
             case "upload":
+                dialog.showUploadDialog(`Upload file`, projectUuid, path.folder ? path.path : path.parent, "Upload", "Close",
+                    () => {
+                        console.log("Yes upload:", path);
+                        fetchProjectTree();
+                    });
                 break;
             case "copy":
                 break;
