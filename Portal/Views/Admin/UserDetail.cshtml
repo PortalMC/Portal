@@ -1,14 +1,19 @@
 ﻿@using Portal.Extensions
 @using Portal.Utils
 @model Portal.Models.AdminViewModels.UserDetailViewModel
-
 @{
-    Layout = "_AdminLayout";
-    ViewData["Title"] = "Home Page";
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = $"User : {Model.User.UserName}";
 }
-
 @section Sidebar {
     @Html.Partial("Part/_AdminSidebar", 1)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
 @switch (ViewBag.Message)

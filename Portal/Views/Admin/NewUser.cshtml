@@ -1,11 +1,17 @@
 ﻿@model Portal.Models.AdminViewModels.UserDetailPostViewModel
 @{
-    Layout = "_AdminLayout";
-    ViewBag.Title = "Create new user";
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = "Create new user";
 }
-
 @section Sidebar {
     @Html.Partial("Part/_AdminSidebar", 1)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
 <h3>Create new user</h3>

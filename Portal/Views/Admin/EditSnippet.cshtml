@@ -1,10 +1,17 @@
 ﻿@model Snippet
 @{
-    Layout = "_AdminLayout";
-    ViewBag.Title = "Snippet";
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = $"{Model.Group.DisplayName} : {Model.DisplayName} - Snippet";
 }
 @section Sidebar {
     @Html.Partial("Part/_AdminSidebar", 2)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
 <div class="header-btn">

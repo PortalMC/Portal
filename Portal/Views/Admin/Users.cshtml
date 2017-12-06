@@ -1,11 +1,17 @@
 ﻿@using Portal.Utils
 @{
-    Layout = "_AdminLayout";
-    ViewBag.Title = "Users";
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = "Users";
 }
-
 @section Sidebar {
     @Html.Partial("Part/_AdminSidebar", 1)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
 @switch (ViewBag.Message)

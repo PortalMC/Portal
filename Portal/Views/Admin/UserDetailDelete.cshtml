@@ -1,12 +1,18 @@
 ﻿@using Portal.Utils
 @model Portal.Models.AdminViewModels.UserDetailPostViewModel
 @{
-    Layout = "_AdminLayout";
-    ViewBag.Title = "Delete";
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = $"Delete user : {Model.User.UserName}";
 }
-
 @section Sidebar {
     @Html.Partial("Part/_AdminSidebar", 1)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
 <h3>Delete user</h3>
