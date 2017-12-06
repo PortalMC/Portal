@@ -40,8 +40,7 @@ input {
     font-weight: 600;
 }
 
-#user-detail-panel-information,
-#snippet-group-container {
+h3 + div.panel {
     margin-top: 20px;
 }
 
