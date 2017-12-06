@@ -1,193 +1,193 @@
 ﻿/* Common */
 
 .page-title {
-    padding-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .no-margin {
-    margin: 0;
+  margin: 0;
 }
 
 /* /Projects */
 
 .projects-search {
-    margin-top: 24px;
+  margin-top: 24px;
 }
 
 .projects-search > form {
-    display: flex;
+  display: flex;
 }
 
 .projects-search-input {
-    flex: 1;
-    padding-right: 24px;
+  flex: 1;
+  padding-right: 24px;
 }
 
 .projects-search-input > input {
-    min-width: 100%;
+  min-width: 100%;
 }
 
 .projects-search-new svg {
-    height: 16px;
-    vertical-align: text-bottom;
+  height: 16px;
+  vertical-align: text-bottom;
 }
 
 .projects-list > ul {
-    list-style-type: disc;
-    padding-left: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+  list-style-type: disc;
+  padding-left: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .projects-list > ul {
-    border-bottom: 1px #e1e4e8 solid
+  border-bottom: 1px #e1e4e8 solid
 }
 
 .projects-list > ul > li {
-    display: block;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    border-top: 1px #e1e4e8 solid
+  display: block;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-top: 1px #e1e4e8 solid
 }
 
 .projects-title {
-    display: inline-block;
+  display: inline-block;
 }
 
 .projects-title > h3 {
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 20px;
-    font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .projects-title a {
-    color: #0366d6;
-    text-decoration: none;
+  color: #0366d6;
+  text-decoration: none;
 }
 
 .projects-info {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .projects-info > span {
-    font-size: 14px;
-    margin-right: 8px;
+  font-size: 14px;
+  margin-right: 8px;
 }
 
 .projects-info svg {
-    height: 18px;
-    vertical-align: text-bottom;
+  height: 18px;
+  vertical-align: text-bottom;
 }
 
 /* /Projects/New */
 
 .projects-new-form {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .projects-new-form label {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .projects-new-form .note {
-    min-height: 17px;
-    margin: 4px 0 2px;
-    font-size: 12px;
-    color: #586069;
+  min-height: 17px;
+  margin: 4px 0 2px;
+  font-size: 12px;
+  color: #586069;
 }
 
 #projects-new-description input {
-    min-width: 100%;
+  min-width: 100%;
 }
 
 #projects-new-version {
-    display: flex;
-    align-items: flex-end;
+  display: flex;
+  align-items: flex-end;
 }
 
 .form-divider {
-    margin: 0 12px;
-    font-size: 21px;
-    color: #586069;
-    margin-bottom: 4px;
+  margin: 0 12px;
+  font-size: 21px;
+  color: #586069;
+  margin-bottom: 4px;
 }
 
 /* /Projects/{uuid} */
 
 #project-page-title {
-    display: flex;
+  display: flex;
 }
 
 #project-page-title > h2 {
-    flex: 1;
+  flex: 1;
 }
 
 #project-page-title > a {
-    align-self: flex-end;
-    margin-bottom: 10px;
+  align-self: flex-end;
+  margin-bottom: 10px;
 }
 
 #project-header {
-    background-color: #fafbfc;
-    background-clip: padding-box;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
+  background-color: #fafbfc;
+  background-clip: padding-box;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
 }
 
 #project-header .nav-tabs {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 #project-header .nav-tabs > li.active > a {
-    color: #24292e;
-    cursor: auto;
-    background-color: #fff;
-    border-color: #e36209 #e1e4e8 transparent;
+  color: #24292e;
+  cursor: auto;
+  background-color: #fff;
+  border-color: #e36209 #e1e4e8 transparent;
 }
 
 #project-header .nav-tabs > li > a {
-    color: #586069;
-    border: solid transparent;
-    border-width: 3px 1px 1px;
-    border-radius: 3px 3px 0 0;
+  color: #586069;
+  border: solid transparent;
+  border-width: 3px 1px 1px;
+  border-radius: 3px 3px 0 0;
 }
 
 #project-description-container {
-    display: flex;
+  display: flex;
 }
 
 #project-description-container > a {
-    align-self: center;
+  align-self: center;
 }
 
 #project-description {
-    flex: 1;
-    font-size: 16px;
+  flex: 1;
+  font-size: 16px;
 }
 
 .project-description-empty {
-    font-style: italic;
+  font-style: italic;
 }
 
 #project-description-edit-container {
-    display: none;
-    flex-direction: row;
-    align-items: flex-end;
+  display: none;
+  flex-direction: row;
+  align-items: flex-end;
 }
 
 #project-description-edit-container > div:first-child {
-    flex: 1;
+  flex: 1;
 }
 
 #project-description-edit-container input {
-    max-width: none;
+  max-width: none;
 }
 
 #project-description-edit-confirm {
-    margin-left: 12px;
+  margin-left: 12px;
 }
 
 #project-description-edit-cancel {
-    cursor: pointer;
+  cursor: pointer;
 }
