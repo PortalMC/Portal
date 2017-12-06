@@ -25,7 +25,7 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/editor.bundle.js" asp-append-version="true"></script>
         <script type="text/template" id="template-file-upload-item">
-            @Html.Partial("Misc/_FineUploaderTemplate")
+            @Html.Partial("Template/_FineUploaderTemplate")
         </script>
     </environment>
     <environment names="Staging,Production">
@@ -48,7 +48,7 @@
     </environment>
 </head>
 <body>
-@await Html.PartialAsync("_Toolbar")
+@await Html.PartialAsync("Part/_Toolbar")
 <div class="body-content">
     @RenderBody()
 </div>
