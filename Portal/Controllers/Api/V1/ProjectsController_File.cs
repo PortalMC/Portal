@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Portal.Extensions;
 using Portal.Models;
@@ -236,10 +237,14 @@ namespace Portal.Controllers.Api.V1
             {
                 return StatusCode(StatusCodes.Status409Conflict, "File is already exist.");
             }
+            var snippet = await _context.Snippets.AsNoTracking().FirstOrDefaultAsync(s => s.Type == file.SnippetType);
+            var snippetContent = snippet != null ? snippet.Content : "";
             try
             {
-                // TODO: Snippet support
-                rawFile.Create().Close();
+                using (var streamWriter = new StreamWriter(rawFile.Create()))
+                {
+                    await streamWriter.WriteAsync(ConvertSnippet(snippetContent, file.Path));
+                }
                 await _context.UpdateProjectUpdatedAtAsync(uuid);
                 return NoContent();
             }
@@ -356,6 +361,29 @@ namespace Portal.Controllers.Api.V1
                 }
             };
             return new OkObjectResult(root);
+        }
+
+        private static string ConvertSnippet(string snippet, string path)
+        {
+            return snippet
+                .Replace("${FILENAME}", Path.GetFileName(path))
+                .Replace("${FILENAME_NO_EXT}", Path.GetFileNameWithoutExtension(path))
+                .Replace("${EXTENSION}", Path.GetExtension(path))
+                .Replace("${PACKAGE_NAME}", ConvertToPackage(path));
+        }
+
+        private static string ConvertToPackage(string path)
+        {
+            var paths = path.Split('/');
+            var mainIndex = Array.IndexOf(paths, "main");
+            if (mainIndex > 0)
+            {
+                // Maven style
+                // /src/main/java
+                return string.Join(".", paths, mainIndex + 2, paths.Length - mainIndex - 3);
+            }
+
+            return "";
         }
     }
 }

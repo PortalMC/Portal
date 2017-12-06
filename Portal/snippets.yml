@@ -14,7 +14,7 @@ Snippets:
     Content: |
       package ${PACKAGE_NAME};
       
-      public class ${CLASS_NAME} {
+      public class ${FILENAME_NO_EXT} {
       }
 
   - Type: java-inteface
@@ -24,7 +24,7 @@ Snippets:
     Content: |
       package ${PACKAGE_NAME};
       
-      public interface ${INTERFACE_NAME} {
+      public interface ${FILENAME_NO_EXT} {
       }
     
   - Type: java-enum
@@ -34,7 +34,7 @@ Snippets:
     Content: |
       package ${PACKAGE_NAME};
       
-      public enum ${ENUM_NAME} {
+      public enum ${FILENAME_NO_EXT} {
       }
 
   - Type: json-blockstate
