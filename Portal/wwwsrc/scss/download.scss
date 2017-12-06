@@ -1,0 +1,18 @@
+﻿@import "modules/sidebar";
+
+.panel-btn-container {
+  display: flex;
+  align-items: center;
+}
+
+.panel-btn-container > *:first-child {
+  margin-right: auto;
+}
+
+.panel-btn-container > p {
+  margin-bottom: 0;
+}
+
+h3 + div.panel {
+  margin-top: 20px;
+}
