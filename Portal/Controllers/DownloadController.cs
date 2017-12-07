@@ -9,7 +9,7 @@ namespace Portal.Controllers
         {
             if (version != null)
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "coremods", $"{version}.jar");
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "assets", "coremods", $"{version}.jar");
                 return PhysicalFile(path, "application/java-archive", $"portal-core-{version}.jar");
             }
             return View();

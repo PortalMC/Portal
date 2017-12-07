@@ -1,6 +1,6 @@
 ﻿{
   "Minecraft": {
-    "Root": "./forgeroot",
+    "Root": "./assets/forge",
     "Versions": [
       {
         "MinecraftVersion": "1.12.2",
