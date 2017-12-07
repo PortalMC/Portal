@@ -121,7 +121,7 @@ namespace Portal.Controllers.Api.V1
             var forgeZipFile = _minecraftVersionProvider.GetForgeZipFile(minecraftVersion, forgeVersion);
             if (!forgeZipFile.Exists)
             {
-                errors.AppendLine("Specified template of Minecraft and Forge version is not found.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Specified template of Minecraft and Forge version is not found.");
             }
             if (errors.Length != 0)
             {
