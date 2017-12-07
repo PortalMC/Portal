@@ -223,12 +223,15 @@ namespace Portal.Controllers.Api.V1
                 return BadRequest();
             }
             var userId = _userManager.GetUserId(HttpContext.User);
-            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid, false);
             if (!result.canAccess)
             {
                 return NotFound();
             }
-            _buildService.StartBuild(result.project, userId);
+            var buildId = result.project.BuildId + 1;
+            result.project.BuildId = buildId;
+            await _context.SaveChangesAsync();
+            _buildService.StartBuild(result.project, userId, buildId);
             return new NoContentResult();
         }
 
@@ -254,10 +257,10 @@ namespace Portal.Controllers.Api.V1
             switch (_storageSetting.GetArtifactStorageSetting().GetArtifactProvideMethod())
             {
                 case ArtifactProvideMethod.Stream:
-                    var stream = await _storageSetting.GetArtifactStorageSetting().GetArtifactStreamAsync(uuid, "1");
+                    var stream = await _storageSetting.GetArtifactStorageSetting().GetArtifactStreamAsync(uuid, result.project.BuildId);
                     return File(stream, "application/octet-stream");
                 case ArtifactProvideMethod.Redirect:
-                    var uri = await _storageSetting.GetArtifactStorageSetting().GetArtifactRedirectUriAsync(uuid, "1");
+                    var uri = await _storageSetting.GetArtifactStorageSetting().GetArtifactRedirectUriAsync(uuid, result.project.BuildId);
                     return Redirect(uri);
                 default:
                     return StatusCode(StatusCodes.Status500InternalServerError, "ArtifactProvideMethod is out of range.");

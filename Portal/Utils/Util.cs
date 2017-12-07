@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Portal.Utils
 {
@@ -11,6 +13,12 @@ namespace Portal.Utils
         public static bool IsCorrectUuid(string uuid)
         {
             return uuid != null && UuidRegex.IsMatch(uuid);
+        }
+
+        public static FileInfo FindBuildArtifact(DirectoryInfo dir)
+        {
+            return dir.GetFiles("*.jar", SearchOption.AllDirectories)
+                .FirstOrDefault(f => !f.Name.EndsWith("sources.jar"));
         }
     }
 }

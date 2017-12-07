@@ -4,6 +4,6 @@ namespace Portal.Services
 {
     public interface IBuildService
     {
-        void StartBuild(Project project, string userId);
+        void StartBuild(Project project, string userId, int buildId);
     }
 }

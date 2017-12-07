@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Settings;
+using Portal.Utils;
 using static Docker.DotNet.MultiplexedStream;
 
 namespace Portal.Services
@@ -66,15 +68,15 @@ namespace Portal.Services
             }
         }
 
-        public void StartBuild(Project project, string userId)
+        public void StartBuild(Project project, string userId, int buildId)
         {
-            _logger.LogInformation("Start build : " + project.Id);
-            StartBuildInternal(project, userId).FireAndForget();
+            _logger.LogInformation($"Start build ( projectId: {project.Id}, buildId, {buildId})");
+            StartBuildInternal(project, userId, buildId).FireAndForget();
         }
 
-        private async Task StartBuildInternal(Project project, string userId)
+        private async Task StartBuildInternal(Project project, string userId, int buildId)
         {
-            var destination = _storageSetting.GetArtifactStorageSetting().GetRootDirectory().ResolveDir(project.Id);
+            var destination = new DirectoryInfo(Path.GetTempPath()).ResolveDir("portal_artifact").ResolveDir(project.Id).ResolveDir(buildId.ToString());
             if (!destination.Exists)
             {
                 destination.Create();
@@ -120,7 +122,14 @@ namespace Portal.Services
             _logger.LogInformation("Build finished. Removing container...");
             await _client.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
             _logger.LogInformation("Container removed.");
-            await _storageSetting.GetArtifactStorageSetting().AfterBuildAsync(project.Id);
+            var artifactFile = Util.FindBuildArtifact(destination);
+            if (artifactFile == null)
+            {
+                _logger.LogWarning($"Artifact file not found. ( project: {project.Id}, buildId: {buildId})");
+                return;
+            }
+            await _storageSetting.GetArtifactStorageSetting().AfterBuildAsync(project.Id, artifactFile, buildId);
+            destination.Delete(true);
         }
     }
 }

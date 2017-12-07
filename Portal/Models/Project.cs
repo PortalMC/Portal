@@ -31,5 +31,8 @@ namespace Portal.Models
         [Required]
         [DataType(DataType.Date)]
         public DateTime UpdatedAt { get; set; }
+
+        [Required]
+        public int BuildId { get; set; }
     }
 }

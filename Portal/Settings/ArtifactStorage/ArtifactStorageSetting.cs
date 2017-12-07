@@ -6,16 +6,15 @@ namespace Portal.Settings.ArtifactStorage
 {
     public abstract class ArtifactStorageSetting
     {
-        public abstract DirectoryInfo GetRootDirectory();
-        public abstract Task AfterBuildAsync(string projectId);
+        public abstract Task AfterBuildAsync(string projectId, FileInfo artifactFile, int buildId);
         public abstract ArtifactProvideMethod GetArtifactProvideMethod();
 
-        public virtual Task<Stream> GetArtifactStreamAsync(string projectId, string buildId)
+        public virtual Task<Stream> GetArtifactStreamAsync(string projectId, int buildId)
         {
             throw new NotSupportedException();
         }
 
-        public virtual Task<string> GetArtifactRedirectUriAsync(string projectId, string buildId)
+        public virtual Task<string> GetArtifactRedirectUriAsync(string projectId, int buildId)
         {
             throw new NotSupportedException();
         }

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Portal.Extensions;
 
 namespace Portal.Settings.ArtifactStorage
 {
@@ -22,25 +21,14 @@ namespace Portal.Settings.ArtifactStorage
             _accessPolicy = configuration.GetValue<string>("AccessPolicy");
         }
 
-        public override DirectoryInfo GetRootDirectory()
-        {
-            var temp = new DirectoryInfo(Path.GetTempPath()).ResolveDir("portal_artifact");
-            temp.Create();
-            return temp;
-        }
-
-        public override async Task AfterBuildAsync(string projectId)
+        public override async Task AfterBuildAsync(string projectId, FileInfo artifactFile, int buildId)
         {
             var container = _blobClient.GetContainerReference(projectId);
             await container.CreateIfNotExistsAsync();
 
-            var blockBlob = container.GetBlockBlobReference("1.jar");
+            var blockBlob = container.GetBlockBlobReference($"{buildId}.jar");
 
-            var projectArtifactDir = GetRootDirectory().ResolveDir(projectId);
-            var file = projectArtifactDir.ResolveDir("libs").Resolve("modid-1.0.jar");
-
-            await blockBlob.UploadFromFileAsync(file.FullName);
-            projectArtifactDir.Delete(true);
+            await blockBlob.UploadFromFileAsync(artifactFile.FullName);
         }
 
         public override ArtifactProvideMethod GetArtifactProvideMethod()
@@ -48,21 +36,21 @@ namespace Portal.Settings.ArtifactStorage
             return _artifactProvideMethod;
         }
 
-        public override async Task<Stream> GetArtifactStreamAsync(string projectId, string buildId)
+        public override async Task<Stream> GetArtifactStreamAsync(string projectId, int buildId)
         {
             var container = _blobClient.GetContainerReference(projectId);
             await container.CreateIfNotExistsAsync();
-            var blockBlob = container.GetBlockBlobReference("1.jar");
+            var blockBlob = container.GetBlockBlobReference($"{buildId}.jar");
             var stream = new MemoryStream();
             await blockBlob.DownloadToStreamAsync(stream);
             return await Task.FromResult<Stream>(stream);
         }
 
-        public override async Task<string> GetArtifactRedirectUriAsync(string projectId, string buildId)
+        public override async Task<string> GetArtifactRedirectUriAsync(string projectId, int buildId)
         {
             var container = _blobClient.GetContainerReference(projectId);
             await container.CreateIfNotExistsAsync();
-            var blockBlob = container.GetBlockBlobReference("1.jar");
+            var blockBlob = container.GetBlockBlobReference($"{buildId}.jar");
             return await Task.FromResult(GetBlobSasUri(blockBlob, _accessPolicy));
         }
 

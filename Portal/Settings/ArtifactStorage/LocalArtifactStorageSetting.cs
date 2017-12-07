@@ -14,13 +14,14 @@ namespace Portal.Settings.ArtifactStorage
             _root = new DirectoryInfo(configuration.GetValue<string>("Root"));
         }
 
-        public override DirectoryInfo GetRootDirectory()
+        public override Task AfterBuildAsync(string projectId, FileInfo artifactFile, int buildId)
         {
-            return _root;
-        }
-
-        public override Task AfterBuildAsync(string projectId)
-        {
+            var destination = _root.ResolveDir(projectId);
+            if (!destination.Exists)
+            {
+                destination.Create();
+            }
+            artifactFile.MoveTo(destination.Resolve($"{buildId}.jar").FullName);
             return Task.CompletedTask;
         }
 
@@ -29,9 +30,9 @@ namespace Portal.Settings.ArtifactStorage
             return ArtifactProvideMethod.Stream;
         }
 
-        public override Task<Stream> GetArtifactStreamAsync(string projectId, string buildId)
+        public override Task<Stream> GetArtifactStreamAsync(string projectId, int buildId)
         {
-            return Task.FromResult<Stream>(GetRootDirectory().ResolveDir(projectId).Resolve($"{buildId}.jar").OpenRead());
+            return Task.FromResult<Stream>(_root.ResolveDir(projectId).Resolve($"{buildId}.jar").OpenRead());
         }
     }
 }
