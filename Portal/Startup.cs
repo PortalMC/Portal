@@ -90,7 +90,6 @@ namespace Portal
             // Add application services.
             var buildSetting = new BuildSetting(Configuration.GetSection("Building"));
             services.AddSingleton(new GeneralSetting(Configuration.GetSection("General")));
-            services.AddSingleton(new SecureSetting(Configuration.GetSection("Secure")));
             services.AddSingleton(new StorageSetting(Configuration.GetSection("Storages")));
             services.AddSingleton(buildSetting);
             services.AddTransient<IEmailSender, AuthMessageSender>();

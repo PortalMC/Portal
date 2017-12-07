@@ -59,17 +59,20 @@ namespace Portal
         private static async Task InitializeApiClientAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             var manager = services.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-            var clients = services.GetRequiredService<SecureSetting>().ApiClients;
+            var clients = services.GetRequiredService<IConfiguration>().GetSection("ApiClients");
 
-            foreach (var client in clients)
+            foreach (var client in clients.GetChildren())
             {
-                var c = await manager.FindByClientIdAsync(client.ClientId, cancellationToken);
+                var clientId = client.GetValue<string>("ClientId");
+                var clientSecret = client.GetValue<string>("ClientSecret");
+                var displayName = client.GetValue<string>("DisplayName");
+                var c = await manager.FindByClientIdAsync(clientId, cancellationToken);
                 if (c != null) continue;
                 var descriptor = new OpenIddictApplicationDescriptor
                 {
-                    ClientId = client.ClientId,
-                    ClientSecret = client.ClientSecret,
-                    DisplayName = client.DisplayName
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    DisplayName = displayName
                 };
                 await manager.CreateAsync(descriptor, cancellationToken);
             }
@@ -85,14 +88,14 @@ namespace Portal
         {
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var users = services.GetRequiredService<SecureSetting>().DefaultUsers;
+            var users = services.GetRequiredService<IConfiguration>().GetSection("DefaultUsers");
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(Initializer).Name);
 
-            foreach (var user in users)
+            foreach (var user in users.GetChildren())
             {
-                string username = user.UserName;
-                string password = user.Password;
-                string role = user.Role;
+                var username = user.GetValue<string>("UserName");
+                var password = user.GetValue<string>("Password");
+                var role = user.GetValue<string>("Role");
                 var checkUser = await userManager.FindByNameAsync(username);
                 if (checkUser != null)
                 {
