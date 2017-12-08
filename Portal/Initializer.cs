@@ -12,7 +12,6 @@ using Portal.Extensions;
 using Portal.Data;
 using Portal.Models;
 using Portal.Services;
-using Portal.Settings;
 
 namespace Portal
 {
@@ -26,7 +25,7 @@ namespace Portal
                 var context = services.GetRequiredService<ApplicationDbContext>();
                 context.Database.EnsureCreatedAsync(cancellationToken).Wait(cancellationToken);
 
-                InitializeRoleAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
+                InitializeRoleAsync(scope.ServiceProvider).Wait(cancellationToken);
                 InitializeApiClientAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeDefaultUserAsync(scope.ServiceProvider).Wait(cancellationToken);
                 InitializeSnippetAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
@@ -34,7 +33,7 @@ namespace Portal
             }
         }
 
-        private static async Task InitializeRoleAsync(IServiceProvider services, CancellationToken cancellationToken)
+        private static async Task InitializeRoleAsync(IServiceProvider services)
         {
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(Initializer).Name);
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -59,7 +58,7 @@ namespace Portal
         private static async Task InitializeApiClientAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             var manager = services.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-            var clients = services.GetRequiredService<IConfiguration>().GetSection("ApiClients");
+            var clients = services.GetRequiredService<IConfiguration>().GetSection("Secure").GetSection("ApiClients");
 
             foreach (var client in clients.GetChildren())
             {
@@ -88,7 +87,7 @@ namespace Portal
         {
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var users = services.GetRequiredService<IConfiguration>().GetSection("DefaultUsers");
+            var users = services.GetRequiredService<IConfiguration>().GetSection("Secure").GetSection("DefaultUsers");
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(Initializer).Name);
 
             foreach (var user in users.GetChildren())
