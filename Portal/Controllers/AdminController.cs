@@ -221,6 +221,14 @@ namespace Portal.Controllers
             }
             return NotFound();
         }
+        
+        // GET /Admin/Asset
+        // GET /Admin/Asset/{uuid}/Edit
+        [HttpGet]
+        public async Task<IActionResult> Asset(string id, string subaction, string message = null)
+        {
+            return View();
+        }
 
         [HttpGet]
         public IActionResult Error()
