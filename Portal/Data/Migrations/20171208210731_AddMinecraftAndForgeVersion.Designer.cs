@@ -11,9 +11,10 @@ using System;
 namespace Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171208210731_AddMinecraftAndForgeVersion")]
+    partial class AddMinecraftAndForgeVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,10 +364,10 @@ namespace Portal.Data.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(200);
 
-                    b.Property<string>("ForgeVersionId")
+                    b.Property<string>("ForgeVersion")
                         .IsRequired();
 
-                    b.Property<string>("MinecraftVersionId")
+                    b.Property<string>("MinecraftVersion")
                         .IsRequired();
 
                     b.Property<string>("Name")
@@ -376,10 +377,6 @@ namespace Portal.Data.Migrations
                     b.Property<DateTime>("UpdatedAt");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ForgeVersionId");
-
-                    b.HasIndex("MinecraftVersionId");
 
                     b.ToTable("Projects");
                 });
@@ -511,19 +508,6 @@ namespace Portal.Data.Migrations
                     b.HasOne("Portal.Models.MinecraftVersion")
                         .WithMany("ForgeVersions")
                         .HasForeignKey("MinecraftVersionId");
-                });
-
-            modelBuilder.Entity("Portal.Models.Project", b =>
-                {
-                    b.HasOne("Portal.Models.ForgeVersion", "ForgeVersion")
-                        .WithMany()
-                        .HasForeignKey("ForgeVersionId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Portal.Models.MinecraftVersion", "MinecraftVersion")
-                        .WithMany()
-                        .HasForeignKey("MinecraftVersionId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Portal.Models.Snippet", b =>

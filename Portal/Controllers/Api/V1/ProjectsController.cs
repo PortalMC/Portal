@@ -4,19 +4,19 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
+using Portal.Models.ApiV1ProjectsViewModels;
 using Portal.Services;
 using Portal.Settings;
-using Portal.Settings.ArtifactStorage;
 using Portal.Utils;
 
 namespace Portal.Controllers.Api.V1
@@ -27,98 +27,66 @@ namespace Portal.Controllers.Api.V1
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
-        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
         private readonly StorageSetting _storageSetting;
         private readonly IBuildService _buildService;
+        private readonly ILogger<ProjectsController> _logger;
 
         public ProjectsController(UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
-            IMinecraftVersionProvider minecraftVersionProvider,
             StorageSetting storageSetting,
-            IBuildService buildService)
+            IBuildService buildService,
+            ILoggerFactory loggerFactory)
         {
             _userManager = userManager;
             _context = context;
-            _minecraftVersionProvider = minecraftVersionProvider;
             _storageSetting = storageSetting;
             _buildService = buildService;
+            _logger = loggerFactory.CreateLogger<ProjectsController>();
         }
 
-        [HttpGet("")]
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> NewProject([FromQuery] string minecraft)
-        {
-            // TODO* Pagination
-            object[] projects = await _context.AccessRights
-                .AsNoTracking()
-                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                .Select(a => a.Project)
-                .Where(p => string.IsNullOrEmpty(minecraft) || p.MinecraftVersion == minecraft)
-                .Select(p => new JObject
-                    {
-                        {"id", new JValue(p.Id)},
-                        {"name", new JValue(p.Name)},
-                        {"minecraftVersion", new JValue(p.MinecraftVersion)},
-                        {"forgeVersion", new JValue(p.ForgeVersion)}
-                    }
-                )
-                .ToArrayAsync();
-            var root = new JObject
-            {
-                {"success", new JValue(true)},
-                {"data", new JArray(projects)}
-            };
-            return new OkObjectResult(root);
-        }
-
+        // POST /api/v1/projects
         [HttpPost("")]
         [Authorize]
-        public async Task<IActionResult> NewProject([FromBody] Project project)
+        public async Task<IActionResult> NewProject([FromBody] NewProjectViewModel newPorject)
         {
-            if (project == null)
+            if (newPorject == null)
             {
                 return BadRequest();
             }
             // Validation
             var errors = new StringBuilder();
-            if (string.IsNullOrWhiteSpace(project.Name))
+            if (string.IsNullOrWhiteSpace(newPorject.Name))
             {
                 errors.AppendLine("Project name must not be empty.");
             }
-            else if (project.Name.Length > 30)
+            else if (newPorject.Name.Length > 30)
             {
                 errors.AppendLine("Project name is 30 characters limit.");
             }
-            if (project.Description != null && project.Description.Length > 200)
+            if (newPorject.Description != null && newPorject.Description.Length > 200)
             {
                 errors.AppendLine("Description is 200 characters limit.");
             }
-            if (string.IsNullOrWhiteSpace(project.MinecraftVersion))
+            if (string.IsNullOrWhiteSpace(newPorject.MinecraftVersionId))
             {
                 errors.AppendLine("Minecraft version must not be empty.");
             }
-            if (string.IsNullOrWhiteSpace(project.ForgeVersion))
+            if (string.IsNullOrWhiteSpace(newPorject.ForgeVersionId))
             {
                 errors.AppendLine("Forge version must not be empty.");
             }
-            var minecraftVersion = _minecraftVersionProvider.GetMinecraftVersions()
-                .FirstOrDefault(v => v.Version == project.MinecraftVersion);
-            ForgeVersion forgeVersion = null;
-            if (minecraftVersion == default(MinecraftVersion))
+
+            var version = _context.MinecraftVersions
+                .Include(v => v.ForgeVersions)
+                .Where(v => v.Id == newPorject.MinecraftVersionId)
+                .SelectMany(v => v.ForgeVersions, (mv, fv) => CreateVersionTuple(mv, fv))
+                .FirstOrDefault(v => v.forgeVersion.Id == newPorject.ForgeVersionId);
+            if (version.minecraftVersion == null || version.forgeVersion == null)
             {
-                errors.AppendLine("Specified Minecraft version is not found.");
-            }
-            else
-            {
-                forgeVersion =
-                    minecraftVersion.ForgeVersions.FirstOrDefault(v => v.Version == project.ForgeVersion);
-                if (forgeVersion == default(ForgeVersion))
-                {
-                    errors.AppendLine("Specified Forge version is not found.");
-                }
+                errors.AppendLine("Specified Minecraft or Forge version is not found.");
             }
             // Check valid zip is exists
-            var forgeZipFile = _minecraftVersionProvider.GetForgeZipFile(minecraftVersion, forgeVersion);
+            var forgeZipFile = _storageSetting.GetForgeStorageSetting().GetForgeZipFile(version.minecraftVersion, version.forgeVersion);
             if (!forgeZipFile.Exists)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Specified template of Minecraft and Forge version is not found.");
@@ -136,8 +104,16 @@ namespace Portal.Controllers.Api.V1
             {
                 var safeUser = await _context.SafeUsers
                     .SingleOrDefaultAsync(m => m.Id == _userManager.GetUserId(HttpContext.User));
-                project.UpdatedAt = project.CreatedAt = DateTime.UtcNow;
-                var createdProject = await _context.Projects.AddAsync(project);
+                var now = DateTime.UtcNow;
+                var createdProject = await _context.Projects.AddAsync(new Project
+                {
+                    Name = newPorject.Name,
+                    Description = newPorject.Description,
+                    MinecraftVersion = version.minecraftVersion,
+                    ForgeVersion = version.forgeVersion,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
                 var ownerAccessRight = new AccessRight
                 {
                     User = safeUser,
@@ -164,10 +140,11 @@ namespace Portal.Controllers.Api.V1
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "An error occurred in creating new project.");
                 var root = new JObject
                 {
                     {"success", new JValue(false)},
-                    {"message", new JValue(e.Message)}
+                    {"message", new JValue("An internal error occurred.")}
                 };
                 return new OkObjectResult(root);
             }
@@ -235,42 +212,15 @@ namespace Portal.Controllers.Api.V1
             return new NoContentResult();
         }
 
-        [HttpGet("{uuid}/artifact")]
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> Artifact(string uuid)
-        {
-            if (uuid == null)
-            {
-                return BadRequest();
-            }
-            if (!Util.IsCorrectUuid(uuid))
-            {
-                // wrong uuid format
-                return BadRequest();
-            }
-            var userId = _userManager.GetUserId(HttpContext.User);
-            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid);
-            if (!result.canAccess)
-            {
-                return NotFound();
-            }
-            switch (_storageSetting.GetArtifactStorageSetting().GetArtifactProvideMethod())
-            {
-                case ArtifactProvideMethod.Stream:
-                    var stream = await _storageSetting.GetArtifactStorageSetting().GetArtifactStreamAsync(uuid, result.project.BuildId);
-                    return File(stream, "application/octet-stream");
-                case ArtifactProvideMethod.Redirect:
-                    var uri = await _storageSetting.GetArtifactStorageSetting().GetArtifactRedirectUriAsync(uuid, result.project.BuildId);
-                    return Redirect(uri);
-                default:
-                    return StatusCode(StatusCodes.Status500InternalServerError, "ArtifactProvideMethod is out of range.");
-            }
-        }
-
         private static readonly string[] BlacklistElements =
         {
             ".gradle", "build", "eclipse", "gradle"
         };
+
+        private static (MinecraftVersion minecraftVersion, ForgeVersion forgeVersion) CreateVersionTuple(MinecraftVersion minecraftVersion, ForgeVersion forgeVersion)
+        {
+            return (minecraftVersion, forgeVersion);
+        }
 
         private static void CheckBlacklistElemenets(JArray array)
         {

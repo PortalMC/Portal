@@ -7,7 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
 using Portal.Settings;
@@ -19,7 +21,6 @@ namespace Portal.Services
     public class DockerBuildService : IBuildService
     {
         private readonly StorageSetting _storageSetting;
-        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
         private readonly ILogger<DockerBuildService> _logger;
         private readonly WebSocketConnectionManager _connectionManager;
         private readonly DockerBuildMethodSetting _dockerSetting;
@@ -28,24 +29,22 @@ namespace Portal.Services
         public DockerBuildService(
             StorageSetting storageSetting,
             BuildSetting buildSetting,
-            IMinecraftVersionProvider minecraftVersionProvider,
             ILogger<DockerBuildService> logger,
             WebSocketConnectionManager connectionManager)
         {
             _storageSetting = storageSetting;
-            _minecraftVersionProvider = minecraftVersionProvider;
             _logger = logger;
             _connectionManager = connectionManager;
             _dockerSetting = buildSetting.GetBuildMethodSetting<DockerBuildMethodSetting>();
             _client = new DockerClientConfiguration(_dockerSetting.ApiUri).CreateClient();
         }
 
-        public async Task CheckImageAsync(CancellationToken cancellationToken)
+        public async Task CheckImageAsync(ApplicationDbContext context, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Start checking Docker...");
             _logger.LogInformation("Checking builder image is available...");
             var images = await _client.Images.ListImagesAsync(new ImagesListParameters(), cancellationToken);
-            foreach (var minecraftVersion in _minecraftVersionProvider.GetMinecraftVersions())
+            foreach (var minecraftVersion in context.MinecraftVersions.AsNoTracking().AsEnumerable())
             {
                 var repo = _dockerSetting.ImageName;
                 var tag = $"mc-{minecraftVersion.Version}-{minecraftVersion.DockerImageVersion}";
@@ -83,8 +82,7 @@ namespace Portal.Services
             }
             _logger.LogInformation("Creating container...");
             var repo = _dockerSetting.ImageName;
-            var minecraftVersion = _minecraftVersionProvider.GetMinecraftVersions().Single(a => a.Version == project.MinecraftVersion);
-            var tag = $"mc-{project.MinecraftVersion}-{minecraftVersion.DockerImageVersion}";
+            var tag = project.MinecraftVersion.DockerImageVersion;
             var container = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 //Name = "portal-build-daemon",

@@ -1,5 +1,5 @@
-﻿@using Portal.Services
-@inject IMinecraftVersionProvider MinecraftVersionProvider
+﻿@using Portal.Data
+@inject ApplicationDbContext DbContext
 @{
     Layout = "_SidebarLayout";
     ViewBag.Title = "Download Coremod";
@@ -19,7 +19,7 @@
 
 <div class="panel panel-default">
     <ul class="list-group">
-        @foreach (var minecraftVersion in MinecraftVersionProvider.GetMinecraftVersions())
+        @foreach (var minecraftVersion in DbContext.MinecraftVersions.AsEnumerable())
         {
             <li class="list-group-item">
                 <div class="panel-btn-container">

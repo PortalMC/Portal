@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Portal.Data;
 using Portal.Models;
-using Portal.Services;
+using Portal.Utils;
 
 namespace Portal.Controllers.Api.V1
 {
@@ -10,22 +12,25 @@ namespace Portal.Controllers.Api.V1
     [Route("api/v1/minecraft")]
     public class MinecraftController : Controller
     {
-        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
+        private readonly ApplicationDbContext _context;
 
-        public MinecraftController(IMinecraftVersionProvider minecraftVersionProvider)
+        public MinecraftController(ApplicationDbContext context)
         {
-            _minecraftVersionProvider = minecraftVersionProvider;
+            _context = context;
         }
 
-        [HttpGet("versions/{version}")]
-        public IActionResult Versions(string version)
+        // GET api/v1/minecraft/versions/{versionId}
+        [HttpGet("versions/{versionId}")]
+        public IActionResult Versions(string versionId)
         {
-            if (string.IsNullOrWhiteSpace(version))
+            if (string.IsNullOrWhiteSpace(versionId) || !Util.IsCorrectUuid(versionId))
             {
                 return BadRequest();
             }
-            var minecraftVersion = _minecraftVersionProvider.GetMinecraftVersions()
-                .FirstOrDefault(v => v.Version == version);
+            var minecraftVersion = _context.MinecraftVersions
+                .AsNoTracking()
+                .Include(v => v.ForgeVersions)
+                .FirstOrDefault(v => v.Id == versionId);
             if (minecraftVersion == default(MinecraftVersion))
             {
                 return BadRequest();
@@ -35,6 +40,7 @@ namespace Portal.Controllers.Api.V1
             {
                 versions.Add(new JObject
                 {
+                    {"id", new JValue(forgeVersion.Id)},
                     {"name", new JValue(forgeVersion.Version)},
                     {"is_recommend", new JValue(forgeVersion.IsRecommend)}
                 });

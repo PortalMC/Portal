@@ -13,6 +13,8 @@ namespace Portal.Data
         public DbSet<AccessRight> AccessRights { get; set; }
         public DbSet<Snippet> Snippets { get; set; }
         public DbSet<SnippetGroup> SnippetGroups { get; set; }
+        public DbSet<MinecraftVersion> MinecraftVersions { get; set; }
+        public DbSet<ForgeVersion> ForgeVersions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

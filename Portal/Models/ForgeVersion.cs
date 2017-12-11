@@ -1,16 +1,18 @@
-﻿namespace Portal.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Portal.Models
 {
     public class ForgeVersion
     {
-        public string Version { get; }
-        public string FileName { get; }
-        public bool IsRecommend { get; }
+        public string Id { get; set; }
 
-        public ForgeVersion(string version, string fileName, bool isRecommend)
-        {
-            Version = version;
-            FileName = fileName;
-            IsRecommend = isRecommend;
-        }
+        [Required]
+        public string Version { get; set; }
+
+        [Required]
+        public string FileName { get; set; }
+
+        [Required]
+        public bool IsRecommend { get; set; }
     }
 }

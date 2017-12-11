@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Portal.Models
 {
     public class MinecraftVersion
     {
-        public string Version { get; }
-        public ICollection<ForgeVersion> ForgeVersions { get; }
-        public string DockerImageVersion { get; }
+        public string Id { get; set; }
 
-        public MinecraftVersion(string version, ICollection<ForgeVersion> forgeVersions, string dockerImageVersion)
-        {
-            Version = version;
-            ForgeVersions = forgeVersions;
-            DockerImageVersion = dockerImageVersion;
-        }
+        [Required]
+        public string Version { get; set; }
+
+        [Required]
+        public IEnumerable<ForgeVersion> ForgeVersions { get; set; }
+
+        [Required]
+        public string DockerImageVersion { get; set; }
     }
 }

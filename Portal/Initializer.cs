@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -28,6 +30,7 @@ namespace Portal
                 InitializeRoleAsync(scope.ServiceProvider).Wait(cancellationToken);
                 InitializeApiClientAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeDefaultUserAsync(scope.ServiceProvider).Wait(cancellationToken);
+                InitializeMinecraftAndForgeVersionAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeSnippetAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
                 InitializeDockerAsync(scope.ServiceProvider, cancellationToken).Wait(cancellationToken);
             }
@@ -80,7 +83,8 @@ namespace Portal
         private static async Task InitializeDockerAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             if (!(services.GetRequiredService<IBuildService>() is DockerBuildService buildService)) return;
-            await buildService.CheckImageAsync(cancellationToken);
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            await buildService.CheckImageAsync(context, cancellationToken);
         }
 
         private static async Task InitializeDefaultUserAsync(IServiceProvider services)
@@ -119,6 +123,42 @@ namespace Portal
                     logger.LogError(3, $"Can't create default user : {username}");
                 }
             }
+        }
+
+        private static async Task InitializeMinecraftAndForgeVersionAsync(IServiceProvider services, CancellationToken cancellationToken)
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Minecraft");
+            var minecraftVersionList = new List<MinecraftVersion>();
+            var forgeVersionList = new List<ForgeVersion>();
+            foreach (var minecraftVersion in minecraftVersions.GetSection("Versions").GetChildren())
+            {
+                var version = minecraftVersion.GetValue<string>("MinecraftVersion");
+                if (await context.MinecraftVersions.AnyAsync(v => v.Version == version, cancellationToken))
+                {
+                    continue;
+                }
+                var forgeVersions = minecraftVersion.GetSection("ForgeVersions").GetChildren()
+                    .Select(forgeVersion =>
+                        new ForgeVersion
+                        {
+                            Version = forgeVersion.GetValue<string>("ForgeVersion"),
+                            FileName = forgeVersion.GetValue<string>("File"),
+                            IsRecommend = forgeVersion.GetValue("Recommended", false)
+                        })
+                    .Where(v => !context.ForgeVersions.Any(fv => fv.Version == v.Version))
+                    .ToArray();
+                forgeVersionList.AddRange(forgeVersions);
+                minecraftVersionList.Add(new MinecraftVersion
+                {
+                    Version = version,
+                    DockerImageVersion = minecraftVersion.GetValue<string>("DockerImageVersion"),
+                    ForgeVersions = forgeVersions
+                });
+            }
+            await context.ForgeVersions.AddRangeAsync(forgeVersionList, cancellationToken);
+            await context.MinecraftVersions.AddRangeAsync(minecraftVersionList, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         private static async Task InitializeSnippetAsync(IServiceProvider services, CancellationToken cancellationToken)

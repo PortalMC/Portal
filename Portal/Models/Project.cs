@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Portal.Models
 {
@@ -19,10 +15,10 @@ namespace Portal.Models
         public string Description { get; set; }
 
         [Required]
-        public string MinecraftVersion { get; set; }
+        public MinecraftVersion MinecraftVersion { get; set; }
 
         [Required]
-        public string ForgeVersion { get; set; }
+        public ForgeVersion ForgeVersion { get; set; }
 
         [Required]
         [DataType(DataType.Date)]

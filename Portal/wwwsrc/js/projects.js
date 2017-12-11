@@ -1,4 +1,8 @@
-﻿$(function () {
+﻿import ApiClient from './projects/api_client';
+
+$(function () {
+    const apiClient = new ApiClient(`${window.location.protocol}//${window.location.host}/api/v1/`);
+
     let isConfirmClicked = false;
 
     setupDropdown("projects-new-version-minecraft");
@@ -40,29 +44,22 @@
     function updateDescription() {
         const projectUuid = window.location.pathname.match(/\/Projects\/([a-zA-Z0-9-]*)\/?/)[1];
         const description = $("#form-description").val();
-        const data = {
-            description: description
-        };
-        $.ajax({
-            url: `${getApiBaseAddress()}projects/${projectUuid}`,
-            type: "patch",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "json"
-        }).done(() => {
-            const projectDescription = $("#project-description");
-            if (description === null || description.length === 0) {
-                projectDescription.addClass("project-description-empty");
-                projectDescription.text(projectDescription.attr("data-empty"));
-            } else {
-                projectDescription.removeClass("project-description-empty");
-                projectDescription.text(description);
-            }
-            $("#project-description-container").css("display", "flex");
-            $("#project-description-edit-container").css("display", "none");
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-        });
+        apiClient.updateProjectDescription(projectUuid, description)
+            .done(() => {
+                const projectDescription = $("#project-description");
+                if (description === null || description.length === 0) {
+                    projectDescription.addClass("project-description-empty");
+                    projectDescription.text(projectDescription.attr("data-empty"));
+                } else {
+                    projectDescription.removeClass("project-description-empty");
+                    projectDescription.text(description);
+                }
+                $("#project-description-container").css("display", "flex");
+                $("#project-description-edit-container").css("display", "none");
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function postNewProject() {
@@ -76,75 +73,53 @@
         const description = $("#form-description").val();
         const minecraftVersion = $("#form-minecraft-version").val();
         const forgeVersion = $("#form-forge-version").val();
-        const data = {
-            name: name,
-            description: description,
-            minecraftVersion: minecraftVersion,
-            forgeVersion: forgeVersion
-        };
-        $.ajax({
-            url: getApiBaseAddress() + "projects",
-            type: "post",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: "json"
-        }).done(result => {
-            if (result["success"]) {
-                window.location.href = `/Projects/${result["data"]["id"]}`;
-            } else {
+        apiClient.createNewProject(name, description, minecraftVersion, forgeVersion)
+            .done(result => {
+                if (result["success"]) {
+                    window.location.href = `/Projects/${result["data"]["id"]}`;
+                } else {
+                    formConfirm.prop("disabled", false);
+                    formConfirm.text(formConfirm.attr("data-text-1"));
+                }
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
                 formConfirm.prop("disabled", false);
                 formConfirm.text(formConfirm.attr("data-text-1"));
-            }
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            console.log("error!");
-            formConfirm.prop("disabled", false);
-            formConfirm.text(formConfirm.attr("data-text-1"));
-        });
+            });
     }
 
-    function updateForgeVersion(minecraftVersion) {
-        $.ajax({
-            url: `${getApiBaseAddress()}minecraft/versions/${minecraftVersion}`,
-            type: "get",
-            dataType: "json",
-            timeout: 5000
-        }).done(data => {
-            const projectsNewVersionForge = $("#projects-new-version-forge-list");
-            projectsNewVersionForge.empty();
-            const forgeVersions = data["forge_versions"];
-            for (let i = 0; i < forgeVersions.length; ++i) {
-                const forgeVersion = forgeVersions[i];
-                let versionText = forgeVersion["name"];
-                if (forgeVersion["is_recommend"]) {
-                    versionText += " ★";
+    function updateForgeVersion(minecraftVersionId) {
+        apiClient.getForgeVersions(minecraftVersionId)
+            .done(data => {
+                const projectsNewVersionForge = $("#projects-new-version-forge-list");
+                projectsNewVersionForge.empty();
+                const forgeVersions = data["forge_versions"];
+                for (let i = 0; i < forgeVersions.length; ++i) {
+                    const forgeVersion = forgeVersions[i];
+                    let versionText = forgeVersion["name"];
+                    if (forgeVersion["is_recommend"]) {
+                        versionText += " ★";
+                    }
+                    projectsNewVersionForge.append(
+                        `<li><a href="#" data-key="${forgeVersion["id"]}">${versionText}</a></li>`);
                 }
-                projectsNewVersionForge.append(
-                    `<li><a href="#" data-value="${forgeVersion["name"]}">${versionText}</a></li>`);
-            }
-            const dropdown = $("#projects-new-version-forge");
-            const dropdownText = dropdown.find(".dropdown-text");
-            dropdown.find("button").val("");
-            dropdownText.text(dropdownText.attr("data-default"));
-            setupDropdown("projects-new-version-forge");
-        }).fail((jqXhr, textStatus, errorThrown) => {
-        });
-    }
-
-    function getBaseAddress() {
-        let url = window.location.protocol + "//";
-        url += window.location.host;
-        return url;
-    }
-
-    function getApiBaseAddress() {
-        return `${getBaseAddress()}/api/v1/`;
+                const dropdown = $("#projects-new-version-forge");
+                const dropdownText = dropdown.find(".dropdown-text");
+                dropdown.find("button").val("");
+                dropdownText.text(dropdownText.attr("data-default"));
+                setupDropdown("projects-new-version-forge");
+            })
+            .fail((jqXhr, textStatus, errorThrown) => {
+                console.log("error! : " + errorThrown.toString());
+            });
     }
 
     function setupDropdown(id) {
         $(`#${id}`).find(".dropdown-menu li a").click(function () {
             const dropdown = $(`#${id}`);
             dropdown.find(".dropdown-text").text($(this).text());
-            dropdown.find("button").val($(this).attr("data-value")).trigger("change");
+            dropdown.find("button").val($(this).attr("data-key")).trigger("change");
         });
     }
 

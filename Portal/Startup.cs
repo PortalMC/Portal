@@ -94,7 +94,6 @@ namespace Portal
             services.AddSingleton(buildSetting);
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
-            services.AddSingleton<IMinecraftVersionProvider>(new LocalMinecraftVersionProvider(Configuration.GetSection("Minecraft")));
             services.AddBuildService(buildSetting.GetBuildMethodType());
             services.AddSingleton<IBuildService, DockerBuildService>();
             services.AddSingleton<WebSocketConnectionManager>();

@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Microsoft.EntityFrameworkCore
+@using Portal.Data
+@inject ApplicationDbContext DbContext
+@{
     Layout = "_ProjectsLayout";
     ViewBag.Title = "Create a New Project";
 }
@@ -27,10 +30,10 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="form-minecraft-version">
-                    @foreach (var minecraftVersion in Model)
+                    @foreach (var minecraftVersion in DbContext.MinecraftVersions.AsNoTracking())
                     {
                         <li>
-                            <a href="#" data-value="@minecraftVersion.Version">@minecraftVersion.Version</a>
+                            <a href="#" data-key="@minecraftVersion.Id" data-value="@minecraftVersion.Version">@minecraftVersion.Version</a>
                         </li>
                     }
                 </ul>

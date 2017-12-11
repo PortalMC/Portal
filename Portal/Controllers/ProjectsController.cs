@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
-using Portal.Services;
 using Portal.Utils;
 
 namespace Portal.Controllers
@@ -17,16 +16,13 @@ namespace Portal.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
-        private readonly IMinecraftVersionProvider _minecraftVersionProvider;
 
         public ProjectsController(
             UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context,
-            IMinecraftVersionProvider minecraftVersionProvider)
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _context = context;
-            _minecraftVersionProvider = minecraftVersionProvider;
         }
 
         /**
@@ -50,7 +46,7 @@ namespace Portal.Controllers
             if (uuid == "New")
             {
                 // Create new project page
-                return View("New", _minecraftVersionProvider.GetMinecraftVersions());
+                return View("New");
             }
             if (!Util.IsCorrectUuid(uuid))
             {
