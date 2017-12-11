@@ -12,27 +12,28 @@ namespace Portal.Extensions
         public static async Task<bool> CanAccessToProjectAsync(this ApplicationDbContext context, string userId,
             string projectId)
         {
-            var accessRightCount = await context.AccessRights
+            return await context.Projects
                 .AsNoTracking()
+                .Where(p => p.Id == projectId)
+                .SelectMany(p => p.AccessRights)
                 .Where(a => a.User.Id == userId)
-                .Include(a => a.Project)
-                .Where(a => a.Project.Id == projectId)
-                .CountAsync();
-            return accessRightCount != 0;
+                .AnyAsync();
         }
 
         public static async Task<(bool canAccess, Project project)> CanAccessToProjectWithProjectAsync(
             this ApplicationDbContext context,
             string userId,
             string projectId,
-            bool noTracking = true)
+            bool noTracking = true,
+            bool includeAll = false)
         {
-            var project = await context.AccessRights
+            var project = await context.Projects
                 .Ternary(noTracking, q => q.AsNoTracking(), q => q.AsTracking())
-                .Where(a => a.User.Id == userId)
-                .Select(a => a.Project)
+                .Ternary(includeAll, q => q.Include(p => p.ForgeVersion).Include(p => p.MinecraftVersion), q => q)
+                .Include(p => p.AccessRights)
+                .ThenInclude(a => a.User)
                 .Where(p => p.Id == projectId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(p => p.AccessRights.Any(a => a.User.Id == userId));
             return project == default(Project) ? (false, null) : (true, project);
         }
 

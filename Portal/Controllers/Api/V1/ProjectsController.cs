@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -105,6 +106,11 @@ namespace Portal.Controllers.Api.V1
                 var safeUser = await _context.SafeUsers
                     .SingleOrDefaultAsync(m => m.Id == _userManager.GetUserId(HttpContext.User));
                 var now = DateTime.UtcNow;
+                var accessRight = await _context.AccessRights.AddAsync(new AccessRight
+                {
+                    User = safeUser,
+                    Level = AccessRightLevel.Owner.Level
+                });
                 var createdProject = await _context.Projects.AddAsync(new Project
                 {
                     Name = newPorject.Name,
@@ -112,15 +118,9 @@ namespace Portal.Controllers.Api.V1
                     MinecraftVersion = version.minecraftVersion,
                     ForgeVersion = version.forgeVersion,
                     CreatedAt = now,
-                    UpdatedAt = now
+                    UpdatedAt = now,
+                    AccessRights = new List<AccessRight> {accessRight.Entity}
                 });
-                var ownerAccessRight = new AccessRight
-                {
-                    User = safeUser,
-                    Project = createdProject.Entity,
-                    Level = AccessRightLevel.Owner.Level
-                };
-                await _context.AccessRights.AddAsync(ownerAccessRight);
                 await _context.SaveChangesAsync();
                 // Expand zip file
                 var projectId = createdProject.Entity.Id;
@@ -200,7 +200,7 @@ namespace Portal.Controllers.Api.V1
                 return BadRequest();
             }
             var userId = _userManager.GetUserId(HttpContext.User);
-            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid, false);
+            var result = await _context.CanAccessToProjectWithProjectAsync(userId, uuid, false, true);
             if (!result.canAccess)
             {
                 return NotFound();

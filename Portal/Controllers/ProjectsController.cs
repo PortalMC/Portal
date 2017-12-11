@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
+using Portal.Models.ProjectsViewModel;
 using Portal.Utils;
 
 namespace Portal.Controllers
@@ -34,14 +35,17 @@ namespace Portal.Controllers
         {
             if (uuid == null)
             {
+                var user = _userManager.GetUserId(HttpContext.User);
                 // Projects Listing
-                var projects = await _context.AccessRights
-                    .AsNoTracking()
-                    .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                    .Select(a => a.Project)
-                    .OrderByDescending(p => p.UpdatedAt)
-                    .ToListAsync();
-                return View(projects);
+                var projects = _context.Projects
+                    .Include(p => p.MinecraftVersion)
+                    .Include(p => p.ForgeVersion)
+                    .Where(p => p.AccessRights.Any(a => a.User.Id == user))
+                    .OrderByDescending(p => p.UpdatedAt);
+                return View(new IndexViewModel
+                {
+                    Projects = projects
+                });
             }
             if (uuid == "New")
             {

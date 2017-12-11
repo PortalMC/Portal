@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
 @using Portal.Utils
+@model Portal.Models.ProjectsViewModel.IndexViewModel
 @{
     Layout = "_ProjectsLayout";
     ViewBag.Title = "Projects";
@@ -23,7 +24,7 @@
 
 <div class="projects-list">
     <ul>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Projects)
         {
             <li>
                 <div class="projects-title">
@@ -34,15 +35,15 @@
                 <div class="projects-info">
                     <span>
                         @Html.Partial("~/Views/Shared/Icon/_MinecraftDirt.cshtml")
-                        Minecraft @item.MinecraftVersion
+                        Minecraft @item.MinecraftVersion.Version
                     </span>
                     <span>
                         @Html.Partial("~/Views/Shared/Icon/_MinecraftDiamond.cshtml")
-                        Forge @item.ForgeVersion
+                        Forge @item.ForgeVersion.Version
                     </span>
                     <span>
                         @{
-                            TimeSpan diff = DateTime.UtcNow - item.UpdatedAt;
+                            var diff = DateTime.UtcNow - item.UpdatedAt;
                             if (diff.TotalDays > 365)
                             {
                                 @:Updated on @item.UpdatedAt.ToString("dd MMM yyyy")

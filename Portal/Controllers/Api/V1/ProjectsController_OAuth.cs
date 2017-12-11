@@ -1,21 +1,13 @@
-﻿using System;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Portal.Data;
 using Portal.Extensions;
 using Portal.Models;
-using Portal.Services;
-using Portal.Settings;
 using Portal.Settings.ArtifactStorage;
 using Portal.Utils;
 
@@ -28,11 +20,11 @@ namespace Portal.Controllers.Api.V1
         [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Projects([FromQuery] string minecraft)
         {
+            var user = _userManager.GetUserId(HttpContext.User);
             // TODO* Pagination
-            object[] projects = await _context.AccessRights
+            object[] projects = await _context.Projects
                 .AsNoTracking()
-                .Where(a => a.User.Id == _userManager.GetUserId(HttpContext.User))
-                .Select(a => a.Project)
+                .Where(p => p.AccessRights.Any(a => a.User.Id == user))
                 .Where(p => string.IsNullOrEmpty(minecraft) || p.MinecraftVersion.Version == minecraft)
                 .Select(p => new JObject
                     {

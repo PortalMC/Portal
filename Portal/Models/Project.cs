@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Portal.Models
 {
@@ -30,5 +32,8 @@ namespace Portal.Models
 
         [Required]
         public int BuildId { get; set; }
+
+        [Required]
+        public IList<AccessRight> AccessRights { get; set; }
     }
 }
