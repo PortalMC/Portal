@@ -82,7 +82,7 @@ namespace Portal.Services
             }
             _logger.LogInformation("Creating container...");
             var repo = _dockerSetting.ImageName;
-            var tag = project.MinecraftVersion.DockerImageVersion;
+            var tag = $"mc-{project.MinecraftVersion.Version}-{project.MinecraftVersion.DockerImageVersion}";
             var container = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 //Name = "portal-build-daemon",

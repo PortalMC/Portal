@@ -3,7 +3,7 @@
     "Versions": [
       {
         "MinecraftVersion": "1.12.2",
-        "DockerImageVersion": "mc-1.12.2-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "14.23.0.2517",
@@ -22,7 +22,7 @@
       },
       {
         "MinecraftVersion": "1.11.2",
-        "DockerImageVersion": "mc-1.11.2-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "13.20.1.2516",
@@ -37,7 +37,7 @@
       },
       {
         "MinecraftVersion": "1.10.2",
-        "DockerImageVersion": "mc-1.10.2-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "12.18.3.2511",
@@ -52,7 +52,7 @@
       },
       {
         "MinecraftVersion": "1.9.4",
-        "DockerImageVersion": "mc-1.9.4-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "12.17.0.2051",
@@ -67,7 +67,7 @@
       },
       {
         "MinecraftVersion": "1.8.9",
-        "DockerImageVersion": "mc-1.8.9-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "12.17.0.2051",
@@ -82,7 +82,7 @@
       },
       {
         "MinecraftVersion": "1.7.10",
-        "DockerImageVersion": "mc-1.7.10-1",
+        "DockerImageVersion": "1",
         "ForgeVersions": [
           {
             "ForgeVersion": "10.13.4.1614",
@@ -91,17 +91,6 @@
           {
             "ForgeVersion": "10.13.4.1558",
             "File": "forge-1.7.10-10.13.4.1558-1.7.10-src.zip",
-            "Recommended": true
-          }
-        ]
-      },
-      {
-        "MinecraftVersion": "1.6.4",
-        "DockerImageVersion": "mc-1.6.4-1",
-        "ForgeVersions": [
-          {
-            "ForgeVersion": "9.11.1.1345",
-            "File": "forge-1.6.4-9.11.1.1345-src.zip",
             "Recommended": true
           }
         ]
