@@ -49,6 +49,19 @@ namespace Portal.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MinecraftVersions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    DockerImageVersion = table.Column<string>(nullable: false),
+                    Version = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MinecraftVersions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OpenIddictApplications",
                 columns: table => new
                 {
@@ -81,23 +94,6 @@ namespace Portal.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false),
-                    Description = table.Column<string>(maxLength: 200, nullable: true),
-                    ForgeVersion = table.Column<string>(nullable: false),
-                    MinecraftVersion = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(maxLength: 30, nullable: false),
-                    UpdatedAt = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SafeUsers",
                 columns: table => new
                 {
@@ -106,6 +102,19 @@ namespace Portal.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SafeUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SnippetGroups",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    DisplayName = table.Column<string>(nullable: true),
+                    Order = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SnippetGroups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -215,6 +224,27 @@ namespace Portal.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ForgeVersions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    FileName = table.Column<string>(nullable: false),
+                    IsRecommend = table.Column<bool>(nullable: false),
+                    MinecraftVersionId = table.Column<string>(nullable: true),
+                    Version = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ForgeVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ForgeVersions_MinecraftVersions_MinecraftVersionId",
+                        column: x => x.MinecraftVersionId,
+                        principalTable: "MinecraftVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OpenIddictAuthorizations",
                 columns: table => new
                 {
@@ -238,29 +268,55 @@ namespace Portal.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AccessRights",
+                name: "Snippets",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    Level = table.Column<int>(nullable: false),
-                    ProjectId = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
+                    Content = table.Column<string>(nullable: true),
+                    DisplayName = table.Column<string>(nullable: true),
+                    GroupId = table.Column<string>(nullable: true),
+                    Order = table.Column<int>(nullable: false),
+                    Type = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccessRights", x => x.Id);
+                    table.PrimaryKey("PK_Snippets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AccessRights_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
+                        name: "FK_Snippets_SnippetGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "SnippetGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    BuildId = table.Column<int>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    Description = table.Column<string>(maxLength: 200, nullable: true),
+                    ForgeVersionId = table.Column<string>(nullable: false),
+                    MinecraftVersionId = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(maxLength: 30, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AccessRights_SafeUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "SafeUsers",
+                        name: "FK_Projects_ForgeVersions_ForgeVersionId",
+                        column: x => x.ForgeVersionId,
+                        principalTable: "ForgeVersions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Projects_MinecraftVersions_MinecraftVersionId",
+                        column: x => x.MinecraftVersionId,
+                        principalTable: "MinecraftVersions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -292,6 +348,32 @@ namespace Portal.Data.Migrations
                         name: "FK_OpenIddictTokens_OpenIddictAuthorizations_AuthorizationId",
                         column: x => x.AuthorizationId,
                         principalTable: "OpenIddictAuthorizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccessRights",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Level = table.Column<int>(nullable: false),
+                    ProjectId = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccessRights", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AccessRights_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AccessRights_SafeUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "SafeUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -344,6 +426,11 @@ namespace Portal.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ForgeVersions_MinecraftVersionId",
+                table: "ForgeVersions",
+                column: "MinecraftVersionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
                 table: "OpenIddictApplications",
                 column: "ClientId",
@@ -369,6 +456,21 @@ namespace Portal.Data.Migrations
                 table: "OpenIddictTokens",
                 column: "Hash",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_ForgeVersionId",
+                table: "Projects",
+                column: "ForgeVersionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_MinecraftVersionId",
+                table: "Projects",
+                column: "MinecraftVersionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Snippets_GroupId",
+                table: "Snippets",
+                column: "GroupId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -398,6 +500,9 @@ namespace Portal.Data.Migrations
                 name: "OpenIddictTokens");
 
             migrationBuilder.DropTable(
+                name: "Snippets");
+
+            migrationBuilder.DropTable(
                 name: "Projects");
 
             migrationBuilder.DropTable(
@@ -413,7 +518,16 @@ namespace Portal.Data.Migrations
                 name: "OpenIddictAuthorizations");
 
             migrationBuilder.DropTable(
+                name: "SnippetGroups");
+
+            migrationBuilder.DropTable(
+                name: "ForgeVersions");
+
+            migrationBuilder.DropTable(
                 name: "OpenIddictApplications");
+
+            migrationBuilder.DropTable(
+                name: "MinecraftVersions");
         }
     }
 }

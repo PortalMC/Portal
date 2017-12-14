@@ -11,8 +11,8 @@ using System;
 namespace Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20171203171058_AddSnippetGroup")]
-    partial class AddSnippetGroup
+    [Migration("20171214181309_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -253,7 +253,8 @@ namespace Portal.Data.Migrations
 
                     b.Property<string>("ProjectId");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -314,20 +315,60 @@ namespace Portal.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("Portal.Models.ForgeVersion", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("FileName")
+                        .IsRequired();
+
+                    b.Property<bool>("IsRecommend");
+
+                    b.Property<string>("MinecraftVersionId");
+
+                    b.Property<string>("Version")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MinecraftVersionId");
+
+                    b.ToTable("ForgeVersions");
+                });
+
+            modelBuilder.Entity("Portal.Models.MinecraftVersion", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("DockerImageVersion")
+                        .IsRequired();
+
+                    b.Property<string>("Version")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MinecraftVersions");
+                });
+
             modelBuilder.Entity("Portal.Models.Project", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<int>("BuildId");
 
                     b.Property<DateTime>("CreatedAt");
 
                     b.Property<string>("Description")
                         .HasMaxLength(200);
 
-                    b.Property<string>("ForgeVersion")
+                    b.Property<string>("ForgeVersionId")
                         .IsRequired();
 
-                    b.Property<string>("MinecraftVersion")
+                    b.Property<string>("MinecraftVersionId")
                         .IsRequired();
 
                     b.Property<string>("Name")
@@ -337,6 +378,10 @@ namespace Portal.Data.Migrations
                     b.Property<DateTime>("UpdatedAt");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ForgeVersionId");
+
+                    b.HasIndex("MinecraftVersionId");
 
                     b.ToTable("Projects");
                 });
@@ -348,13 +393,33 @@ namespace Portal.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<string>("Group");
+                    b.Property<string>("DisplayName");
+
+                    b.Property<string>("GroupId");
+
+                    b.Property<int>("Order");
 
                     b.Property<string>("Type");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GroupId");
+
                     b.ToTable("Snippets");
+                });
+
+            modelBuilder.Entity("Portal.Models.SnippetGroup", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("DisplayName");
+
+                    b.Property<int>("Order");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SnippetGroups");
                 });
 
             modelBuilder.Entity("Portal.Models.User", b =>
@@ -434,13 +499,41 @@ namespace Portal.Data.Migrations
 
             modelBuilder.Entity("Portal.Models.AccessRight", b =>
                 {
-                    b.HasOne("Portal.Models.Project", "Project")
-                        .WithMany()
+                    b.HasOne("Portal.Models.Project")
+                        .WithMany("AccessRights")
                         .HasForeignKey("ProjectId");
 
                     b.HasOne("Portal.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Portal.Models.ForgeVersion", b =>
+                {
+                    b.HasOne("Portal.Models.MinecraftVersion")
+                        .WithMany("ForgeVersions")
+                        .HasForeignKey("MinecraftVersionId");
+                });
+
+            modelBuilder.Entity("Portal.Models.Project", b =>
+                {
+                    b.HasOne("Portal.Models.ForgeVersion", "ForgeVersion")
+                        .WithMany()
+                        .HasForeignKey("ForgeVersionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Portal.Models.MinecraftVersion", "MinecraftVersion")
+                        .WithMany()
+                        .HasForeignKey("MinecraftVersionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Portal.Models.Snippet", b =>
+                {
+                    b.HasOne("Portal.Models.SnippetGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId");
                 });
 #pragma warning restore 612, 618
         }
