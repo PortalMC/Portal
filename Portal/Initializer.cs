@@ -133,7 +133,8 @@ namespace Portal
             var storage = services.GetRequiredService<StorageSetting>();
             var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("Minecraft");
             var minecraftVersionList = new List<MinecraftVersion>();
-            var fileMapping = new List<Tuple<MinecraftVersion, ForgeVersion, string>>();
+            var coremodFileMapping = new List<Tuple<MinecraftVersion, string>>();
+            var forgeFileMapping = new List<Tuple<MinecraftVersion, ForgeVersion, string>>();
             var forgeVersionList = new List<ForgeVersion>();
             var minecraftVersionOrder = 1;
             var now = DateTime.UtcNow;
@@ -169,7 +170,8 @@ namespace Portal
                     UpdatedAt = now,
                     Rank = minecraftVersionOrder++
                 };
-                fileMapping.AddRange(forgeVersionTuples.Select(t => Tuple.Create(minecraftVersion, t.Item1, t.Item2)).ToArray());
+                coremodFileMapping.Add(Tuple.Create(minecraftVersion, minecraftVersionConfig.GetValue<string>("CoremodFile")));
+                forgeFileMapping.AddRange(forgeVersionTuples.Select(t => Tuple.Create(minecraftVersion, t.Item1, t.Item2)).ToArray());
                 forgeVersionList.AddRange(forgeVersions);
                 minecraftVersionList.Add(minecraftVersion);
             }
@@ -177,10 +179,24 @@ namespace Portal
             await context.MinecraftVersions.AddRangeAsync(minecraftVersionList, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 
-            if (fileMapping.Any())
+            if (coremodFileMapping.Any())
             {
-                var initRoot = new DirectoryInfo(".").ResolveDir("init").ResolveDir(minecraftVersions.GetValue<string>("Root"));
-                foreach (var file in fileMapping)
+                var initRoot = new DirectoryInfo(".").ResolveDir("init").ResolveDir(minecraftVersions.GetValue<string>("CoremodRoot"));
+                foreach (var file in coremodFileMapping)
+                {
+                    var source = initRoot.Resolve(file.Item2);
+                    var destination = storage.GetCoremodStorageSetting().GetCoremodFile(file.Item1);
+                    if (!destination.Directory.Exists)
+                    {
+                        destination.Directory.Create();
+                    }
+                    source.CopyTo(destination.FullName, true);
+                }
+            }
+            if (forgeFileMapping.Any())
+            {
+                var initRoot = new DirectoryInfo(".").ResolveDir("init").ResolveDir(minecraftVersions.GetValue<string>("ForgeRoot"));
+                foreach (var file in forgeFileMapping)
                 {
                     var source = initRoot.Resolve(file.Item3);
                     var destination = storage.GetForgeStorageSetting().GetForgeZipFile(file.Item1, file.Item2);

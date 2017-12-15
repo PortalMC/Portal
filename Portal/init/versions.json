@@ -1,11 +1,13 @@
 ﻿{
   "Init": {
     "Minecraft": {
-      "Root": "versions",
+      "ForgeRoot": "versions/forge",
+      "CoremodRoot": "versions/coremod",
       "Versions": [
         {
           "MinecraftVersion": "1.12.2",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.12.2-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "14.23.0.2517",
@@ -25,6 +27,7 @@
         {
           "MinecraftVersion": "1.11.2",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.11.2-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "13.20.1.2516",
@@ -40,6 +43,7 @@
         {
           "MinecraftVersion": "1.10.2",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.10.2-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "12.18.3.2511",
@@ -55,6 +59,7 @@
         {
           "MinecraftVersion": "1.9.4",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.9.4-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "12.17.0.2051",
@@ -70,6 +75,7 @@
         {
           "MinecraftVersion": "1.8.9",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.8.9-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "12.17.0.2051",
@@ -85,6 +91,7 @@
         {
           "MinecraftVersion": "1.7.10",
           "DockerImageVersion": "1",
+          "CoremodFile": "portal-core-1.7.10-1.jar",
           "ForgeVersions": [
             {
               "ForgeVersion": "10.13.4.1614",

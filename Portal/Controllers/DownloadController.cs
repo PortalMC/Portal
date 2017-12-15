@@ -1,16 +1,35 @@
-﻿using System.IO;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Portal.Data;
+using Portal.Settings;
+using Portal.Utils;
 
 namespace Portal.Controllers
 {
     public class DownloadController : Controller
     {
-        public IActionResult Index(string version)
+        private readonly ApplicationDbContext _context;
+        private readonly StorageSetting _storageSetting;
+
+        public DownloadController(
+            ApplicationDbContext context,
+            StorageSetting storageSetting)
+        {
+            _context = context;
+            _storageSetting = storageSetting;
+        }
+
+        public async Task<IActionResult> Index(string version)
         {
             if (version != null)
             {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "assets", "coremods", $"{version}.jar");
-                return PhysicalFile(path, "application/java-archive", $"portal-core-{version}.jar");
+                if (!Util.IsCorrectUuid(version))
+                {
+                    return NotFound();
+                }
+                var minecraftVersion = await _context.MinecraftVersions.FindAsync(version);
+                var path = _storageSetting.GetCoremodStorageSetting().GetCoremodFile(minecraftVersion).FullName;
+                return PhysicalFile(path, "application/java-archive", $"portal-core-{minecraftVersion.Version}.jar");
             }
             return View();
         }
