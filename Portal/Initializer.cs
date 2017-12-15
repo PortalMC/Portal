@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Portal.Extensions;
 using Portal.Data;
 using Portal.Models;
 using Portal.Services;
+using Portal.Settings;
 
 namespace Portal
 {
@@ -128,8 +130,10 @@ namespace Portal
         private static async Task InitializeMinecraftAndForgeVersionAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Minecraft");
+            var storage = services.GetRequiredService<StorageSetting>();
+            var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("Minecraft");
             var minecraftVersionList = new List<MinecraftVersion>();
+            var fileMapping = new List<Tuple<MinecraftVersion, ForgeVersion, string>>();
             var forgeVersionList = new List<ForgeVersion>();
             var minecraftVersionOrder = 1;
             var now = DateTime.UtcNow;
@@ -141,21 +145,22 @@ namespace Portal
                     continue;
                 }
                 var forgeVersionOrder = 1;
-                var forgeVersions = minecraftVersionConfig.GetSection("ForgeVersions").GetChildren()
+                var forgeVersionTuples = minecraftVersionConfig.GetSection("ForgeVersions").GetChildren()
                     .Select(forgeVersion =>
-                        new ForgeVersion
+                        Tuple.Create(new ForgeVersion
                         {
                             Version = forgeVersion.GetValue<string>("ForgeVersion"),
-                            FileName = forgeVersion.GetValue<string>("File"),
                             IsRecommend = forgeVersion.GetValue("Recommended", false),
                             CreatedAt = now,
                             UpdatedAt = now,
                             Rank = forgeVersionOrder++
-                        })
-                    .Where(v => !context.ForgeVersions.Any(fv => fv.Version == v.Version))
+                        }, forgeVersion.GetValue<string>("File")))
+                    .Where(v => !context.ForgeVersions.Any(fv => fv.Version == v.Item1.Version))
                     .ToArray();
-                forgeVersionList.AddRange(forgeVersions);
-                minecraftVersionList.Add(new MinecraftVersion
+                var forgeVersions = forgeVersionTuples
+                    .Select(t => t.Item1)
+                    .ToArray();
+                var minecraftVersion = new MinecraftVersion
                 {
                     Version = version,
                     DockerImageVersion = minecraftVersionConfig.GetValue<string>("DockerImageVersion"),
@@ -163,11 +168,29 @@ namespace Portal
                     CreatedAt = now,
                     UpdatedAt = now,
                     Rank = minecraftVersionOrder++
-                });
+                };
+                fileMapping.AddRange(forgeVersionTuples.Select(t => Tuple.Create(minecraftVersion, t.Item1, t.Item2)).ToArray());
+                forgeVersionList.AddRange(forgeVersions);
+                minecraftVersionList.Add(minecraftVersion);
             }
             await context.ForgeVersions.AddRangeAsync(forgeVersionList, cancellationToken);
             await context.MinecraftVersions.AddRangeAsync(minecraftVersionList, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
+
+            if (fileMapping.Any())
+            {
+                var initRoot = new DirectoryInfo(".").ResolveDir("init").ResolveDir(minecraftVersions.GetValue<string>("Root"));
+                foreach (var file in fileMapping)
+                {
+                    var source = initRoot.Resolve(file.Item3);
+                    var destination = storage.GetForgeStorageSetting().GetForgeZipFile(file.Item1, file.Item2);
+                    if (!destination.Directory.Exists)
+                    {
+                        destination.Directory.Create();
+                    }
+                    source.CopyTo(destination.FullName, true);
+                }
+            }
         }
 
         private static async Task InitializeSnippetAsync(IServiceProvider services, CancellationToken cancellationToken)

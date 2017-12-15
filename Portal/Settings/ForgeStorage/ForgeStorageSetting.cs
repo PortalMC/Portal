@@ -10,7 +10,7 @@ namespace Portal.Settings.ForgeStorage
 
         public FileInfo GetForgeZipFile(MinecraftVersion minecraftVersion, ForgeVersion forgeVersion)
         {
-            return GetRootDirectory().ResolveDir(minecraftVersion.Version).Resolve(forgeVersion.FileName);
+            return GetRootDirectory().ResolveDir(minecraftVersion.Id).Resolve(forgeVersion.Id + ".zip");
         }
     }
 }

@@ -1,0 +1,103 @@
+﻿{
+  "Init": {
+    "Minecraft": {
+      "Root": "versions",
+      "Versions": [
+        {
+          "MinecraftVersion": "1.12.2",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "14.23.0.2517",
+              "File": "forge-1.12.2-14.23.0.2517-mdk.zip"
+            },
+            {
+              "ForgeVersion": "14.23.0.2515",
+              "File": "forge-1.12.2-14.23.0.2515-mdk.zip"
+            },
+            {
+              "ForgeVersion": "14.23.0.2491",
+              "File": "forge-1.12.2-14.23.0.2491-mdk.zip",
+              "Recommended": true
+            }
+          ]
+        },
+        {
+          "MinecraftVersion": "1.11.2",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "13.20.1.2516",
+              "File": "forge-1.11.2-13.20.1.2516-mdk.zip"
+            },
+            {
+              "ForgeVersion": "13.20.1.2386",
+              "File": "forge-1.11.2-13.20.1.2386-mdk.zip",
+              "Recommended": true
+            }
+          ]
+        },
+        {
+          "MinecraftVersion": "1.10.2",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "12.18.3.2511",
+              "File": "forge-1.10.2-12.18.3.2511-mdk.zip"
+            },
+            {
+              "ForgeVersion": "12.18.3.2185",
+              "File": "forge-1.10.2-12.18.3.2185-mdk.zip",
+              "Recommended": true
+            }
+          ]
+        },
+        {
+          "MinecraftVersion": "1.9.4",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "12.17.0.2051",
+              "File": "forge-1.9.4-12.17.0.2051-mdk.zip"
+            },
+            {
+              "ForgeVersion": "12.17.0.1976",
+              "File": "forge-1.9.4-12.17.0.1976-mdk.zip",
+              "Recommended": true
+            }
+          ]
+        },
+        {
+          "MinecraftVersion": "1.8.9",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "12.17.0.2051",
+              "File": "forge-1.8.9-11.15.1.2318-1.8.9-mdk.zip"
+            },
+            {
+              "ForgeVersion": "11.15.1.1722",
+              "File": "forge-1.8.9-11.15.1.1722-mdk.zip",
+              "Recommended": true
+            }
+          ]
+        },
+        {
+          "MinecraftVersion": "1.7.10",
+          "DockerImageVersion": "1",
+          "ForgeVersions": [
+            {
+              "ForgeVersion": "10.13.4.1614",
+              "File": "forge-1.7.10-10.13.4.1614-1.7.10-src.zip"
+            },
+            {
+              "ForgeVersion": "10.13.4.1558",
+              "File": "forge-1.7.10-10.13.4.1558-1.7.10-src.zip",
+              "Recommended": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

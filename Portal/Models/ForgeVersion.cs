@@ -11,9 +11,6 @@ namespace Portal.Models
         public string Version { get; set; }
 
         [Required]
-        public string FileName { get; set; }
-
-        [Required]
         public bool IsRecommend { get; set; }
 
         public int Rank { get; set; }

@@ -4,3 +4,4 @@ wwwroot/js
 projectsroot/
 assets/
 buildsroot/
+init/versions/*.zip
