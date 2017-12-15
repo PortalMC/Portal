@@ -212,20 +212,20 @@ namespace Portal
         private static async Task InitializeSnippetAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var snippetGroups = services.GetRequiredService<IConfiguration>().GetSection("SnippetGroups");
+            var snippetGroups = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("SnippetGroups");
             foreach (var group in snippetGroups.GetChildren())
             {
                 if (!await context.SnippetGroups.AnyAsync(g => g.Id == group.GetValue<string>("Id"), cancellationToken))
                 {
-                    await context.SnippetGroups.AddAsync(new SnippetGroup()
+                    await context.SnippetGroups.AddAsync(new SnippetGroup
                     {
                         Id = group.GetValue<string>("Id"),
                         DisplayName = group.GetValue<string>("DisplayName"),
-                        Order = group.GetValue<int>("Order"),
+                        Order = group.GetValue<int>("Order")
                     }, cancellationToken);
                 }
             }
-            var snippets = services.GetRequiredService<IConfiguration>().GetSection("Snippets");
+            var snippets = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("Snippets");
             foreach (var snippet in snippets.GetChildren())
             {
                 if (!await context.Snippets.AsNoTracking().AnyAsync(s => s.Type == snippet.GetValue<string>("Type"), cancellationToken))

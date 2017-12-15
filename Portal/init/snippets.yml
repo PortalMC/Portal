@@ -1,0 +1,63 @@
+Init: 
+  SnippetGroups:
+    - Id: java
+      DisplayName: Java
+      Order: 1
+    - Id: json
+      DisplayName: JSON
+      Order: 2
+
+  Snippets:
+    - Type: java-class
+      DisplayName: Class
+      GroupId: java
+      Order: 1
+      Content: |
+        package ${PACKAGE_NAME};
+        
+        public class ${FILENAME_NO_EXT} {
+        }
+  
+    - Type: java-inteface
+      DisplayName: Interface
+      GroupId: java
+      Order: 2
+      Content: |
+        package ${PACKAGE_NAME};
+        
+        public interface ${FILENAME_NO_EXT} {
+        }
+      
+    - Type: java-enum
+      DisplayName: Enum
+      GroupId: java
+      Order: 3
+      Content: |
+        package ${PACKAGE_NAME};
+        
+        public enum ${FILENAME_NO_EXT} {
+        }
+  
+    - Type: json-blockstate
+      DisplayName: Blockstate
+      GroupId: json
+      Order: 1
+      Content: |
+  
+    - Type: json-item
+      DisplayName: Item
+      GroupId: json
+      Order: 2
+      Content: |
+  
+    - Type: json-model
+      DisplayName: Model
+      GroupId: json
+      Order: 3
+      Content: |
+  
+    - Type: json-plain
+      DisplayName: Normal
+      GroupId: json
+      Order: 4
+      Content: |

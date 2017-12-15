@@ -36,8 +36,8 @@ namespace Portal
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
-                    config.AddJsonFile("init/versions.json", optional: true);
-                    config.AddYamlFile("snippets.yml", true, true);
+                    config.AddJsonFile("init/versions.json", true);
+                    config.AddYamlFile("init/snippets.yml", true);
                 })
                 .Build();
     }
