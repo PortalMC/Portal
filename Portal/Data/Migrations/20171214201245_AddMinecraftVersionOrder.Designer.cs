@@ -11,9 +11,10 @@ using System;
 namespace Portal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171214201245_AddMinecraftVersionOrder")]
+    partial class AddMinecraftVersionOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,18 +320,12 @@ namespace Portal.Data.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("CreatedAt");
-
                     b.Property<string>("FileName")
                         .IsRequired();
 
                     b.Property<bool>("IsRecommend");
 
                     b.Property<string>("MinecraftVersionId");
-
-                    b.Property<int>("Rank");
-
-                    b.Property<DateTime>("UpdatedAt");
 
                     b.Property<string>("Version")
                         .IsRequired();

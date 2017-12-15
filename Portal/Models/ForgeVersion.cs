@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Portal.Models
 {
@@ -14,5 +15,15 @@ namespace Portal.Models
 
         [Required]
         public bool IsRecommend { get; set; }
+
+        public int Rank { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime UpdatedAt { get; set; }
     }
 }

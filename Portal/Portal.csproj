@@ -37,6 +37,7 @@
     <PackageReference Include="OpenIddict" Version="2.0.0-rc2-0772" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-rc2-0772" />
     <PackageReference Include="OpenIddict.Mvc" Version="2.0.0-rc2-0772" />
+    <PackageReference Include="SmartFormat.Net" Version="2.1.0.2" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.4.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
     <PackageReference Include="System.Reactive" Version="4.0.0-preview00001" />

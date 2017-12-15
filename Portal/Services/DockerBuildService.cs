@@ -39,33 +39,39 @@ namespace Portal.Services
             _client = new DockerClientConfiguration(_dockerSetting.ApiUri).CreateClient();
         }
 
-        public async Task CheckImageAsync(ApplicationDbContext context, CancellationToken cancellationToken)
+        public async Task CheckAllImageAsync(ApplicationDbContext context, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Start checking Docker...");
             _logger.LogInformation("Checking builder image is available...");
-            var images = await _client.Images.ListImagesAsync(new ImagesListParameters(), cancellationToken);
             foreach (var minecraftVersion in context.MinecraftVersions.AsNoTracking().AsEnumerable())
             {
-                var repo = _dockerSetting.ImageName;
-                var tag = $"mc-{minecraftVersion.Version}-{minecraftVersion.DockerImageVersion}";
-                if (images.Any(i => i.RepoTags.Contains($"{repo}:{tag}"))) continue;
-                _logger.LogInformation($"Image '{repo}:{tag}' has not been pulled.");
-                _logger.LogInformation("Start pulling image.");
-                try
-                {
-                    await _client.Images.CreateImageAsync(new ImagesCreateParameters
-                    {
-                        Repo = repo,
-                        Tag = tag
-                    }, null, null, cancellationToken);
-                    _logger.LogInformation($"Pull image '{repo}:{tag}' successfully!");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to pull image '{repo}:{tag}'. Reason: {ex.Message}");
-                }
+                await CheckImageAsync(context, minecraftVersion, cancellationToken);
             }
         }
+
+        public async Task CheckImageAsync(ApplicationDbContext context, MinecraftVersion minecraftVersion, CancellationToken cancellationToken)
+        {
+            var repo = _dockerSetting.ImageName;
+            var tag = $"mc-{minecraftVersion.Version}-{minecraftVersion.DockerImageVersion}";
+            var images = await _client.Images.ListImagesAsync(new ImagesListParameters(), cancellationToken);
+            if (images.Any(i => i.RepoTags.Contains($"{repo}:{tag}"))) return;
+            _logger.LogInformation($"Image '{repo}:{tag}' has not been pulled.");
+            _logger.LogInformation("Start pulling image.");
+            try
+            {
+                await _client.Images.CreateImageAsync(new ImagesCreateParameters
+                {
+                    Repo = repo,
+                    Tag = tag
+                }, null, null, cancellationToken);
+                _logger.LogInformation($"Pull image '{repo}:{tag}' successfully!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to pull image '{repo}:{tag}'. Reason: {ex.Message}");
+            }
+        }
+
 
         public void StartBuild(Project project, string userId, int buildId)
         {

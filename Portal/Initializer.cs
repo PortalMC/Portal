@@ -84,7 +84,7 @@ namespace Portal
         {
             if (!(services.GetRequiredService<IBuildService>() is DockerBuildService buildService)) return;
             var context = services.GetRequiredService<ApplicationDbContext>();
-            await buildService.CheckImageAsync(context, cancellationToken);
+            await buildService.CheckAllImageAsync(context, cancellationToken);
         }
 
         private static async Task InitializeDefaultUserAsync(IServiceProvider services)
@@ -131,20 +131,26 @@ namespace Portal
             var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Minecraft");
             var minecraftVersionList = new List<MinecraftVersion>();
             var forgeVersionList = new List<ForgeVersion>();
-            foreach (var minecraftVersion in minecraftVersions.GetSection("Versions").GetChildren())
+            var minecraftVersionOrder = 1;
+            var now = DateTime.UtcNow;
+            foreach (var minecraftVersionConfig in minecraftVersions.GetSection("Versions").GetChildren())
             {
-                var version = minecraftVersion.GetValue<string>("MinecraftVersion");
+                var version = minecraftVersionConfig.GetValue<string>("MinecraftVersion");
                 if (await context.MinecraftVersions.AnyAsync(v => v.Version == version, cancellationToken))
                 {
                     continue;
                 }
-                var forgeVersions = minecraftVersion.GetSection("ForgeVersions").GetChildren()
+                var forgeVersionOrder = 1;
+                var forgeVersions = minecraftVersionConfig.GetSection("ForgeVersions").GetChildren()
                     .Select(forgeVersion =>
                         new ForgeVersion
                         {
                             Version = forgeVersion.GetValue<string>("ForgeVersion"),
                             FileName = forgeVersion.GetValue<string>("File"),
-                            IsRecommend = forgeVersion.GetValue("Recommended", false)
+                            IsRecommend = forgeVersion.GetValue("Recommended", false),
+                            CreatedAt = now,
+                            UpdatedAt = now,
+                            Rank = forgeVersionOrder++
                         })
                     .Where(v => !context.ForgeVersions.Any(fv => fv.Version == v.Version))
                     .ToArray();
@@ -152,8 +158,11 @@ namespace Portal
                 minecraftVersionList.Add(new MinecraftVersion
                 {
                     Version = version,
-                    DockerImageVersion = minecraftVersion.GetValue<string>("DockerImageVersion"),
-                    ForgeVersions = forgeVersions
+                    DockerImageVersion = minecraftVersionConfig.GetValue<string>("DockerImageVersion"),
+                    ForgeVersions = forgeVersions,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    Rank = minecraftVersionOrder++
                 });
             }
             await context.ForgeVersions.AddRangeAsync(forgeVersionList, cancellationToken);

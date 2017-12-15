@@ -1,0 +1,44 @@
+﻿@model Portal.Models.AdminViewModels.VersionDetailPostViewModel
+@{
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = "Edit Docker image version";
+}
+@section Sidebar {
+    @Html.Partial("Part/_AdminSidebar", 3)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
+}
+
+<h3>Edit Docker image version</h3>
+
+<hr/>
+
+<p>Edit Docker image version for Minecraft @Model.DockerImageVersionViewModel.MinecraftVersion.Version</p>
+<p>
+    Docker tag is like to <code>mc-{minecraft}-{version}</code>.
+</p>
+
+<form asp-controller="Admin" asp-action="Versions" asp-route-id="@Model.DockerImageVersionViewModel.MinecraftVersion.Id"
+      asp-route-subaction="DockerImageVersion" method="post" class="form-horizontal">
+    <div class="form-group">
+        <label asp-for="DockerImageVersionViewModel.Version" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="DockerImageVersionViewModel.Version" class="form-control" value="@Model.DockerImageVersionViewModel.Version"/>
+            <span asp-validation-for="DockerImageVersionViewModel.Version" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("Misc/_ValidationScriptsPartial"); }
+}

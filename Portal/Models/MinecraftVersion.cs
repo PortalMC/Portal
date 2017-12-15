@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Portal.Models
@@ -15,5 +16,15 @@ namespace Portal.Models
 
         [Required]
         public string DockerImageVersion { get; set; }
+
+        public int Rank { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime UpdatedAt { get; set; }
     }
 }

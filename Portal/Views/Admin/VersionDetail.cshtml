@@ -1,0 +1,129 @@
+﻿@using Portal.Settings
+@using Portal.Utils
+@model Portal.Models.AdminViewModels.VersionDetailViewModel
+@{
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = "Asset";
+    var count = Model.ForgeVersions.Count();
+}
+@section Sidebar {
+    @Html.Partial("Part/_AdminSidebar", 3)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
+}
+
+@switch (ViewBag.Message)
+{
+    case "success_save":
+        <div class="alert alert-success" role="alert">Saved successfully.</div>
+        break;
+    case "success_pull_image":
+        <div class="alert alert-success" role="alert">Pulling Docker image successfully.</div>
+        break;
+}
+
+<h3>Minecraft @Model.MinecraftVersion.Version</h3>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Information</h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">Id : <span class="font-weight-bold">@Model.MinecraftVersion.Id</span></li>
+        <li class="list-group-item">DockerImageVersion : <span class="font-weight-bold">@Model.MinecraftVersion.DockerImageVersion</span></li>
+    </ul>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Forge</h3>
+    </div>
+    <ul class="list-group">
+        @foreach (var forgeVersion in Model.ForgeVersions.Indexed())
+        {
+            <li class="list-group-item">
+                <div class="panel-btn-container">
+                    <div>
+                        <p>
+                            @forgeVersion.item.Version @if (forgeVersion.item.IsRecommend)
+                                                       {
+                                                           @:★
+                                                       }</p>
+                        <p>ID : @forgeVersion.item.Id</p>
+                    </div>
+                    @if (forgeVersion.index != 0)
+                    {
+                        <a class="btn btn-default btn-ordering-up" asp-controller="Admin" asp-action="Versions"
+                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                           asp-route-subsubaction="Up">
+                            ↑
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-default btn-ordering-up disabled">↑</a>
+                    }
+                    @if (forgeVersion.index != count - 1)
+                    {
+                        <a class="btn btn-default btn-ordering-down" asp-controller="Admin" asp-action="Versions"
+                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                           asp-route-subsubaction="Down">
+                            ↓
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-default btn-ordering-down disabled">↓</a>
+                    }
+                    <a class="btn btn-default btn-margin" asp-controller="Admin" asp-action="Versions"
+                       asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                       asp-route-subsubaction="Download">
+                        Download
+                    </a>
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Versions"
+                       asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                       asp-route-subsubaction="Edit">
+                        Edit
+                    </a>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Action</h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <div class="panel-btn-container">
+                <div>
+                    <p>Edit Docker image version</p>
+                    <p>Change Docker image version to use for building project.</p>
+                </div>
+                <a class="btn btn-default" asp-controller="Admin" asp-action="Versions"
+                   asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="DockerImageVersion">
+                    Edit
+                </a>
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class="panel-btn-container">
+                <div>
+                    <p>Pull Docker image</p>
+                    <p>Pulling Docker image for current Docker image version.</p>
+                </div>
+                <a class="btn btn-default" asp-controller="Admin" asp-action="Versions"
+                   asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="PullDockerImage">
+                    Start
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>

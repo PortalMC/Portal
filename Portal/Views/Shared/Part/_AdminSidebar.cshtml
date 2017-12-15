@@ -22,4 +22,11 @@
        asp-controller="Admin" asp-action="Snippet" asp-route-id="">
         Snippet
     </a>
+    <a class="list-group-item @if (Model == 3)
+                              {
+                                  @:active 
+                              }"
+       asp-controller="Admin" asp-action="Versions" asp-route-id="">
+        Versions
+    </a>
 </div>

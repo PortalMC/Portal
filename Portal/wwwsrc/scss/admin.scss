@@ -44,31 +44,24 @@ h3 + div.panel {
   margin-top: 20px;
 }
 
-.action-container {
-  display: flex;
-  align-items: flex-start;
-}
-
-.action-container > div {
-  margin-right: auto;
-}
-
-.action-container > div > p:first-child {
+.panel-btn-container > div > p:first-child {
   font-weight: 600;
   margin-bottom: 5px;
 }
 
-.action-container > div > p:last-child {
+.panel-btn-container > div > p:last-child {
   margin: 0;
 }
 
-.form-user-info {
+.form-user-info,
+.form-group-dummy {
   margin-right: -15px;
   margin-left: -15px;
   margin-bottom: 15px;
 }
 
-.form-user-info > span {
+.form-user-info > span,
+.form-group-dummy > span:first-child {
   text-align: right;
   font-weight: bold;
   line-height: 32px;
@@ -76,6 +69,10 @@ h3 + div.panel {
 
 .form-user-info > div > span {
   margin-left: 10px;
+}
+
+.form-group-dummy > span:last-child {
+  line-height: 32px;
 }
 
 .panel-btn-container {
@@ -95,4 +92,33 @@ h3 + div.panel {
   height: 50vh;
   margin-top: 20px;
   border: solid 1px #eee;
+}
+
+.btn-ordering-up {
+  margin-right: 8px;
+}
+
+.btn-ordering-down {
+  margin-right: 16px;
+}
+
+.btn-margin {
+  margin-right: 16px;
+}
+
+.form-group input[type="checkbox"] {
+  width: auto;
+  height: auto;
+}
+
+.form-group.form-group-checkbox div {
+  height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+.form-group input[type="file"] {
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }

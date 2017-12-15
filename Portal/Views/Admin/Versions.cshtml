@@ -1,0 +1,63 @@
+﻿@using Portal.Utils
+@using SmartFormat
+@model Portal.Models.AdminViewModels.VersionsIndexViewModel
+@{
+    Layout = "_SidebarLayout";
+    ViewBag.Title = "Admin Area";
+    ViewBag.SubTitle = "Asset";
+    var count = Model.MinecraftVersions.Count();
+}
+@section Sidebar {
+    @Html.Partial("Part/_AdminSidebar", 3)
+}
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/admin.css"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/admin.min.css"/>
+}
+
+@switch (ViewBag.Message)
+{
+    case "success_save_forge":
+        <div class="alert alert-success" role="alert">Forge version updated.</div>
+        break;
+}
+
+<h3>Versions</h3>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Minecraft</h3>
+    </div>
+    <ul class="list-group">
+        @foreach (var minecraftVersion in Model.MinecraftVersions.Indexed())
+        {
+            <li class="list-group-item">
+                <div class="panel-btn-container">
+                    <div>
+                        <p>@minecraftVersion.item.Version</p>
+                        <p>@Smart.Format("{0} {0:plural:child|childs} available.", minecraftVersion.item.ForgeVersions.Count())</p>
+                    </div>
+                    @if (minecraftVersion.index != 0)
+                    {
+                        <a class="btn btn-default btn-ordering-up" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Up">↑</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-default btn-ordering-up disabled">↑</a>
+                    }
+                    @if (minecraftVersion.index != count - 1)
+                    {
+                        <a class="btn btn-default btn-ordering-down" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Down">↓</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-default btn-ordering-down disabled">↓</a>
+                    }
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="">Detail</a>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
