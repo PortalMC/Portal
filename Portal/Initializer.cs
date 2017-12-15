@@ -63,7 +63,7 @@ namespace Portal
         private static async Task InitializeApiClientAsync(IServiceProvider services, CancellationToken cancellationToken)
         {
             var manager = services.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-            var clients = services.GetRequiredService<IConfiguration>().GetSection("Secure").GetSection("ApiClients");
+            var clients = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("ApiClients");
 
             foreach (var client in clients.GetChildren())
             {
@@ -93,7 +93,7 @@ namespace Portal
         {
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var users = services.GetRequiredService<IConfiguration>().GetSection("Secure").GetSection("DefaultUsers");
+            var users = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("DefaultUsers");
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(Initializer).Name);
 
             foreach (var user in users.GetChildren())

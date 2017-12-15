@@ -1,0 +1,11 @@
+﻿{
+    "Init": {
+        "DefaultUsers": [
+            {
+                "UserName": "admin@example.com",
+                "Password": "P@ssw0rd",
+                "Role": "Admin"
+            }
+        ]
+    }
+}
