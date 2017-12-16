@@ -3,6 +3,7 @@
     public class VersionsPostViewModel
     {
         public NewVersionViewModel NewVersionViewModel { get; set; }
+        public NewForgeVersionViewModel NewForgeVersionViewModel { get; set; }
         public VersionDetailDockerImageVersionViewModel DockerImageVersionViewModel { get; set; }
         public VersionDetailForgeEditViewModel ForgeEditViewModel { get; set; }
     }

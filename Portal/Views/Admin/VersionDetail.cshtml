@@ -25,6 +25,9 @@
     case "success_create":
         <div class="alert alert-success" role="alert">Created successfully.</div>
         break;
+    case "success_create_forge":
+        <div class="alert alert-success" role="alert">Created new Forge successfully.</div>
+        break;
     case "success_pull_image":
         <div class="alert alert-success" role="alert">Pulling Docker image successfully.</div>
         break;
@@ -43,10 +46,10 @@
 </div>
 
 <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading panel-heading-btn">
         <h3 class="panel-title">Forge</h3>
+        <a class="btn btn-sm btn-success" asp-controller="Admin" asp-action="Versions" asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="New">New</a>
     </div>
-
     @if (!Model.ForgeVersions.Any())
     {
         <div class="panel-body">

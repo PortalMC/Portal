@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading;
@@ -238,7 +239,9 @@ namespace Portal.Controllers
         // GET /Admin/Versions/{uuid:minecraftVersion}
         // GET /Admin/Versions/{uuid:minecraftVersion}/Up
         // GET /Admin/Versions/{uuid:minecraftVersion}/Down
+        // GET /Admin/Versions/{uuid:minecraftVersion}/New
         // GET /Admin/Versions/{uuid:minecraftVersion}/DockerImageVersion
+        // GET /Admin/Versions/{uuid:minecraftVersion}/PullDockerImage
         // GET /Admin/Versions/{uuid:minecraftVersion}/{uuid:forgeVersion}/Up
         // GET /Admin/Versions/{uuid:minecraftVersion}/{uuid:forgeVersion}/Down
         // GET /Admin/Versions/{uuid:minecraftVersion}/{uuid:forgeVersion}/Download
@@ -290,6 +293,17 @@ namespace Portal.Controllers
                             {"id", ""},
                             {"subaction", ""},
                             {"subsubaction", ""}
+                        });
+                    }
+                    case "New":
+                    {
+                        var minecraftVersion = await _context.MinecraftVersions.FindAsync(id);
+                        return View("VersionDetailNew", new VersionsPostViewModel
+                        {
+                            NewForgeVersionViewModel = new NewForgeVersionViewModel
+                            {
+                                MinecraftVersion = minecraftVersion
+                            }
                         });
                     }
                     case "DockerImageVersion":
@@ -412,6 +426,7 @@ namespace Portal.Controllers
         }
 
         // POST /Admin/Versions/New
+        // POST /Admin/Versions/{uuid:minecraftVersionId}/New
         // POST /Admin/Versions/{uuid:minecraftVersionId}/DockerImageVersion
         // POST /Admin/Versions/{uuid:minecraftVersionId}/{uuid:forgeVersionId}/Edit
         [HttpPost("Versions/{id?}/{subaction?}/{subsubaction?}")]
@@ -454,9 +469,38 @@ namespace Portal.Controllers
             {
                 return NotFound();
             }
-            var minecraftVersion = await _context.MinecraftVersions.FindAsync(id);
+            var minecraftVersion = await _context.MinecraftVersions.Include(v => v.ForgeVersions).FirstOrDefaultAsync(v => v.Id == id);
             switch (subaction)
             {
+                case "New":
+                {
+                    if (_context.ForgeVersions.Any(v => v.Version == model.NewForgeVersionViewModel.Version))
+                    {
+                        return BadRequest();
+                    }
+                    var newForgeList = new List<ForgeVersion>(minecraftVersion.ForgeVersions);
+                    var forgeVersion = await _context.ForgeVersions.AddAsync(new ForgeVersion
+                    {
+                        Version = model.NewForgeVersionViewModel.Version,
+                        IsRecommend = model.NewForgeVersionViewModel.IsRecommend
+                    });
+                    newForgeList.Add(forgeVersion.Entity);
+                    minecraftVersion.ForgeVersions = newForgeList;
+                    _context.MinecraftVersions.Update(minecraftVersion);
+                    await _context.SaveChangesAsync();
+                    var file = _storageSetting.GetForgeStorageSetting().GetForgeZipFile(minecraftVersion, forgeVersion.Entity);
+                    file.Directory.Create();
+                    using (var target = file.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                    {
+                        await model.NewForgeVersionViewModel.ForgeZipFile.CopyToAsync(target);
+                    }
+                    return RedirectToAction(nameof(Versions), "Admin", new RouteValueDictionary
+                    {
+                        {"id", id},
+                        {"subaction", ""},
+                        {"message", "success_create_forge"}
+                    });
+                }
                 case "DockerImageVersion":
                 {
                     minecraftVersion.DockerImageVersion = model.DockerImageVersionViewModel.Version;

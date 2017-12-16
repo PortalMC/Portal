@@ -123,3 +123,12 @@ div.header-btn + div.panel {
   box-shadow: none;
   padding: 0;
 }
+
+.panel-heading-btn {
+  display: flex;
+  align-items: center;
+
+  h3 {
+    flex: 1;
+  }
+}
