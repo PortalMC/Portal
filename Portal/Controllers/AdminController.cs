@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading;
@@ -233,6 +234,7 @@ namespace Portal.Controllers
         }
 
         // GET /Admin/Versions
+        // GET /Admin/Versions/New
         // GET /Admin/Versions/{uuid:minecraftVersion}
         // GET /Admin/Versions/{uuid:minecraftVersion}/Up
         // GET /Admin/Versions/{uuid:minecraftVersion}/Down
@@ -293,7 +295,7 @@ namespace Portal.Controllers
                     case "DockerImageVersion":
                     {
                         var minecraftVersion = await _context.MinecraftVersions.FindAsync(id);
-                        return View("VersionDetailDockerImageVersion", new VersionDetailPostViewModel
+                        return View("VersionDetailDockerImageVersion", new VersionsPostViewModel
                         {
                             DockerImageVersionViewModel = new VersionDetailDockerImageVersionViewModel
                             {
@@ -323,6 +325,13 @@ namespace Portal.Controllers
                         return await ForgeVersion(id, subaction, subsubaction);
                     }
                 }
+            }
+            if (id == "New")
+            {
+                return View("NewVersion", new VersionsPostViewModel
+                {
+                    NewVersionViewModel = new NewVersionViewModel()
+                });
             }
             if (id != null)
             {
@@ -387,7 +396,7 @@ namespace Portal.Controllers
                 case "Edit":
                 {
                     var forgeVersion = await _context.ForgeVersions.FindAsync(forgeVersionId);
-                    return View("VersionDetailForgeEdit", new VersionDetailPostViewModel
+                    return View("VersionDetailForgeEdit", new VersionsPostViewModel
                     {
                         ForgeEditViewModel = new VersionDetailForgeEditViewModel
                         {
@@ -402,12 +411,45 @@ namespace Portal.Controllers
             return NotFound();
         }
 
+        // POST /Admin/Versions/New
         // POST /Admin/Versions/{uuid:minecraftVersionId}/DockerImageVersion
         // POST /Admin/Versions/{uuid:minecraftVersionId}/{uuid:forgeVersionId}/Edit
         [HttpPost("Versions/{id?}/{subaction?}/{subsubaction?}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Versions(string id, string subaction, string subsubaction, VersionDetailPostViewModel model)
+        public async Task<IActionResult> Versions(string id, string subaction, string subsubaction, VersionsPostViewModel model)
         {
+            switch (id)
+            {
+                case "New":
+                {
+                    if (await _context.MinecraftVersions.AnyAsync(v => v.Version == model.NewVersionViewModel.Version))
+                    {
+                        return BadRequest();
+                    }
+                    var maxRank = await _context.MinecraftVersions
+                        .AsNoTracking()
+                        .OrderByDescending(v => v.Rank)
+                        .Select(v => v.Rank + 1)
+                        .FirstOrDefaultAsync();
+                    var now = DateTime.UtcNow;
+                    var entry = await _context.MinecraftVersions.AddAsync(new MinecraftVersion
+                    {
+                        Version = model.NewVersionViewModel.Version,
+                        DockerImageVersion = model.NewVersionViewModel.DockerImageVersion,
+                        ForgeVersions = new List<ForgeVersion>(),
+                        CreatedAt = now,
+                        UpdatedAt = now,
+                        Rank = maxRank
+                    });
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Versions), "Admin", new RouteValueDictionary
+                    {
+                        {"id", entry.Entity.Id},
+                        {"subaction", ""},
+                        {"message", "success_create"}
+                    });
+                }
+            }
             if (!Util.IsCorrectUuid(id))
             {
                 return NotFound();
@@ -434,7 +476,7 @@ namespace Portal.Controllers
             }
         }
 
-        private async Task<IActionResult> ForgeVersion(string minecraftVersionId, string forgeVersionId, string action, VersionDetailPostViewModel model)
+        private async Task<IActionResult> ForgeVersion(string minecraftVersionId, string forgeVersionId, string action, VersionsPostViewModel model)
         {
             var minecraftVersion = await _context.MinecraftVersions.FindAsync(minecraftVersionId);
             if (minecraftVersion == null)

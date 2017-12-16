@@ -40,7 +40,8 @@ input {
   font-weight: 600;
 }
 
-h3 + div.panel {
+h3 + div.panel,
+div.header-btn + div.panel {
   margin-top: 20px;
 }
 
