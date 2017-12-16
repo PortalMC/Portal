@@ -46,57 +46,69 @@
     <div class="panel-heading">
         <h3 class="panel-title">Forge</h3>
     </div>
-    <ul class="list-group">
-        @foreach (var forgeVersion in Model.ForgeVersions.Indexed())
-        {
-            <li class="list-group-item">
-                <div class="panel-btn-container">
-                    <div>
-                        <p>
-                            @forgeVersion.item.Version @if (forgeVersion.item.IsRecommend)
-                                                       {
-                                                           @:★
-                                                       }</p>
-                        <p>Id : <span class="font-weight-bold">@forgeVersion.item.Id</span></p>
+
+    @if (!Model.ForgeVersions.Any())
+    {
+        <div class="panel-body">
+            No Forge version found.
+        </div>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var forgeVersion in Model.ForgeVersions.Indexed())
+            {
+                <li class="list-group-item">
+                    <div class="panel-btn-container">
+                        <div>
+                            <p>
+                                @forgeVersion.item.Version @if (forgeVersion.item.IsRecommend)
+                                                           {
+                                                               @:★
+                                                           }</p>
+                            <p>
+                                Id : <span class="font-weight-bold">@forgeVersion.item.Id</span>
+                            </p>
+                        </div>
+                        @if (forgeVersion.index != 0)
+                        {
+                            <a class="btn btn-default btn-ordering-up" asp-controller="Admin" asp-action="Versions"
+                               asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                               asp-route-subsubaction="Up">
+                                ↑
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default btn-ordering-up disabled">↑</a>
+                        }
+                        @if (forgeVersion.index != count - 1)
+                        {
+                            <a class="btn btn-default btn-ordering-down" asp-controller="Admin" asp-action="Versions"
+                               asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                               asp-route-subsubaction="Down">
+                                ↓
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default btn-ordering-down disabled">↓</a>
+                        }
+                        <a class="btn btn-default btn-margin" asp-controller="Admin" asp-action="Versions"
+                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                           asp-route-subsubaction="Download">
+                            Download
+                        </a>
+                        <a class="btn btn-primary" asp-controller="Admin" asp-action="Versions"
+                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
+                           asp-route-subsubaction="Edit">
+                            Edit
+                        </a>
                     </div>
-                    @if (forgeVersion.index != 0)
-                    {
-                        <a class="btn btn-default btn-ordering-up" asp-controller="Admin" asp-action="Versions"
-                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
-                           asp-route-subsubaction="Up">
-                            ↑
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-default btn-ordering-up disabled">↑</a>
-                    }
-                    @if (forgeVersion.index != count - 1)
-                    {
-                        <a class="btn btn-default btn-ordering-down" asp-controller="Admin" asp-action="Versions"
-                           asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
-                           asp-route-subsubaction="Down">
-                            ↓
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-default btn-ordering-down disabled">↓</a>
-                    }
-                    <a class="btn btn-default btn-margin" asp-controller="Admin" asp-action="Versions"
-                       asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
-                       asp-route-subsubaction="Download">
-                        Download
-                    </a>
-                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Versions"
-                       asp-route-id="@Model.MinecraftVersion.Id" asp-route-subaction="@forgeVersion.item.Id"
-                       asp-route-subsubaction="Edit">
-                        Edit
-                    </a>
-                </div>
-            </li>
-        }
-    </ul>
+                </li>
+            }
+        </ul>
+    }
 </div>
 
 <div class="panel panel-default">
