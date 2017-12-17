@@ -10,7 +10,7 @@
         IgnoreSection("Foot");
     }
 }
-@if (_env.EnvironmentName == "Staging,Production")
+@if (_env.EnvironmentName == "Staging" || _env.EnvironmentName == "Production")
 {
     if (IsSectionDefined("HeadDevelopment"))
     {
