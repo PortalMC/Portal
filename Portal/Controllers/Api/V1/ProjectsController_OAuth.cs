@@ -30,8 +30,8 @@ namespace Portal.Controllers.Api.V1
                     {
                         {"id", new JValue(p.Id)},
                         {"name", new JValue(p.Name)},
-                        {"minecraftVersion", new JValue(p.MinecraftVersion)},
-                        {"forgeVersion", new JValue(p.ForgeVersion)}
+                        {"minecraftVersion", new JValue(p.MinecraftVersion.Version)},
+                        {"forgeVersion", new JValue(p.ForgeVersion.Version)}
                     }
                 )
                 .ToArrayAsync();
