@@ -10,6 +10,7 @@ namespace Portal.Settings
         public string SourceDir { get; }
         public string BuildDir { get; }
         public int OutputBufferSize { get; }
+        public bool DeleteTempAfterBuild { get; }
 
         public DockerBuildMethodSetting(IConfiguration configuration)
         {
@@ -18,6 +19,7 @@ namespace Portal.Settings
             SourceDir = configuration.GetValue<string>("SourceDir");
             BuildDir = configuration.GetValue<string>("BuildDir");
             OutputBufferSize = configuration.GetValue<int>("OutputBufferSize");
+            DeleteTempAfterBuild = configuration.GetValue<bool>("DeleteTempAfterBuild");
         }
     }
 }

@@ -133,7 +133,10 @@ namespace Portal.Services
                 return;
             }
             await _storageSetting.GetArtifactStorageSetting().AfterBuildAsync(project.Id, artifactFile, buildId);
-            destination.Delete(true);
+            if (_dockerSetting.DeleteTempAfterBuild)
+            {
+                destination.Delete(true);
+            }
         }
     }
 }
