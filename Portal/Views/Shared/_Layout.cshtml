@@ -1,4 +1,28 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment _env
+@if (_env.EnvironmentName == "Development")
+{
+    if (IsSectionDefined("Head"))
+    {
+        IgnoreSection("Head");
+    }
+    if (IsSectionDefined("Foot"))
+    {
+        IgnoreSection("Foot");
+    }
+}
+@if (_env.EnvironmentName == "Staging" || _env.EnvironmentName == "Production")
+{
+    if (IsSectionDefined("HeadDevelopment"))
+    {
+        IgnoreSection("HeadDevelopment");
+    }
+    if (IsSectionDefined("FootDevelopment"))
+    {
+        IgnoreSection("FootDevelopment");
+    }
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -7,11 +31,11 @@
 
     <environment names="Development">
         @Html.Partial("Lib/_Bootstrap.css")
-        <link rel="stylesheet" href="~/css/common.css"/>
+        @RenderSection("HeadDevelopment", false)
     </environment>
     <environment names="Staging,Production">
         @Html.Partial("Lib/_Bootstrap.min.css")
-        <link rel="stylesheet" href="~/css/common.min.css" asp-append-version="true"/>
+        @RenderSection("Head", false)
     </environment>
 </head>
 <body>
@@ -28,13 +52,13 @@
     @Html.Partial("Lib/_Popper.js")
     @Html.Partial("Lib/_jQuery.js")
     @Html.Partial("Lib/_Bootstrap.js")
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("FootDevelopment", false)
 </environment>
 <environment names="Staging,Production">
     @Html.Partial("Lib/_Popper.min.js")
     @Html.Partial("Lib/_jQuery.min.js")
     @Html.Partial("Lib/_Bootstrap.min.js")
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
+    @RenderSection("Foot", false)
 </environment>
 @RenderSection("Scripts", false)
 </body>
