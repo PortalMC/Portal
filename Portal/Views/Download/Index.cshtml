@@ -9,7 +9,7 @@
     @Html.Partial("Part/_DownloadSidebar", 0)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/download.css"/>
+    <link rel="stylesheet" href="~/css/download.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/download.min.css"/>
@@ -17,14 +17,15 @@
 
 <h3>Download</h3>
 
-<div class="panel panel-default">
-    <ul class="list-group">
+<div class="card">
+    <ul class="list-group list-group-flush">
         @foreach (var minecraftVersion in DbContext.MinecraftVersions.AsEnumerable())
         {
             <li class="list-group-item">
-                <div class="panel-btn-container">
+                <div class="card-item-btn-container">
                     <p>Minecraft @minecraftVersion.Version</p>
-                    <a class="btn btn-success" asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">Download</a>
+                    <a class="btn btn-sm btn-outline-success" asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">Coremod</a>
+                    <a class="btn btn-sm btn-outline-success ml-2" asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">Property</a>
                 </div>
             </li>
         }
