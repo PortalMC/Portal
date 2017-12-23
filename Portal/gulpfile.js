@@ -151,6 +151,12 @@ gulp.task("create_fine_uploader", function () {
         .pipe(gulp.dest("./wwwroot/lib/fine-uploader"))
 });
 
+gulp.task("create_popper_js", function () {
+    return gulp.src("./node_modules/popper.js/dist/umd/**")
+        .pipe(gulp.dest("./wwwroot/lib/popper.js"))
+});
+
+
 gulp.task("create", function (callback) {
     return sequence(
         [
@@ -165,7 +171,8 @@ gulp.task("create", function (callback) {
             "create_jquery_ui_contextmenu",
             "create_ace_editor",
             "create_font_awesome",
-            "create_fine_uploader"
+            "create_fine_uploader",
+            "create_popper_js"
         ],
         callback
     );

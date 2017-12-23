@@ -25,11 +25,13 @@
 </div>
 
 <environment names="Development">
+    @Html.Partial("Lib/_Popper.js")
     @Html.Partial("Lib/_jQuery.js")
     @Html.Partial("Lib/_Bootstrap.js")
     <script src="~/js/site.js" asp-append-version="true"></script>
 </environment>
 <environment names="Staging,Production">
+    @Html.Partial("Lib/_Popper.min.js")
     @Html.Partial("Lib/_jQuery.min.js")
     @Html.Partial("Lib/_Bootstrap.min.js")
     <script src="~/js/site.min.js" asp-append-version="true"></script>
