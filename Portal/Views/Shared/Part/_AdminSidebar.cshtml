@@ -1,32 +1,29 @@
 ﻿@model int
-
-<div class="col-sm-3 list-group">
-    <a class="list-group-item @if (Model == 0)
-                              {
-                                  @:active
-                              }"
-       asp-controller="Admin" asp-action="Index" asp-route-id="">
-        General
-    </a>
-    <a class="list-group-item @if (Model == 1)
-                              {
-                                  @:active 
-                              }"
-       asp-controller="Admin" asp-action="Users" asp-route-id="">
-        Users
-    </a>
-    <a class="list-group-item @if (Model == 2)
-                              {
-                                  @:active 
-                              }"
-       asp-controller="Admin" asp-action="Snippet" asp-route-id="">
-        Snippet
-    </a>
-    <a class="list-group-item @if (Model == 3)
-                              {
-                                  @:active 
-                              }"
-       asp-controller="Admin" asp-action="Versions" asp-route-id="">
-        Versions
-    </a>
-</div>
+<a class="list-group-item @if (Model == 0)
+                          {
+                              @:active
+                          }"
+   asp-controller="Admin" asp-action="Index" asp-route-id="">
+    General
+</a>
+<a class="list-group-item @if (Model == 1)
+                          {
+                              @:active 
+                          }"
+   asp-controller="Admin" asp-action="Users" asp-route-id="">
+    Users
+</a>
+<a class="list-group-item @if (Model == 2)
+                          {
+                              @:active 
+                          }"
+   asp-controller="Admin" asp-action="Snippet" asp-route-id="">
+    Snippet
+</a>
+<a class="list-group-item @if (Model == 3)
+                          {
+                              @:active 
+                          }"
+   asp-controller="Admin" asp-action="Versions" asp-route-id="">
+    Versions
+</a>

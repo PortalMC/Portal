@@ -1,20 +1,8 @@
-﻿@import "modules/sidebar";
+﻿@import "modules/common";
+@import "modules/sidebar";
+@import "modules/bs_card";
 
-input {
-  max-width: inherit;
-}
-
-.header-btn {
-  display: flex;
-}
-
-.header-btn > h3 {
-  flex: 1;
-}
-
-.header-btn > a {
-  align-self: center;
-}
+// Users list
 
 #admin-user-container {
   margin-top: 15px;
@@ -26,74 +14,21 @@ input {
   align-items: center;
   padding: 15px 0 15px 0;
   border-bottom: 1px solid #eee;
+
+  > *:last-child {
+    margin-left: auto;
+  }
 }
 
-.admin-user > *:last-child {
-  margin-left: auto;
-}
-
-.admin-user-email {
-  margin: 0 10px;
-}
-
-.font-weight-bold {
-  font-weight: 600;
-}
-
-h3 + div.panel,
-div.header-btn + div.panel {
-  margin-top: 20px;
-}
-
-.panel-btn-container > div > p:first-child {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-
-.panel-btn-container > div > p:last-child {
-  margin: 0;
-}
-
-.form-user-info,
-.form-group-dummy {
-  margin-right: -15px;
-  margin-left: -15px;
-  margin-bottom: 15px;
-}
-
-.form-user-info > span,
-.form-group-dummy > span:first-child {
-  text-align: right;
-  font-weight: bold;
-  line-height: 32px;
-}
-
-.form-user-info > div > span {
-  margin-left: 10px;
-}
-
-.form-group-dummy > span:last-child {
-  line-height: 32px;
-}
-
-.panel-btn-container {
-  display: flex;
-  align-items: center;
-}
-
-.panel-btn-container > *:first-child {
-  margin-right: auto;
-}
-
-.panel-btn-container > p {
-  margin-bottom: 0;
-}
+// Snippet editor
 
 #snippet-editor {
   height: 50vh;
   margin-top: 20px;
   border: solid 1px #eee;
 }
+
+// Ordering button
 
 .btn-ordering-up {
   margin-right: 8px;
@@ -103,32 +38,37 @@ div.header-btn + div.panel {
   margin-right: 16px;
 }
 
-.btn-margin {
-  margin-right: 16px;
+// Dummy form
+
+.form-group-dummy {
+  margin-right: -15px;
+  margin-left: -15px;
+  margin-bottom: 15px;
+
+  > span:first-child {
+    line-height: 32px;
+  }
+
+  > span:last-child {
+    line-height: 32px;
+  }
 }
 
-.form-group input[type="checkbox"] {
-  width: auto;
-  height: auto;
-}
+// Form
 
-.form-group.form-group-checkbox div {
-  height: 34px;
-  display: flex;
-  align-items: center;
-}
+.form-group {
+  div {
+    align-self: center;
+  }
 
-.form-group input[type="file"] {
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
+  input[type="checkbox"] {
+    width: auto;
+    height: auto;
+  }
 
-.panel-heading-btn {
-  display: flex;
-  align-items: center;
-
-  h3 {
-    flex: 1;
+  input[type="file"] {
+    border: none;
+    box-shadow: none;
+    padding: 0;
   }
 }

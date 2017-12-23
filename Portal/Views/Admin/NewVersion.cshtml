@@ -8,7 +8,7 @@
     @Html.Partial("Part/_AdminSidebar", 3)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
@@ -16,25 +16,25 @@
 
 <h3>Create new Minecraft version</h3>
 <hr/>
-<form asp-controller="Admin" asp-action="Versions" asp-route-id="New" method="post" class="form-horizontal">
+<form asp-controller="Admin" asp-action="Versions" asp-route-id="New" method="post">
     <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="NewVersionViewModel.Version" class="col-md-3 control-label"></label>
+    <div class="form-group row">
+        <label asp-for="NewVersionViewModel.Version" class="col-md-3 col-form-label"></label>
         <div class="col-md-9">
             <input asp-for="NewVersionViewModel.Version" class="form-control"/>
             <span asp-validation-for="NewVersionViewModel.Version" class="text-danger"></span>
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="NewVersionViewModel.DockerImageVersion" class="col-md-3 control-label"></label>
+    <div class="form-group row">
+        <label asp-for="NewVersionViewModel.DockerImageVersion" class="col-md-3 col-form-label"></label>
         <div class="col-md-9">
             <input asp-for="NewVersionViewModel.DockerImageVersion" class="form-control"/>
             <span asp-validation-for="NewVersionViewModel.DockerImageVersion" class="text-danger"></span>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-3 col-md-9">
-            <button type="submit" class="btn btn-default">Create</button>
+    <div class="form-group row">
+        <div class="col-md-9 offset-md-3">
+            <button type="submit" class="btn btn-primary">Create</button>
         </div>
     </div>
 </form>

@@ -1,0 +1,46 @@
+.card {
+  margin-top: 20px;
+}
+
+.card-header {
+  padding: 10px 15px;
+}
+
+.card {
+  .list-group-item {
+    padding: 10px 15px;
+  }
+}
+
+.card-item-btn-container {
+  display: flex;
+  align-items: center;
+
+  > *:first-child {
+    margin-right: auto;
+  }
+
+  > p {
+    margin-bottom: 0;
+  }
+
+  > div {
+    > p:first-child {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    p:last-child {
+      margin: 0;
+    }
+  }
+}
+
+.card-header-btn {
+  display: flex;
+  align-items: center;
+
+  span {
+    flex: 1;
+  }
+}

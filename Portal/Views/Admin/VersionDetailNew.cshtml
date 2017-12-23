@@ -8,7 +8,7 @@
     @Html.Partial("Part/_AdminSidebar", 3)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
@@ -19,33 +19,33 @@
 <hr/>
 
 <form asp-controller="Admin" asp-action="Versions" asp-route-id="@Model.NewForgeVersionViewModel.MinecraftVersion.Id"
-      asp-route-subaction="New" method="post" class="form-horizontal" enctype="multipart/form-data">
-    <div class="row form-group-dummy">
+      asp-route-subaction="New" method="post" enctype="multipart/form-data">
+    <div class="form-group-dummy row">
         <span class="col-md-2">Minecraft</span>
         <span class="col-md-10">@Model.NewForgeVersionViewModel.MinecraftVersion.Version</span>
     </div>
-    <div class="form-group">
-        <label asp-for="NewForgeVersionViewModel.Version" class="col-md-2 control-label">Name</label>
+    <div class="form-group row">
+        <label asp-for="NewForgeVersionViewModel.Version" class="col-md-2 col-form-label">Name</label>
         <div class="col-md-10">
             <input asp-for="NewForgeVersionViewModel.Version" class="form-control" value="@Model.NewForgeVersionViewModel.Version"/>
             <span asp-validation-for="NewForgeVersionViewModel.Version" class="text-danger"></span>
         </div>
     </div>
-    <div class="form-group form-group-checkbox">
-        <label asp-for="NewForgeVersionViewModel.IsRecommend" class="col-md-2 control-label">IsRecommend</label>
+    <div class="form-group row">
+        <label asp-for="NewForgeVersionViewModel.IsRecommend" class="col-md-2 col-form-label">IsRecommend</label>
         <div class="col-md-10">
             <input asp-for="NewForgeVersionViewModel.IsRecommend" class="form-control" type="checkbox"/>
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="NewForgeVersionViewModel.ForgeZipFile" class="col-md-2 control-label">Template File</label>
+    <div class="form-group row">
+        <label asp-for="NewForgeVersionViewModel.ForgeZipFile" class="col-md-2 col-form-label">Template File</label>
         <div class="col-md-10">
             <input asp-for="NewForgeVersionViewModel.ForgeZipFile" class="form-control" type="file" accept=".zip"/>
             <span asp-validation-for="NewForgeVersionViewModel.ForgeZipFile" class="text-danger"></span>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
+    <div class="form-group row">
+        <div class="col-md-10 offset-md-2">
             <button type="submit" class="btn btn-primary">Create</button>
         </div>
     </div>

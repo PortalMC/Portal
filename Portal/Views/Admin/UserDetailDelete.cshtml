@@ -9,7 +9,7 @@
     @Html.Partial("Part/_AdminSidebar", 1)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
@@ -23,24 +23,24 @@
 </p>
 <p>Please type in the username to confirm.</p>
 
-<form asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete" asp-route-returnurl="@ViewBag.ReturnUrl" method="post" class="form-horizontal">
-    <div class="row form-user-info">
+<form asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete" asp-route-returnurl="@ViewBag.ReturnUrl" method="post">
+    <div class="form-group-dummy row">
         <span class="col-md-2">User</span>
         <div class="col-md-10">
-            @Html.GravatarImage(Model.User.Email, 32, GravatarHtmlHelper.DefaultImage.Identicon)
-            <span>@Model.User.UserName</span>
+            @Html.GravatarImage(Model.User.Email, 32, GravatarHtmlHelper.DefaultImage.Identicon, cssClass: "rounded")
+            <span class="ml-2">@Model.User.UserName</span>
         </div>
     </div>
     <input asp-for="DeleteViewModel.UserNameConfirm" class="form-control" type="hidden" value="@Model.User.UserName"/>
-    <div class="form-group">
-        <label asp-for="DeleteViewModel.UserName" class="col-md-2 control-label"></label>
+    <div class="form-group row">
+        <label asp-for="DeleteViewModel.UserName" class="col-md-2 col-form-label"></label>
         <div class="col-md-10">
             <input asp-for="DeleteViewModel.UserName" class="form-control"/>
             <span asp-validation-for="DeleteViewModel.UserName" class="text-danger"></span>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
+    <div class="form-group row">
+        <div class="col-md-10 offset-md-2">
             <button type="submit" class="btn btn-danger">Delete</button>
         </div>
     </div>
