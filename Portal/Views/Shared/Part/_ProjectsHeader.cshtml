@@ -1,7 +1,7 @@
 ﻿@model int
-<div id="project-header" class="body-content">
+<div id="project-header" class="body-content pt-3">
     <div class="container">
-        <div id="project-page-title" class="page-title">
+        <div id="project-page-title" class="pb-2">
             <h2>@ViewBag.Name</h2>
             <a class="btn btn-success" role="button" asp-area="" asp-controller="Projects" asp-action="Editor" asp-route-uuid="@ViewBag.Uuid"><i class="fa fa-edit" aria-hidden="true"></i> Open in editor</a>
         </div>
@@ -10,19 +10,25 @@
                 {
                     @:class="active"
                 }>
-                <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="@ViewBag.Uuid"><i class="fa fa-desktop" aria-hidden="true"></i> Overview</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="@ViewBag.Uuid">
+                    <i class="fa fa-desktop mr-1" aria-hidden="true"></i>Overview
+                </a>
             </li>
             <li @if (Model == 1)
                 {
                     @:class="active"
                 }>
-                <a asp-area="" asp-controller="Projects" asp-action="Builds" asp-route-uuid="@ViewBag.Uuid"><i class="fa fa-server" aria-hidden="true"></i> Builds</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Builds" asp-route-uuid="@ViewBag.Uuid">
+                    <i class="fa fa-server mr-1" aria-hidden="true"></i>Builds
+                </a>
             </li>
             <li @if (Model == 2)
                 {
                     @:class="active"
                 }>
-                <a asp-area="" asp-controller="Projects" asp-action="Settings" asp-route-uuid="@ViewBag.Uuid"><i class="fa fa-cog" aria-hidden="true"></i> Settings</a>
+                <a asp-area="" asp-controller="Projects" asp-action="Settings" asp-route-uuid="@ViewBag.Uuid">
+                    <i class="fa fa-cog mr-1" aria-hidden="true"></i>Settings
+                </a>
             </li>
         </ul>
     </div>

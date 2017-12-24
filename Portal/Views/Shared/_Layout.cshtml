@@ -40,6 +40,10 @@
 </head>
 <body>
 @await Html.PartialAsync("Part/_Toolbar")
+@if (IsSectionDefined("Header"))
+{
+    @RenderSection("Header", false)
+}
 <div class="container body-content">
     @RenderBody()
     <hr/>

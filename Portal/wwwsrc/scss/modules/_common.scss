@@ -12,6 +12,19 @@ body {
   border-radius: 0.15rem;
 }
 
+.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+  cursor: pointer;
+
+  &:hover {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+  }
+}
+
 .font-weight-bold {
   font-weight: 600;
 }

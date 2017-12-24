@@ -2,19 +2,29 @@
 @using Portal.Utils
 @model Portal.Models.ProjectsViewModel.IndexViewModel
 @{
-    Layout = "_ProjectsLayout";
+    Layout = "_Layout";
     ViewBag.Title = "Projects";
 }
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/projects.css" asp-append-version="true"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/projects.min.css"/>
+}
+@section FootDevelopment {
+    <script src="~/js/projects.js" asp-append-version="true"></script>
+}
+@section Foot {
+    <script src="~/js/projects.min.js"></script>
+}
 
-<h2>Projects</h2>
+<h2 class="mt-3">Projects</h2>
 
-<div class="projects-search form-group">
+<div class="form-group mt-4">
     <form class="form-inline" accept-charset="UTF-8">
-        <div class="projects-search-input">
-            <input class="form-control" type="text" placeholder="Search projects..."/>
-        </div>
-        <div class="projects-search-new">
-            <a class="btn btn-success" asp-controller="Projects" asp-action="Index" asp-route-uuid="New">
+        <input id="projects-search-input" class="form-control mr-4" type="text" placeholder="Search projects..."/>
+        <div>
+            <a class="btn btn-success btn-svg-icon" asp-controller="Projects" asp-action="Index" asp-route-uuid="New">
                 @Html.Partial("~/Views/Shared/Icon/_MinecraftPickAxe.cshtml")
                 New
             </a>
@@ -22,22 +32,22 @@
     </form>
 </div>
 
-<div class="projects-list">
+<div id="projects-list">
     <ul>
         @foreach (var item in Model.Projects)
         {
             <li>
-                <div class="projects-title">
+                <div>
                     <h3>
                         <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="@item.Id">@item.Name</a>
                     </h3>
                 </div>
-                <div class="projects-info">
-                    <span>
+                <div>
+                    <span class="svg-icon-18">
                         @Html.Partial("~/Views/Shared/Icon/_MinecraftDirt.cshtml")
                         Minecraft @item.MinecraftVersion.Version
                     </span>
-                    <span>
+                    <span class="svg-icon-18">
                         @Html.Partial("~/Views/Shared/Icon/_MinecraftDiamond.cshtml")
                         Forge @item.ForgeVersion.Version
                     </span>

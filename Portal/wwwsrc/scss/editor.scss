@@ -1,4 +1,6 @@
-﻿body {
+﻿@import "modules/common";
+
+body {
   height: 100vh;
   min-height: 100vh;
   display: flex;
@@ -274,6 +276,7 @@ span.fancytree-node > span {
   margin-bottom: 0;
   border: none;
   border-radius: 0;
+  background-color: unset;
 }
 
 .breadcrumb > li + li:before {
@@ -296,13 +299,17 @@ span.fancytree-node > span {
 #editor-menu .dropdown-toggle {
   margin: 6px;
   cursor: default;
+
+  &::after {
+    display: none
+  }
 }
 
-#editor-menu .open {
+#editor-menu .show {
   background-color: #1a7dc4;
 }
 
-#editor-menu .open .dropdown-toggle {
+#editor-menu .show .dropdown-toggle {
   color: white;
 }
 
@@ -336,6 +343,7 @@ span.fancytree-node > span {
   margin: 0;
   padding: 0;
   cursor: default;
+  color: #333;
 }
 
 #editor-menu .dropdown-menu > li > i {

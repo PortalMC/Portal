@@ -1,8 +1,21 @@
 ﻿@{
-    Layout = "_ProjectsLayout";
+    Layout = "_Layout";
     ViewBag.Title = "Builds - " + ViewBag.Name;
 }
-
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
+    <link rel="stylesheet" href="~/css/projects.css" asp-append-version="true"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="~/css/projects.min.css"/>
+}
+@section FootDevelopment {
+    <script src="~/js/projects.js" asp-append-version="true"></script>
+}
+@section Foot {
+    <script src="~/js/projects.min.js"></script>
+}
 @section Header {
     @Html.Partial("Part/_ProjectsHeader", 1)
 }

@@ -1,62 +1,99 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using Portal.Data
 @inject ApplicationDbContext DbContext
+@model Portal.Models.ProjectsViewModel.NewProjectViewModel
 @{
-    Layout = "_ProjectsLayout";
+    Layout = "_Layout";
     ViewBag.Title = "Create a New Project";
 }
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
+    <link rel="stylesheet" href="~/css/projects.css" asp-append-version="true"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="~/css/projects.min.css"/>
+}
+@section FootDevelopment {
+    <script src="~/js/projects.js" asp-append-version="true"></script>
+}
+@section Foot {
+    <script src="~/js/projects.min.js"></script>
+}
 
-<div class="page-title">
-    <h2>Create a new project</h2>
-</div>
-
-<hr class="no-margin"/>
-
-<form class="projects-new-form">
-    <div id="projects-new-name" class="form-group">
+<h2 class="mt-3">Create a new project</h2>
+<hr/>
+<form class="mt-4" asp-controller="Projects" asp-action="Index" asp-route-id="New" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
         <label>Project name</label>
-        <input id="form-name" class="form-control" name="name"/>
+        <div>
+            <input id="form-name" asp-for="Name" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
     </div>
-    <div id="projects-new-description" class="form-group">
-        <label>Description <span class="note">(optional)</span></label>
-        <input id="form-description" class="form-control" name="description"/>
+    <div class="form-group">
+        <label>Description<span class="note ml-1">(optional)</span></label>
+        <div>
+            <input id="form-description" asp-for="Description" class="form-control"/>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
     </div>
-    <div id="projects-new-version" class="form-group">
-        <div id="projects-new-version-minecraft">
+    <div class="form-group form-horizontal-group">
+        <div id="new-version-minecraft" data-dummy-form-id="form-minecraft-version-id">
             <label>Minecraft version</label>
             <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="form-minecraft-version" name="minecraft-version" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span class="dropdown-text">Select version</span>
-                    <span class="caret"></span>
+                <button id="form-minecraft-version" class="btn btn-default dropdown-toggle" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Select version
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="form-minecraft-version">
+                <div class="dropdown-menu" aria-labelledby="form-minecraft-version">
                     @foreach (var minecraftVersion in DbContext.MinecraftVersions.AsNoTracking())
                     {
-                        <li>
-                            <a href="#" data-key="@minecraftVersion.Id" data-value="@minecraftVersion.Version">@minecraftVersion.Version</a>
-                        </li>
+                        <a class="dropdown-item" href="#"
+                           data-key="@minecraftVersion.Id" data-value="@minecraftVersion.Version">
+                            @minecraftVersion.Version
+                        </a>
                     }
-                </ul>
+                </div>
             </div>
         </div>
-        <span class="form-divider">/</span>
-        <div id="projects-new-version-forge">
+        <span class="form-horizontal-divider">/</span>
+        <div id="new-version-forge" data-dummy-form-id="form-forge-version-id">
             <label>Forge version</label>
             <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="form-forge-version" name="forge-version" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span class="dropdown-text" data-default="Select version">Select version</span>
-                    <span class="caret"></span>
+                <button id="form-forge-version" class="btn btn-default dropdown-toggle disabled" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-default-text="Select version">
+                    Select version
                 </button>
-                <ul id="projects-new-version-forge-list" class="dropdown-menu" aria-labelledby="form-forge-version">
-                    <li>
-                        <a href="#">4096</a>
-                    </li>
-                </ul>
+                <div class="dropdown-menu" aria-labelledby="form-forge-version">
+                </div>
             </div>
         </div>
     </div>
+    <div class="form-group">
+        <input id="form-minecraft-version-id" asp-for="MinecraftVersionId" class="form-control" type="hidden"/>
+        <span asp-validation-for="MinecraftVersionId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input id="form-forge-version-id" asp-for="ForgeVersionId" class="form-control" type="hidden"/>
+        <span asp-validation-for="ForgeVersionId" class="text-danger"></span>
+    </div>
     <hr>
-    <button type="submit" id="form-confirm" class="btn btn-success first-in-line" data-text-1="Create project" data-text-2="Creating project…" disabled="">
+    <button type="submit" id="form-confirm" class="btn btn-success">
         Create project
     </button>
 </form>
+
+<template id="template-forge-version-item">
+    <a class="dropdown-item" href="#"></a>
+</template>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("Misc/_ValidationScriptsPartial"); }
+    <script type="text/javascript">
+        $.validator.setDefaults({
+            ignore: []
+        });
+    </script>
+}
