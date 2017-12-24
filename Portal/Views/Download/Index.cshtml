@@ -9,9 +9,11 @@
     @Html.Partial("Sidebar/_DownloadSidebar", 0)
 }
 @section HeadDevelopment {
+    @Html.Partial("Lib/_Font-Awesome.css")
     <link rel="stylesheet" href="~/css/download.css" asp-append-version="true"/>
 }
 @section Head {
+    @Html.Partial("Lib/_Font-Awesome.min.css")
     <link rel="stylesheet" href="~/css/download.min.css"/>
 }
 
@@ -24,8 +26,16 @@
             <li class="list-group-item">
                 <div class="card-item-btn-container">
                     <p>Minecraft @minecraftVersion.Version</p>
-                    <a class="btn btn-sm btn-outline-success" asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">Coremod</a>
-                    <a class="btn btn-sm btn-outline-success ml-2" asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">Property</a>
+                    <a class="btn btn-sm btn-outline-success"
+                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">
+                        <i class="fa fa-download mr-1" aria-hidden="true"></i>
+                        Coremod
+                    </a>
+                    <a class="btn btn-sm btn-outline-success ml-2"
+                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">
+                        <i class="fa fa-download mr-1" aria-hidden="true"></i>
+                        Property
+                    </a>
                 </div>
             </li>
         }
