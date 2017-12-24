@@ -1,8 +1,15 @@
 ﻿@{
-    ViewData["Title"] = "Contact";
+    ViewBag.Title = "Contact";
 }
-<h2>@ViewData["Title"].</h2>
-<h3>@ViewData["Message"]</h3>
+@section HeadDevelopment {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true"/>
+}
+@section Head {
+    <link rel="stylesheet" href="~/css/home.min.css"/>
+}
+
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
 
 <address>
     One Microsoft Way<br/>

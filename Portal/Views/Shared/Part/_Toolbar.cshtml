@@ -1,30 +1,25 @@
-﻿<nav class="navbar navbar-inverse navbar-fixed-top">
+﻿<nav class="navbar sticky-top navbar-expand-sm navbar-dark bg-dark">
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Portal</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li>
-                    <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Portal</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-sm-0">
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                <li>
-                    <a asp-area="" asp-controller="Home" asp-action="About">About</a>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">About</a>
                 </li>
-                <li>
-                    <a asp-area="" asp-controller="Download" asp-action="Index">Coremod</a>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Download" asp-action="Index">Coremod</a>
                 </li>
-                <li>
-                    <a asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="">Projects</a>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index" asp-route-uuid="">Projects</a>
                 </li>
             </ul>
-            @await Html.PartialAsync("Part/_LoginPartial")
+            @await Html.PartialAsync("Part/_ToolbarLoginPartial")
         </div>
     </div>
 </nav>

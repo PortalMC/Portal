@@ -32,23 +32,23 @@
     <environment names="Development">
         @Html.Partial("Lib/_Bootstrap.css")
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
-        <link rel="stylesheet" href="~/css/site.css"/>
         @RenderSection("HeadDevelopment", false)
     </environment>
     <environment names="Staging,Production">
         @Html.Partial("Lib/_Bootstrap.min.css")
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css"/>
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
         @RenderSection("Head", false)
     </environment>
 </head>
 <body>
 @await Html.PartialAsync("Part/_Toolbar")
-<div class="container body-content">
+<div class="container body-content mt-3">
     <h2>@ViewBag.Title</h2>
     <hr/>
     <div id="content-root" class="row">
-        @RenderSection("Sidebar")
+        <div class="col-sm-3 list-group">
+            @RenderSection("Sidebar")
+        </div>
         <div class="col-sm-9">
             @RenderBody()
         </div>
@@ -61,14 +61,14 @@
 
 <environment names="Development">
     @Html.Partial("Lib/_jQuery.js")
+    @Html.Partial("Lib/_Popper.js")
     @Html.Partial("Lib/_Bootstrap.js")
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("FootDevelopment", false)
 </environment>
 <environment names="Staging,Production">
     @Html.Partial("Lib/_jQuery.min.js")
+    @Html.Partial("Lib/_Popper.min.js")
     @Html.Partial("Lib/_Bootstrap.min.js")
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
     @RenderSection("Foot", false)
 </environment>
 @RenderSection("Scripts", false)

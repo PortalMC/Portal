@@ -5,10 +5,10 @@
     ViewBag.SubTitle = "Users";
 }
 @section Sidebar {
-    @Html.Partial("Part/_AdminSidebar", 1)
+    @Html.Partial("Sidebar/_AdminSidebar", 1)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
@@ -21,16 +21,16 @@
         break;
 }
 
-<div class="header-btn">
+<div class="subheader-btn">
     <h3>Users</h3>
-    <a class="btn btn-success" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>
+    <a class="btn btn-sm btn-success" asp-controller="Admin" asp-action="Users" asp-route-id="New">Create new user</a>
 </div>
 
 <hr/>
 <div class="input-group">
     <input type="text" class="form-control" placeholder="Search for..." aria-label="Search for...">
     <span class="input-group-btn">
-        <button class="btn btn-default" type="button">Search</button>
+        <button class="btn btn-secondary" type="button">Search</button>
     </span>
 </div>
 
@@ -42,10 +42,10 @@
                 string email = user.Email;
             }
             @Html.GravatarImage(email, 32, GravatarHtmlHelper.DefaultImage.Identicon)
-            <span class="admin-user-email">
+            <span class="mx-2">
                 @user.UserName
             </span>
-            <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@user.Id">Detail</a>
+            <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="Users" asp-route-id="@user.Id">Detail</a>
         </div>
     }
 </div>

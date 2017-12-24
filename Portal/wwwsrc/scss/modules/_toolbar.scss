@@ -1,0 +1,40 @@
+nav.navbar {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.toolbar-item-only-sp {
+  display: flex;
+  width: 100%;
+}
+
+.toolbar-item-only-pc {
+  display: none;
+}
+
+ul.navbar-nav {
+  > li.nav-item {
+    > button {
+      width: 100%;
+      text-align: left;
+      border: none;
+    }
+  }
+}
+
+div.dropdown-menu {
+  > button.dropdown-item {
+    cursor: pointer;
+  }
+}
+
+@media (min-width: 576px) {
+  /* for pc */
+  .toolbar-item-only-sp {
+    display: none;
+  }
+
+  .toolbar-item-only-pc {
+    display: flex;
+  }
+}

@@ -4,10 +4,10 @@
     ViewBag.SubTitle = "General";
 }
 @section Sidebar {
-    @Html.Partial("Part/_AdminSidebar", 0)
+    @Html.Partial("Sidebar/_AdminSidebar", 0)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>

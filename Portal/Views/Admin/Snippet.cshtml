@@ -7,7 +7,7 @@
     ViewBag.SubTitle = "Snippet";
 }
 @section Sidebar {
-    @Html.Partial("Part/_AdminSidebar", 2)
+    @Html.Partial("Sidebar/_AdminSidebar", 2)
 }
 @section HeadDevelopment {
     <link rel="stylesheet" href="~/css/admin.css"/>
@@ -27,17 +27,20 @@
 
 @foreach (var group in DbContext.Snippets.AsNoTracking().Include(s => s.Group).GroupBy(s => s.Group).OrderBy(g => g.Key.Order))
 {
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">@group.Key.DisplayName</h3>
+    <div class="card">
+        <div class="card-header">
+            @group.Key.DisplayName
         </div>
-        <ul class="list-group">
+        <ul class="list-group list-group-flush">
             @foreach (var snippet in group.OrderBy(snippet => snippet.Order))
             {
                 <li class="list-group-item">
-                    <div class="panel-btn-container">
+                    <div class="card-item-btn-container">
                         <p>@snippet.DisplayName</p>
-                        <a class="btn btn-default" asp-controller="Admin" asp-action="Snippet" asp-route-id="@snippet.Id" asp-route-subaction="Edit">Edit</a>
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="Admin" asp-action="Snippet" asp-route-id="@snippet.Id" asp-route-subaction="Edit">
+                            Edit
+                        </a>
                     </div>
                 </li>
             }

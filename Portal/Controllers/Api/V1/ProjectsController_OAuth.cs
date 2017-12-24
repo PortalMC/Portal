@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Portal.Extensions;
-using Portal.Models;
 using Portal.Settings.ArtifactStorage;
 using Portal.Utils;
 

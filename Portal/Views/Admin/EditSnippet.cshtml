@@ -5,20 +5,20 @@
     ViewBag.SubTitle = $"{Model.Group.DisplayName} : {Model.DisplayName} - Snippet";
 }
 @section Sidebar {
-    @Html.Partial("Part/_AdminSidebar", 2)
+    @Html.Partial("Sidebar/_AdminSidebar", 2)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
 }
 
-<div class="header-btn">
+<div class="subheader-btn">
     <h3>@Model.Group.DisplayName : @Model.DisplayName</h3>
     <form asp-controller="Admin" asp-action="Snippet" asp-route-id="@Model.Id" asp-route-subaction="Edit" method="post">
         <input id="hidden_input" type="hidden" asp-for="Content" class="form-control"/>
-        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-sm btn-success">Save</button>
     </form>
 </div>
 

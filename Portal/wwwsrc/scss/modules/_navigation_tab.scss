@@ -1,0 +1,32 @@
+.nav-tabs {
+  border-bottom: none;
+
+  > li {
+    margin-bottom: -1px;
+
+    &.active > a {
+      color: #24292e;
+      cursor: auto;
+      background-color: #fff;
+      border-color: #e36209 #e1e4e8 transparent;
+    }
+
+    > a {
+      position: relative;
+      display: block;
+      color: #586069;
+      border: solid transparent;
+      border-width: 3px 1px 1px;
+      border-radius: 3px 3px 0 0;
+      padding: 10px 15px;
+      margin-right: 2px;
+      line-height: 1.42857143;
+
+      &:focus,
+      &:hover {
+        text-decoration: none;
+        background-color: #eee;
+      }
+    }
+  }
+}

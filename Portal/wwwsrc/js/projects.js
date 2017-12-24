@@ -3,24 +3,11 @@
 $(function () {
     const apiClient = new ApiClient(`${window.location.protocol}//${window.location.host}/api/v1/`);
 
-    let isConfirmClicked = false;
+    setupDropdown("new-version-minecraft");
 
-    setupDropdown("projects-new-version-minecraft");
-    setupDropdown("projects-new-version-forge");
-
-    checkInputChange("form-name");
-    checkInputChange("form-description");
-    checkDropdownChange("form-minecraft-version");
-    checkDropdownChange("form-forge-version");
-
-    $("#form-minecraft-version").change(() => {
-        const minecraftVersion = $("#form-minecraft-version").val();
+    $("#form-minecraft-version-id").change(() => {
+        const minecraftVersion = $("#form-minecraft-version-id").val();
         updateForgeVersion(minecraftVersion);
-    });
-
-    $("#form-confirm").click((e) => {
-        e.preventDefault();
-        postNewProject();
     });
 
     $("#project-description-edit").click((e) => {
@@ -62,38 +49,18 @@ $(function () {
             });
     }
 
-    function postNewProject() {
-        isConfirmClicked = true;
-
-        const formConfirm = $("#form-confirm");
-        formConfirm.prop("disabled", true);
-        formConfirm.text(formConfirm.attr("data-text-2"));
-
-        const name = $("#form-name").val();
-        const description = $("#form-description").val();
-        const minecraftVersion = $("#form-minecraft-version").val();
-        const forgeVersion = $("#form-forge-version").val();
-        apiClient.createNewProject(name, description, minecraftVersion, forgeVersion)
-            .done(result => {
-                if (result["success"]) {
-                    window.location.href = `/Projects/${result["data"]["id"]}`;
-                } else {
-                    formConfirm.prop("disabled", false);
-                    formConfirm.text(formConfirm.attr("data-text-1"));
-                }
-            })
-            .fail((jqXhr, textStatus, errorThrown) => {
-                console.log("error! : " + errorThrown.toString());
-                formConfirm.prop("disabled", false);
-                formConfirm.text(formConfirm.attr("data-text-1"));
-            });
-    }
-
     function updateForgeVersion(minecraftVersionId) {
+        const dropdown = $("#new-version-forge").find(".dropdown");
+        const dropdownMenu = dropdown.find(".dropdown-menu");
+        const dropdownButton = dropdown.find("button");
+        dropdownMenu.empty();
+        $("#form-forge-version-id").val("");
+        dropdownButton.text(dropdownButton.attr("data-default-text"));
+        dropdownButton.addClass("disabled");
+
+        const template = $('#template-forge-version-item')[0].content;
         apiClient.getForgeVersions(minecraftVersionId)
             .done(data => {
-                const projectsNewVersionForge = $("#projects-new-version-forge-list");
-                projectsNewVersionForge.empty();
                 const forgeVersions = data["forge_versions"];
                 for (let i = 0; i < forgeVersions.length; ++i) {
                     const forgeVersion = forgeVersions[i];
@@ -101,14 +68,13 @@ $(function () {
                     if (forgeVersion["is_recommend"]) {
                         versionText += " ★";
                     }
-                    projectsNewVersionForge.append(
-                        `<li><a href="#" data-key="${forgeVersion["id"]}">${versionText}</a></li>`);
+                    const menu = document.importNode(template, true);
+                    menu.firstElementChild.innerText = versionText;
+                    menu.firstElementChild.dataset.key = forgeVersion["id"];
+                    dropdownMenu.append(menu);
                 }
-                const dropdown = $("#projects-new-version-forge");
-                const dropdownText = dropdown.find(".dropdown-text");
-                dropdown.find("button").val("");
-                dropdownText.text(dropdownText.attr("data-default"));
-                setupDropdown("projects-new-version-forge");
+                setupDropdown("new-version-forge");
+                dropdownButton.removeClass("disabled");
             })
             .fail((jqXhr, textStatus, errorThrown) => {
                 console.log("error! : " + errorThrown.toString());
@@ -116,45 +82,13 @@ $(function () {
     }
 
     function setupDropdown(id) {
-        $(`#${id}`).find(".dropdown-menu li a").click(function () {
+        const dropdown = $(`#${id}`);
+        const dummyFormId = dropdown.attr("data-dummy-form-id");
+        dropdown.find(".dropdown-menu a").click(function () {
             const dropdown = $(`#${id}`);
-            dropdown.find(".dropdown-text").text($(this).text());
-            dropdown.find("button").val($(this).attr("data-key")).trigger("change");
+            const button = dropdown.find("button");
+            button.text($(this).text());
+            $(`#${dummyFormId}`).val($(this).attr("data-key")).trigger("change");
         });
-    }
-
-    function checkInputChange(id) {
-        $(`#${id}`).keyup(() => {
-            validateToConfirm();
-        });
-    }
-
-    function checkDropdownChange(id) {
-        $(`#${id}`).change(() => {
-            validateToConfirm();
-        });
-    }
-
-    function validateToConfirm() {
-        if (isConfirmClicked) {
-            return;
-        }
-        const name = $("#form-name").val();
-        const minecraftVersion = $("#form-minecraft-version").val();
-        const forgeVersion = $("#form-forge-version").val();
-        $("#form-confirm").prop("disabled",
-            anyMatch("",
-                name,
-                minecraftVersion,
-                forgeVersion));
-    }
-
-    function anyMatch() {
-        for (let i = 1; i < arguments.length; ++i) {
-            if (arguments[0] === arguments[i]) {
-                return true;
-            }
-        }
-        return false;
     }
 });

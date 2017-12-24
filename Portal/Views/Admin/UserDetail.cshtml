@@ -7,10 +7,10 @@
     ViewBag.SubTitle = $"User : {Model.User.UserName}";
 }
 @section Sidebar {
-    @Html.Partial("Part/_AdminSidebar", 1)
+    @Html.Partial("Sidebar/_AdminSidebar", 1)
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/css/admin.css"/>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
 }
 @section Head {
     <link rel="stylesheet" href="~/css/admin.min.css"/>
@@ -25,14 +25,14 @@
 
 <h3>User : @Model.User.UserName</h3>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Information</h3>
+<div class="card">
+    <div class="card-header">
+        Information
     </div>
-    <div class="panel-body">
-        @Html.GravatarImage(Model.User.Email, 48, GravatarHtmlHelper.DefaultImage.Identicon)
+    <div class="card-body">
+        @Html.GravatarImage(Model.User.Email, 48, GravatarHtmlHelper.DefaultImage.Identicon, cssClass: "rounded")
     </div>
-    <ul class="list-group">
+    <ul class="list-group list-group-flush">
         <li class="list-group-item">Id : <span class="font-weight-bold">@Model.User.Id</span></li>
         <li class="list-group-item">UserName : <span class="font-weight-bold">@Model.User.UserName</span></li>
         <li class="list-group-item">Email : <span class="font-weight-bold">@Model.User.Email</span></li>
@@ -40,36 +40,36 @@
         <li class="list-group-item">Roles : <span class="font-weight-bold">@Model.Roles.JoinString(", ")</span></li>
     </ul>
 </div>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Action</h3>
+<div class="card">
+    <div class="card-header">
+        Action
     </div>
-    <ul class="list-group">
+    <ul class="list-group list-group-flush">
         <li class="list-group-item">
-            <div class="panel-btn-container">
+            <div class="card-item-btn-container">
                 <div>
                     <p>Login as this user</p>
                     <p>Login as this user. The authority is changed to this user's authority.</p>
                 </div>
-                <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Login">Login</a>
+                <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Login">Login</a>
             </div>
         </li>
         <li class="list-group-item">
-            <div class="panel-btn-container">
+            <div class="card-item-btn-container">
                 <div>
                     <p>Reset password</p>
                     <p>Reset this user's password.</p>
                 </div>
-                <a class="btn btn-default" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="ResetPassword">Reset password</a>
+                <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="ResetPassword">Reset password</a>
             </div>
         </li>
         <li class="list-group-item">
-            <div class="panel-btn-container">
+            <div class="card-item-btn-container">
                 <div>
                     <p>Delete user</p>
                     <p>Delete all of this user, included projects and build data.</p>
                 </div>
-                <a class="btn btn-danger" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete">Delete</a>
+                <a class="btn btn-sm btn-danger" asp-controller="Admin" asp-action="Users" asp-route-id="@Model.User.Id" asp-route-subaction="Delete">Delete</a>
             </div>
         </li>
     </ul>

@@ -1,0 +1,13 @@
+%svg-icon {
+  vertical-align: text-bottom;
+}
+
+.btn-svg-icon > svg {
+  @extend %svg-icon;
+  height: 16px;
+}
+
+.svg-icon-18 > svg {
+  @extend %svg-icon;
+  height: 18px;
+}
