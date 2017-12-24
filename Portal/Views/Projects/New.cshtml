@@ -7,11 +7,11 @@
     ViewBag.Title = "Create a New Project";
 }
 @section HeadDevelopment {
-    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
+    @Html.Partial("Lib/_Font-Awesome.css")
     <link rel="stylesheet" href="~/css/projects.css" asp-append-version="true"/>
 }
 @section Head {
-    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css"/>
+    @Html.Partial("Lib/_Font-Awesome.min.css")
     <link rel="stylesheet" href="~/css/projects.min.css"/>
 }
 @section FootDevelopment {
