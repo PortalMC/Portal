@@ -6,3 +6,4 @@ assets/
 buildsroot/
 init/versions/*/*.zip
 init/versions/*/*.jar
+init/versions/*/*.properties

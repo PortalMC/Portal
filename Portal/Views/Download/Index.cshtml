@@ -27,12 +27,12 @@
                 <div class="card-item-btn-container">
                     <p>Minecraft @minecraftVersion.Version</p>
                     <a class="btn btn-sm btn-outline-success"
-                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">
+                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id" asp-route-type="coremod">
                         <i class="fa fa-download mr-1" aria-hidden="true"></i>
                         Coremod
                     </a>
                     <a class="btn btn-sm btn-outline-success ml-2"
-                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id">
+                       asp-controller="Download" asp-action="Index" asp-route-version="@minecraftVersion.Id" asp-route-type="property">
                         <i class="fa fa-download mr-1" aria-hidden="true"></i>
                         Property
                     </a>

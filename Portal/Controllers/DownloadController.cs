@@ -19,7 +19,7 @@ namespace Portal.Controllers
             _storageSetting = storageSetting;
         }
 
-        public async Task<IActionResult> Index(string version)
+        public async Task<IActionResult> Index(string version, string type)
         {
             if (version != null)
             {
@@ -28,8 +28,19 @@ namespace Portal.Controllers
                     return NotFound();
                 }
                 var minecraftVersion = await _context.MinecraftVersions.FindAsync(version);
-                var path = _storageSetting.GetCoremodStorageSetting().GetCoremodFile(minecraftVersion).FullName;
-                return PhysicalFile(path, "application/java-archive", $"portal-core-{minecraftVersion.Version}.jar");
+                switch (type)
+                {
+                    case "coremod":
+                    {
+                        var path = _storageSetting.GetCoremodStorageSetting().GetCoremodFile(minecraftVersion).FullName;
+                        return PhysicalFile(path, "application/java-archive", $"portal-core-{minecraftVersion.Version}.jar");
+                    }
+                    case "property":
+                    {
+                        var path = _storageSetting.GetCoremodStorageSetting().GetPropertyFile(minecraftVersion).FullName;
+                        return PhysicalFile(path, "text/plain", "portal.properties");
+                    }
+                }
             }
             return View();
         }

@@ -12,5 +12,10 @@ namespace Portal.Settings.CoremodStorage
         {
             return GetRootDirectory().Resolve(minecraftVersion.Id + ".zip");
         }
+
+        public FileInfo GetPropertyFile(MinecraftVersion minecraftVersion)
+        {
+            return GetRootDirectory().Resolve(minecraftVersion.Id + ".properties");
+        }
     }
 }

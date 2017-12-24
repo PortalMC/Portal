@@ -133,7 +133,7 @@ namespace Portal
             var storage = services.GetRequiredService<StorageSetting>();
             var minecraftVersions = services.GetRequiredService<IConfiguration>().GetSection("Init").GetSection("Minecraft");
             var minecraftVersionList = new List<MinecraftVersion>();
-            var coremodFileMapping = new List<Tuple<MinecraftVersion, string>>();
+            var coremodFileMapping = new List<Tuple<MinecraftVersion, string, string>>();
             var forgeFileMapping = new List<Tuple<MinecraftVersion, ForgeVersion, string>>();
             var forgeVersionList = new List<ForgeVersion>();
             var minecraftVersionOrder = 1;
@@ -170,7 +170,7 @@ namespace Portal
                     UpdatedAt = now,
                     Rank = minecraftVersionOrder++
                 };
-                coremodFileMapping.Add(Tuple.Create(minecraftVersion, minecraftVersionConfig.GetValue<string>("CoremodFile")));
+                coremodFileMapping.Add(Tuple.Create(minecraftVersion, minecraftVersionConfig.GetValue<string>("CoremodFile"), minecraftVersionConfig.GetValue<string>("PropertyFile")));
                 forgeFileMapping.AddRange(forgeVersionTuples.Select(t => Tuple.Create(minecraftVersion, t.Item1, t.Item2)).ToArray());
                 forgeVersionList.AddRange(forgeVersions);
                 minecraftVersionList.Add(minecraftVersion);
@@ -184,13 +184,22 @@ namespace Portal
                 var initRoot = new DirectoryInfo(".").ResolveDir("init").ResolveDir(minecraftVersions.GetValue<string>("CoremodRoot"));
                 foreach (var file in coremodFileMapping)
                 {
-                    var source = initRoot.Resolve(file.Item2);
-                    var destination = storage.GetCoremodStorageSetting().GetCoremodFile(file.Item1);
-                    if (!destination.Directory.Exists)
                     {
-                        destination.Directory.Create();
+                        // Coremod
+                        var source = initRoot.Resolve(file.Item2);
+                        var destination = storage.GetCoremodStorageSetting().GetCoremodFile(file.Item1);
+                        if (!destination.Directory.Exists)
+                        {
+                            destination.Directory.Create();
+                        }
+                        source.CopyTo(destination.FullName, true);
                     }
-                    source.CopyTo(destination.FullName, true);
+                    {
+                        // Property
+                        var source = initRoot.Resolve(file.Item3);
+                        var destination = storage.GetCoremodStorageSetting().GetPropertyFile(file.Item1);
+                        source.CopyTo(destination.FullName, true);
+                    }
                 }
             }
             if (forgeFileMapping.Any())
