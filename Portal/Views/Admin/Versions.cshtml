@@ -45,19 +45,19 @@
                     </div>
                     @if (minecraftVersion.index != 0)
                     {
-                        <a class="btn btn-sm btn-outline-primary btn-ordering-up" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Up">↑</a>
+                        <a class="btn btn-sm btn-default btn-ordering-up" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Up">↑</a>
                     }
                     else
                     {
-                        <a class="btn btn-sm btn-outline-secondary btn-ordering-up disabled">↑</a>
+                        <a class="btn btn-sm btn-default btn-ordering-up disabled">↑</a>
                     }
                     @if (minecraftVersion.index != count - 1)
                     {
-                        <a class="btn btn-sm btn-outline-primary btn-ordering-down" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Down">↓</a>
+                        <a class="btn btn-sm btn-default btn-ordering-down" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="Down">↓</a>
                     }
                     else
                     {
-                        <a class="btn btn-sm btn-outline-secondary btn-ordering-down disabled">↓</a>
+                        <a class="btn btn-sm btn-default btn-ordering-down disabled">↓</a>
                     }
                     <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="Versions" asp-route-id="@minecraftVersion.item.Id" asp-route-subaction="">Detail</a>
                 </div>
